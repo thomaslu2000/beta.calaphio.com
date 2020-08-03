@@ -2,9 +2,14 @@ import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Grid } from '@material-ui/core';
 
-import { LatestSales, UsersByDevice } from './components';
-
-import { useGlobal } from 'reactn';
+import {
+  ServiceHours,
+  Fellowships,
+  MiscStatus,
+  Evaluate,
+  Announcements,
+  NextEvents
+} from './components';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -14,17 +19,27 @@ const useStyles = makeStyles(theme => ({
 
 const Dashboard = () => {
   const classes = useStyles();
-  const [global] = useGlobal();
 
   return (
     <div className={classes.root}>
-      {/* {global.name} */}
       <Grid container spacing={4}>
-        <Grid item lg={8} md={12} xl={8} xs={12}>
-          <LatestSales />
+        <Grid item lg={3} sm={6} xl={3} xs={12}>
+          <ServiceHours />
+        </Grid>
+        <Grid item lg={3} sm={6} xl={3} xs={12}>
+          <Fellowships />
+        </Grid>
+        <Grid item lg={3} sm={6} xl={3} xs={12}>
+          <MiscStatus />
+        </Grid>
+        <Grid item lg={3} sm={6} xl={3} xs={12}>
+          <Evaluate />
+        </Grid>
+        <Grid item lg={8} md={12} xl={9} xs={12}>
+          <Announcements />
         </Grid>
         <Grid item lg={4} md={6} xl={3} xs={12}>
-          <UsersByDevice />
+          <NextEvents />
         </Grid>
       </Grid>
     </div>
