@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
-  Grid,
   Button,
-  FormControlLabel,
-  FormControl,
   Checkbox,
   Typography,
   Card,
@@ -25,6 +22,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useGlobal } from 'reactn';
 import axios from 'axios';
 import moment from 'moment';
+import { unsanitize } from '../functions';
 const API_URL = 'http://localhost:3001';
 
 const EvaluateEvent = props => {
@@ -170,7 +168,7 @@ const EvaluateEvent = props => {
             Evaluate Event:
           </Typography>
           <Typography variant="h1" component="h1">
-            <b>{eventData.title}</b>
+            <b>{unsanitize(eventData.title)}</b>
           </Typography>
           <Typography
             className={classes.title}
