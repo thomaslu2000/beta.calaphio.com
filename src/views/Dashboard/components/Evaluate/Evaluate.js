@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { Link as RouterLink, withRouter } from 'react-router-dom';
 import { unsanitize } from '../../../functions';
 
 const useStyles = makeStyles(theme => ({
@@ -35,6 +36,8 @@ const useStyles = makeStyles(theme => ({
 const Evaluate = props => {
   const { className, ...rest } = props;
 
+  const { history } = props;
+
   const classes = useStyles();
   const data = [
     {
@@ -44,8 +47,12 @@ const Evaluate = props => {
     }
   ];
 
+  const goToEvaluate = eid => {
+    history.push(`/evaluate/${eid}`);
+  };
+
   return (
-    <Card {...rest} className={clsx(classes.root, className)}>
+    <Card className={clsx(classes.root, className)}>
       <CardContent>
         <Grid container justify="space-between">
           <Grid item>
@@ -61,7 +68,10 @@ const Evaluate = props => {
             </Typography>
           </Grid>
           <Grid item>
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                goToEvaluate(158992);
+              }}>
               <ExitToAppIcon style={{ color: 'yellow' }} size="large" />
             </IconButton>
           </Grid>
@@ -75,4 +85,4 @@ Evaluate.propTypes = {
   className: PropTypes.string
 };
 
-export default Evaluate;
+export default withRouter(Evaluate);

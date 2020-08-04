@@ -6,7 +6,7 @@ import { Main as MainLayout } from './layouts';
 
 import {
   Dashboard as DashboardView,
-  ProductList as ProductListView,
+  EvaluateEvent as EvaluateEventView,
   UserList as UserListView,
   Typography as TypographyView,
   Icons as IconsView,
@@ -43,16 +43,16 @@ const Routes = () => {
         path="/day/:day"
       />
       <RouteWithLayout
+        component={EvaluateEventView}
+        exact
+        layout={MainLayout}
+        path="/evaluate/:eventId"
+      />
+      <RouteWithLayout
         component={UserListView}
         exact
         layout={MainLayout}
         path="/users"
-      />
-      <RouteWithLayout
-        component={ProductListView}
-        exact
-        layout={MainLayout}
-        path="/products"
       />
       <RouteWithLayout
         component={TypographyView}
