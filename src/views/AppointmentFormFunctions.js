@@ -62,9 +62,9 @@ const makeParams = (data, uid) => {
       creator_id: uid
     };
   }
-  if (data.title) params.title = sanitizeHtml(data.title);
-  if (data.location) params.location = sanitizeHtml(data.location);
-  if (data.notes) params.description = sanitizeHtml(data.notes);
+  if (data.title) params.title = escape(sanitizeHtml(data.title));
+  if (data.location) params.location = escape(sanitizeHtml(data.location));
+  if (data.notes) params.description = escape(sanitizeHtml(data.notes));
   if (data.allDay) params.time_allday = data.allDay ? 1 : 0;
   if (data.interchapter) params.type_interchapter = data.interchapter ? 1 : 0;
   if (data.fundraiser) params.type_fundraiser = data.fundraiser ? 1 : 0;
@@ -86,14 +86,12 @@ const typesa = makeTypes();
 export function makeCommitChanges(f, uid) {
   async function commitChanges({ added, changed, deleted }) {
     if (added) {
-      console.log(added);
       if (added.rRule) alert('Recurring Events Not Yet Implemented');
       let params = makeParams(added, uid);
       await axios.post(`${API_URL}/events/create`, params).then(res => {
         f({ added, changed, deleted });
       });
     } else if (changed) {
-      console.log(changed);
       for (const [eventId, data] of Object.entries(changed)) {
         let params = makeParams(data, uid);
         params.eventId = eventId;

@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import PeopleIcon from '@material-ui/icons/PeopleOutlined';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -55,9 +54,11 @@ const Fellowships = props => {
               color="textSecondary"
               gutterBottom
               variant="body2">
-              Fellowships completed
+              Fellowships completed, flaked
             </Typography>
-            <Typography variant="h3">13</Typography>
+            <Typography variant="h3">
+              {props.attended} {props.flaked}
+            </Typography>
           </Grid>
           <Grid item></Grid>
         </Grid>

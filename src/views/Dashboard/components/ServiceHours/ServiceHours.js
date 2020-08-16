@@ -57,7 +57,9 @@ const ServiceHours = props => {
               variant="body2">
               Service Hours
             </Typography>
-            <Typography variant="h3">placeholder</Typography>
+            <Typography variant="h3">
+              {props.attended}, {props.flaked}
+            </Typography>
           </Grid>
           <Grid item></Grid>
         </Grid>

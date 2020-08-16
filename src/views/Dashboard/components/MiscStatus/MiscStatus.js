@@ -45,9 +45,9 @@ const MiscStatus = props => {
               color="textSecondary"
               gutterBottom
               variant="body2">
-              CMs or Something IDK
+              Events Chaired
             </Typography>
-            <Typography variant="h3">6</Typography>
+            <Typography variant="h3">{props.chaired}</Typography>
           </Grid>
           <Grid item></Grid>
         </Grid>

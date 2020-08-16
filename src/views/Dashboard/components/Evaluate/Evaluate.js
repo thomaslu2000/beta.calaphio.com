@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
+import {
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  Divider,
+  Avatar
+} from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import { unsanitize } from '../../../functions';
+import axios from 'axios';
+const API_URL = 'http://localhost:3001';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -30,22 +39,32 @@ const useStyles = makeStyles(theme => ({
   icon: {
     height: 32,
     width: 32
+  },
+  space: {
+    paddingTop: 5,
+    paddingBottom: 5
   }
 }));
 
 const Evaluate = props => {
   const { className, ...rest } = props;
-
   const { history } = props;
-
+  const [data, setData] = useState([]);
   const classes = useStyles();
-  const data = [
-    {
-      event_id: 123412,
-      title: 'a thing &amp; stuff, use the unsanitize function',
-      end_at: '2020-08-01 12:43:09'
-    }
-  ];
+
+  useEffect(() => {
+    getEvents();
+  }, []);
+
+  const getEvents = async () => {
+    await axios
+      .get(`${API_URL}/people/toEval/`, {
+        params: { userId: props.userId }
+      })
+      .then(response => {
+        setData(response.data);
+      });
+  };
 
   const goToEvaluate = eid => {
     history.push(`/evaluate/${eid}`);
@@ -54,28 +73,32 @@ const Evaluate = props => {
   return (
     <Card className={clsx(classes.root, className)}>
       <CardContent>
-        <Grid container justify="space-between">
-          <Grid item>
-            <Typography
-              className={classes.title}
-              color="inherit"
-              gutterBottom
-              variant="body2">
-              Evaluate Events
-            </Typography>
-            <Typography color="inherit" variant="h3">
-              Name Of Event from Data
-            </Typography>
-          </Grid>
-          <Grid item>
-            <IconButton
-              onClick={() => {
-                goToEvaluate(158992);
-              }}>
-              <ExitToAppIcon style={{ color: 'yellow' }} size="large" />
-            </IconButton>
-          </Grid>
-        </Grid>
+        <Typography
+          className={classes.title}
+          color="inherit"
+          gutterBottom
+          variant="body2">
+          Evaluate Events
+        </Typography>
+        {data.map(event => {
+          return (
+            <React.Fragment key={event.event_id}>
+              <Divider />
+              <Typography
+                color="inherit"
+                variant="h4"
+                className={classes.space}>
+                {unsanitize(event.title)}
+                <IconButton
+                  onClick={() => {
+                    goToEvaluate(event.event_id);
+                  }}>
+                  <ExitToAppIcon style={{ color: 'yellow' }} size="large" />
+                </IconButton>
+              </Typography>
+            </React.Fragment>
+          );
+        })}
       </CardContent>
     </Card>
   );

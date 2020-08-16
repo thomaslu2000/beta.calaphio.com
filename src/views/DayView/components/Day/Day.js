@@ -29,16 +29,23 @@ import { useGlobal } from 'reactn';
 const API_URL = 'http://localhost:3001';
 
 const Header = f => {
-  let h = ({ children, appointmentData, classes, ...restProps }) => (
-    <AppointmentTooltip.Header {...restProps} appointmentData={appointmentData}>
-      <Button
-        style={{ marginTop: 10 }}
-        variant="contained"
-        onClick={() => f(appointmentData)}>
-        <h4>View Event</h4>
-      </Button>
-    </AppointmentTooltip.Header>
-  );
+  let h = ({ children, appointmentData, classes, ...restProps }) => {
+    f(appointmentData);
+    return (
+      <AppointmentTooltip.Header
+        {...restProps}
+        appointmentData={appointmentData}>
+        <Button
+          style={{ marginTop: 10 }}
+          variant="contained"
+          disabled
+          // onClick={() => f(appointmentData)}
+        >
+          <h4>Event Shown</h4>
+        </Button>
+      </AppointmentTooltip.Header>
+    );
+  };
   return h;
 };
 
@@ -159,7 +166,11 @@ const Day = props => {
           )}
         </Scheduler>
       </Grid>
-      <Grid item lg={4} sm={12}>
+      <Grid
+        item
+        lg={4}
+        sm={12}
+        style={{ marginLeft: 'auto', marginRight: 'auto' }}>
         <Event eventData={eventData} />
       </Grid>
     </Grid>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Bar } from 'react-chartjs-2';
@@ -16,6 +16,8 @@ import {
 import { unsanitize } from '../../../functions';
 import moment from 'moment';
 import ShowMoreText from 'react-show-more-text';
+import axios from 'axios';
+const API_URL = 'http://localhost:3001';
 
 const useStyles = makeStyles(() => ({
   root: {},
@@ -35,23 +37,21 @@ const useStyles = makeStyles(() => ({
 const Announcements = props => {
   const { className, ...rest } = props;
 
-  const data = [
-    {
-      firstname: 'Bill',
-      lastname: 'Wells',
-      title: 'annoucement1',
-      text:
-        'Here is some text that might have <b> html </b> and &amp; special characters, use the unsanitize function imported above',
-      publish_time: '2020-05-06 12:00:00'
-    },
-    {
-      firstname: 'Jon',
-      lastname: 'Tosd',
-      title: 'annoucement1',
-      text: 'Also try to use moment.js, imported above',
-      publish_time: '2020-05-06 12:00:00'
-    }
-  ];
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    getAnnouncements();
+  }, []);
+
+  const getAnnouncements = async () => {
+    await axios
+      .get(`${API_URL}/general/announcements/`, {
+        params: {}
+      })
+      .then(response => {
+        setData(response.data);
+      });
+  };
 
   const classes = useStyles();
 
@@ -66,18 +66,18 @@ const Announcements = props => {
             <Divider />
             <CardContent>
               <ShowMoreText
-                lines={3}
+                lines={5}
                 more="Show more"
                 less="Show less"
                 anchorClass=""
-                onClick={() => {
-                  console.log('clicky');
-                }}
                 expanded={false}>
-                {item.text}
+                <div
+                  dangerouslySetInnerHTML={{ __html: unsanitize(item.text) }}
+                />
               </ShowMoreText>
               <Typography className={classes.name} color="textSecondary">
-                - {item.firstname} {item.lastname}
+                - {item.firstname} {item.lastname} ({item.pledgeclass}),{' '}
+                {moment(item.publish_time).fromNow()}
               </Typography>
             </CardContent>
             <Divider />

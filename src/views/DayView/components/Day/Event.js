@@ -39,6 +39,7 @@ export default function Event(props) {
   useEffect(() => {
     if (props.eventData) getAttending();
   }, [props.eventData]);
+
   const getAttending = async () => {
     await axios
       .get(`${API_URL}/events/attending/`, {
@@ -51,6 +52,9 @@ export default function Event(props) {
         if (own) {
           setImAttending(true);
           if (own.chair === 1) setImChair(true);
+        } else {
+          setImAttending(false);
+          setImChair(false);
         }
         setAttending(response.data);
       });
