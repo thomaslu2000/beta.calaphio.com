@@ -23,7 +23,7 @@ import { useGlobal } from 'reactn';
 import axios from 'axios';
 import moment from 'moment';
 import { unsanitize } from '../functions';
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_SERVER;
 
 const EvaluateEvent = props => {
   const classes = useStyles();

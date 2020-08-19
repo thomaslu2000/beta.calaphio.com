@@ -17,7 +17,7 @@ import {
 import axios from 'axios';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_SERVER;
 
 const eventType = item => {
   let types = [];
@@ -63,26 +63,27 @@ export default function Event(props) {
   };
 
   const signUp = async () => {
-    await axios
-      .post(`${API_URL}/events/signUp/`, {
-        eventId: props.eventData.event_id,
-        userId: global.userId,
-        timestamp: moment().format('YYYY-MM-DD hh:mm:ss')
-      })
-      .then(response => {
-        setImAttending(true);
-        let n = [
-          {
-            uid: global.userId,
-            signup_time: moment().format('YYYY-MM-DD hh:mm:ss'),
-            chair: 0,
-            firstname: '',
-            lastname: 'You'
-          },
-          ...attending
-        ];
-        setAttending(n);
-      });
+    if (global.userId)
+      await axios
+        .post(`${API_URL}/events/signUp/`, {
+          eventId: props.eventData.event_id,
+          userId: global.userId,
+          timestamp: moment().format('YYYY-MM-DD hh:mm:ss')
+        })
+        .then(response => {
+          setImAttending(true);
+          let n = [
+            {
+              uid: global.userId,
+              signup_time: moment().format('YYYY-MM-DD hh:mm:ss'),
+              chair: 0,
+              firstname: '',
+              lastname: 'You'
+            },
+            ...attending
+          ];
+          setAttending(n);
+        });
   };
 
   const signOff = async () => {

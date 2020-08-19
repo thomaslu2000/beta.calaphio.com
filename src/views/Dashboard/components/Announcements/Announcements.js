@@ -17,7 +17,7 @@ import { unsanitize } from '../../../functions';
 import moment from 'moment';
 import ShowMoreText from 'react-show-more-text';
 import axios from 'axios';
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(() => ({
   root: {},

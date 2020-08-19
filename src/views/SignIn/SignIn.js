@@ -16,7 +16,7 @@ import { useGlobal } from 'reactn';
 import { useCookies } from 'react-cookie';
 import Alert from '@material-ui/lab/Alert';
 import axios from 'axios';
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_SERVER;
 
 const schema = {
   email: {

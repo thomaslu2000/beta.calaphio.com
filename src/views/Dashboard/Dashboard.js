@@ -13,7 +13,7 @@ import {
 import { Card, CardContent, Typography } from '@material-ui/core';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
   root: {

@@ -15,7 +15,7 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import { unsanitize } from '../../../functions';
 import axios from 'axios';
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
   root: {

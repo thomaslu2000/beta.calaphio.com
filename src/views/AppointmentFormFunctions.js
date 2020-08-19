@@ -1,7 +1,7 @@
 import axios from 'axios';
 import moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_SERVER;
 
 export function makeTypes() {
   return [

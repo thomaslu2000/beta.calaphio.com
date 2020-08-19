@@ -24,7 +24,7 @@ import {
   makeCommitChanges
 } from '../../../AppointmentFormFunctions';
 import { useGlobal } from 'reactn';
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_SERVER;
 
 const Header = f => {
   let h = ({ children, appointmentData, classes, ...restProps }) => {
