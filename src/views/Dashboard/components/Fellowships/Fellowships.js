@@ -2,8 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import { Card, CardContent, Grid, Typography } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -26,14 +25,20 @@ const useStyles = makeStyles(theme => ({
     width: 32
   },
   difference: {
-    marginTop: theme.spacing(2),
+    marginTop: theme.spacing(3),
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginRight: 'auto',
+    marginLeft: 'auto'
   },
   differenceIcon: {
-    color: theme.palette.success.dark
+    color: theme.palette.error.dark
   },
   differenceValue: {
+    color: theme.palette.error.dark,
+    marginRight: theme.spacing(1)
+  },
+  successValue: {
     color: theme.palette.success.dark,
     marginRight: theme.spacing(1)
   }
@@ -48,29 +53,28 @@ const Fellowships = props => {
     <Card {...rest} className={clsx(classes.root, className)}>
       <CardContent>
         <Grid container justify="space-between">
-          <Grid item>
+          <Grid item style={{ marginRight: 'auto', marginLeft: 'auto' }}>
             <Typography
               className={classes.title}
               color="textSecondary"
               gutterBottom
-              variant="body2">
-              Fellowships completed, flaked
+              variant="h5">
+              Fellowships
             </Typography>
+            <br />
             <Typography variant="h3">
-              {props.attended} {props.flaked}
+              {props.attended - props.flaked} events
             </Typography>
           </Grid>
-          <Grid item></Grid>
+          <Grid item className={classes.difference}>
+            <Typography className={classes.successValue} variant="body2">
+              {props.attended} events attended
+            </Typography>
+            <Typography className={classes.differenceValue} variant="body2">
+              {props.flaked} events flaked
+            </Typography>
+          </Grid>
         </Grid>
-        <div className={classes.difference}>
-          <ArrowUpwardIcon className={classes.differenceIcon} />
-          <Typography className={classes.differenceValue} variant="body2">
-            place
-          </Typography>
-          <Typography className={classes.caption} variant="caption">
-            holder
-          </Typography>
-        </div>
       </CardContent>
     </Card>
   );

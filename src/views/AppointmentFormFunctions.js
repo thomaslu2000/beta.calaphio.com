@@ -88,6 +88,10 @@ export function makeCommitChanges(f, uid) {
     if (added) {
       if (added.rRule) alert('Recurring Events Not Yet Implemented');
       let params = makeParams(added, uid);
+      if (!params.title) params.title = 'Untitled Event';
+      if (!params.location) params.location = 'No Location Given';
+      if (!params.description) params.description = '';
+      if (!params.time_allday) params.time_allday = 0;
       await axios.post(`${API_URL}/events/create`, params).then(res => {
         f({ added, changed, deleted });
       });

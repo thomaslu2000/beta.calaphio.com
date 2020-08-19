@@ -1,5 +1,4 @@
 export { default as ServiceHours } from './ServiceHours';
-export { default as LatestProducts } from './LatestProducts';
 export { default as Announcements } from './Announcements';
 export { default as MiscStatus } from './MiscStatus';
 export { default as Evaluate } from './Evaluate';

@@ -13,10 +13,8 @@ import {
   AllDayPanel,
   ConfirmationDialog
 } from '@devexpress/dx-react-scheduler-material-ui';
-import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
+import { IconButton, Button, Grid } from '@material-ui/core';
 import KeyboardReturnIcon from '@material-ui/icons/KeyboardReturn';
-import { Grid } from '@material-ui/core';
 import BasicLayout from '../../../BasicAppointmentLayout';
 import Event from './Event';
 import axios from 'axios';

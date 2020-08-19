@@ -71,8 +71,13 @@ const Announcements = props => {
                 less="Show less"
                 anchorClass=""
                 expanded={false}>
-                <div
-                  dangerouslySetInnerHTML={{ __html: unsanitize(item.text) }}
+                <Typography
+                  gutterBottom
+                  variant="h4"
+                  component="h4"
+                  dangerouslySetInnerHTML={{
+                    __html: unsanitize(item.text)
+                  }}
                 />
               </ShowMoreText>
               <Typography className={classes.name} color="textSecondary">

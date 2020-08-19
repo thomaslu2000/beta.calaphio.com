@@ -10,6 +10,7 @@ import {
   Announcements,
   NextEvents
 } from './components';
+import { Card, CardContent, Typography } from '@material-ui/core';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
 const API_URL = 'http://localhost:3001';
@@ -26,8 +27,8 @@ const Dashboard = () => {
   const [data, setData] = useState({});
 
   useEffect(() => {
-    getLatest();
-  }, []);
+    if (global.userId) getLatest();
+  }, [global]);
 
   const getLatest = async () => {
     await axios
@@ -56,6 +57,21 @@ const Dashboard = () => {
         setData(response.data[0]);
       });
   };
+
+  if (!global.userId)
+    return (
+      <div className={classes.root}>
+        <Card>
+          <CardContent>
+            <Typography gutterBottom variant="h3">
+              Sign in to View User Info
+            </Typography>
+          </CardContent>
+        </Card>
+        <br />
+        <Announcements />
+      </div>
+    );
 
   return (
     <div className={classes.root}>

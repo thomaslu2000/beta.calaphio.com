@@ -39,17 +39,17 @@ const MiscStatus = props => {
     <Card {...rest} className={clsx(classes.root, className)}>
       <CardContent>
         <Grid container justify="space-between">
-          <Grid item>
+          <Grid item style={{ marginRight: 'auto', marginLeft: 'auto' }}>
             <Typography
               className={classes.title}
               color="textSecondary"
               gutterBottom
-              variant="body2">
+              variant="h5">
               Events Chaired
             </Typography>
-            <Typography variant="h3">{props.chaired}</Typography>
+            <br />
+            <Typography variant="h3">{props.chaired} events</Typography>
           </Grid>
-          <Grid item></Grid>
         </Grid>
       </CardContent>
     </Card>

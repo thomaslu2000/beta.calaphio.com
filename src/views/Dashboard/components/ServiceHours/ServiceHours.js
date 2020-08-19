@@ -27,15 +27,21 @@ const useStyles = makeStyles(theme => ({
     width: 32
   },
   difference: {
-    marginTop: theme.spacing(2),
+    marginTop: theme.spacing(3),
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginRight: 'auto',
+    marginLeft: 'auto'
   },
   differenceIcon: {
     color: theme.palette.error.dark
   },
   differenceValue: {
     color: theme.palette.error.dark,
+    marginRight: theme.spacing(1)
+  },
+  successValue: {
+    color: theme.palette.success.dark,
     marginRight: theme.spacing(1)
   }
 }));
@@ -49,29 +55,28 @@ const ServiceHours = props => {
     <Card {...rest} className={clsx(classes.root, className)}>
       <CardContent>
         <Grid container justify="space-between">
-          <Grid item>
+          <Grid item style={{ marginRight: 'auto', marginLeft: 'auto' }}>
             <Typography
               className={classes.title}
               color="textSecondary"
               gutterBottom
-              variant="body2">
+              variant="h5">
               Service Hours
             </Typography>
+            <br />
             <Typography variant="h3">
-              {props.attended}, {props.flaked}
+              {props.attended - props.flaked} hours
             </Typography>
           </Grid>
-          <Grid item></Grid>
+          <Grid item className={classes.difference}>
+            <Typography className={classes.successValue} variant="body2">
+              {props.attended} hours attended
+            </Typography>
+            <Typography className={classes.differenceValue} variant="body2">
+              {props.flaked} hours flaked
+            </Typography>
+          </Grid>
         </Grid>
-        <div className={classes.difference}>
-          <ArrowDownwardIcon className={classes.differenceIcon} />
-          <Typography className={classes.differenceValue} variant="body2">
-            place
-          </Typography>
-          <Typography className={classes.caption} variant="caption">
-            holder
-          </Typography>
-        </div>
       </CardContent>
     </Card>
   );
