@@ -18,6 +18,7 @@ import KeyboardReturnIcon from '@material-ui/icons/KeyboardReturn';
 import BasicLayout from '../../../BasicAppointmentLayout';
 import Event from './Event';
 import axios from 'axios';
+import moment from 'moment';
 import { unsanitize } from '../../../functions';
 import {
   makeTypes,
@@ -97,14 +98,26 @@ const Day = props => {
     await axios
       .get(`${API_URL}/events/day/`, {
         params: {
-          date: currentDate.toISOString().slice(0, 10)
+          startDate: moment(currentDate)
+            .utc()
+            .format('YYYY-MM-DD HH:mm:ss'),
+          endDate: moment(currentDate)
+            .add(1, 'days')
+            .utc()
+            .format('YYYY-MM-DD HH:mm:ss')
         }
       })
       .then(response => {
         setData(
           response.data.map(item => {
-            item.startDate = new Date(item.start_at);
-            item.endDate = new Date(item.end_at);
+            item.startDate = moment
+              .utc(item.start_at.replace(' ', 'T'))
+              .local()
+              .toDate();
+            item.endDate = moment
+              .utc(item.end_at.replace(' ', 'T'))
+              .local()
+              .toDate();
             if (item.time_allday === 1) {
               item.allDay = true;
             }
@@ -112,17 +125,18 @@ const Day = props => {
             item.location = unsanitize(item.location || '');
             item.description = unsanitize(item.description || '');
             item.id = item.event_id;
-            item.typeId = item.type_service_chapter
-              ? 1
-              : item.type_service_campus
-              ? 2
-              : item.type_service_community
-              ? 3
-              : item.type_service_country
-              ? 4
-              : item.type_fellowship
-              ? 5
-              : 6;
+            item.typeId =
+              item.type_service_chapter === '1'
+                ? 1
+                : item.type_service_campus === '1'
+                ? 2
+                : item.type_service_community === '1'
+                ? 3
+                : item.type_service_country === '1'
+                ? 4
+                : item.type_fellowship === '1'
+                ? 5
+                : 6;
             return item;
           })
         );
@@ -132,6 +146,7 @@ const Day = props => {
   const commitChanges = makeCommitChanges(({ added, changed, deleted }) => {
     window.location.reload(false);
   }, global.userId);
+
   return (
     <Grid container spacing={4}>
       <Grid item lg={8} sm={8}>

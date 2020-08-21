@@ -13,6 +13,8 @@ import {
 import { Card, CardContent, Typography } from '@material-ui/core';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
+import { Link as RouterLink, withRouter } from 'react-router-dom';
+
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
@@ -21,10 +23,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Dashboard = () => {
+const Dashboard = props => {
   const classes = useStyles();
   const [global] = useGlobal();
   const [data, setData] = useState({});
+
+  const { history } = props;
 
   useEffect(() => {
     if (global.userId) getLatest();
@@ -38,8 +42,8 @@ const Dashboard = () => {
       .then(response => {
         let sem = response.data[0];
         getStats(
-          moment(sem.start).format('YYYY-MM-DD hh:mm:ss'),
-          moment(sem.end).format('YYYY-MM-DD hh:mm:ss')
+          moment(sem.start).format('YYYY-MM-DD HH:mm:ss'),
+          moment(sem.end).format('YYYY-MM-DD HH:mm:ss')
         );
       });
   };
@@ -98,11 +102,11 @@ const Dashboard = () => {
           <Announcements />
         </Grid>
         <Grid item lg={4} md={6} xl={3} xs={12}>
-          <NextEvents />
+          <NextEvents history={history} userid={global.userId} />
         </Grid>
       </Grid>
     </div>
   );
 };
 
-export default Dashboard;
+export default withRouter(Dashboard);

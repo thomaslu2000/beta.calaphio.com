@@ -110,14 +110,20 @@ const SignIn = props => {
   const checkLogin = async () => {
     // MAKE THIS SECURE OMG
     await axios
-      .post(`${API_URL}/people/login/`, {
-        email: formState.values.email,
-        passphrase: formState.values.password
-      })
+      .post(
+        `${API_URL}/people/login/`,
+        {
+          email: formState.values.email,
+          passphrase: formState.values.password
+        },
+        {
+          headers: { 'content-type': 'application/x-www-form-urlencoded' }
+        }
+      )
       .then(response => {
         if (response.data.length > 0) {
           let info = response.data[0];
-          if (info.disabled === 0) {
+          if (info.disabled == 0) {
             let details = {
               userId: info.user_id,
               name: info.firstname

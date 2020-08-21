@@ -17,16 +17,17 @@ import {
 import axios from 'axios';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
+
 const API_URL = process.env.REACT_APP_SERVER;
 
 const eventType = item => {
   let types = [];
-  if (item.type_service_chapter) types.push('Service to Chapter');
-  if (item.type_service_campus) types.push('Service to Campus');
-  if (item.type_service_community) types.push('Service to Community');
-  if (item.type_service_country) types.push('Service to Country');
-  if (item.type_fellowship) types.push('Fellowship');
-  if (item.type_interchapter) types.push('Interchapter');
+  if (item.type_service_chapter === '1') types.push('Service to Chapter');
+  if (item.type_service_campus === '1') types.push('Service to Campus');
+  if (item.type_service_community === '1') types.push('Service to Community');
+  if (item.type_service_country === '1') types.push('Service to Country');
+  if (item.type_fellowship === '1') types.push('Fellowship');
+  if (item.type_interchapter === '1') types.push('Interchapter');
   if (types.length === 0) types.push('Other');
   return types.join(', ');
 };
@@ -65,17 +66,25 @@ export default function Event(props) {
   const signUp = async () => {
     if (global.userId)
       await axios
-        .post(`${API_URL}/events/signUp/`, {
-          eventId: props.eventData.event_id,
-          userId: global.userId,
-          timestamp: moment().format('YYYY-MM-DD hh:mm:ss')
-        })
+        .post(
+          `${API_URL}/events/signUp/`,
+          {
+            eventId: props.eventData.event_id,
+            userId: global.userId,
+            timestamp: moment()
+              .utc()
+              .format('YYYY-MM-DD HH:mm:ss')
+          },
+          { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+        )
         .then(response => {
           setImAttending(true);
           let n = [
             {
               uid: global.userId,
-              signup_time: moment().format('YYYY-MM-DD hh:mm:ss'),
+              signup_time: moment()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
               chair: 0,
               firstname: '',
               lastname: 'You'
@@ -88,10 +97,14 @@ export default function Event(props) {
 
   const signOff = async () => {
     await axios
-      .post(`${API_URL}/events/signOff/`, {
-        eventId: props.eventData.event_id,
-        userId: global.userId
-      })
+      .post(
+        `${API_URL}/events/signOff/`,
+        {
+          eventId: props.eventData.event_id,
+          userId: global.userId
+        },
+        { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+      )
       .then(response => {
         setAttending(attending.filter(x => x.uid !== global.userId));
         setImAttending(false);
@@ -101,11 +114,15 @@ export default function Event(props) {
 
   const becomeChair = async () => {
     await axios
-      .post(`${API_URL}/events/changeChair/`, {
-        eventId: props.eventData.event_id,
-        userId: global.userId,
-        setting: 1
-      })
+      .post(
+        `${API_URL}/events/changeChair/`,
+        {
+          eventId: props.eventData.event_id,
+          userId: global.userId,
+          setting: 1
+        },
+        { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+      )
       .then(response => {
         setImChair(true);
         setAttending(
@@ -118,11 +135,15 @@ export default function Event(props) {
   };
   const loseChair = async () => {
     await axios
-      .post(`${API_URL}/events/changeChair/`, {
-        eventId: props.eventData.event_id,
-        userId: global.userId,
-        setting: 0
-      })
+      .post(
+        `${API_URL}/events/changeChair/`,
+        {
+          eventId: props.eventData.event_id,
+          userId: global.userId,
+          setting: 0
+        },
+        { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+      )
       .then(response => {
         setImChair(false);
         setAttending(
@@ -152,6 +173,7 @@ export default function Event(props) {
   let endtime = moment(props.eventData.endDate);
   let s = starttime.format('MMMM Do YYYY');
   let e = endtime.format('MMMM Do YYYY');
+
   return (
     <Paper>
       <Card className={classes.root}>
@@ -167,11 +189,11 @@ export default function Event(props) {
             <br />
             Time:{' '}
             <b>
-              {props.eventData.time_allday
+              {props.eventData.time_allday === '1'
                 ? 'All Day'
-                : starttime.format('hh:mm a') +
+                : starttime.format('h:mm a') +
                   ' to ' +
-                  endtime.format('hh:mm a')}
+                  endtime.format('h:mm a')}
             </b>
           </Typography>
           <Typography
@@ -230,7 +252,10 @@ export default function Event(props) {
                     {row.firstname + ' ' + row.lastname}
                   </TableCell>
                   <TableCell align="right">
-                    {moment(row.signup_time).fromNow()}
+                    {moment
+                      .utc(row.signup_time)
+                      .local()
+                      .fromNow()}
                   </TableCell>
                   <TableCell align="right">
                     {row.chair !== 0 && 'Chair'}

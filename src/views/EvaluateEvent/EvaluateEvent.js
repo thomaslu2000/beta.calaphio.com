@@ -61,9 +61,8 @@ const EvaluateEvent = props => {
   const getAttending = async ed => {
     let dt1 = new Date(ed.start_at);
     let dt2 = new Date(ed.end_at);
-    let defaultHours = Math.abs(
-      ((dt2.getTime() - dt1.getTime()) / 36e5).toFixed(2)
-    );
+    let defaultHours =
+      Math.abs(((dt2.getTime() - dt1.getTime()) / 36e5).toFixed(2)) || 3;
     await axios
       .get(`${API_URL}/events/attending/`, {
         params: {
@@ -82,7 +81,7 @@ const EvaluateEvent = props => {
         );
         setAttendingChair(
           response.data.reduce(
-            (o, key) => ({ ...o, [key.uid]: key.chair === 1 }),
+            (o, key) => ({ ...o, [key.uid]: key.chair === '1' }),
             {}
           )
         );
@@ -120,10 +119,15 @@ const EvaluateEvent = props => {
       })
       .then(response => {
         if (response.data.length > 0) {
-          axios.post(`${API_URL}/events/evaluate`, params).then(res => {
-            history.push('/');
-            alert('Successfully Evaluated :)');
-          });
+          axios
+            .post(`${API_URL}/events/evaluate`, params, {
+              headers: { 'content-type': 'application/x-www-form-urlencoded' }
+            })
+            .then(res => {
+              // history.push('/');
+              console.log(res.data);
+              alert('Successfully Evaluated :)');
+            });
         } else {
           alert(
             'You are unauthorized to evaluate this event. This action has been logged.'

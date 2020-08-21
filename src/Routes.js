@@ -7,8 +7,6 @@ import { Main as MainLayout } from './layouts';
 import {
   Dashboard as DashboardView,
   EvaluateEvent as EvaluateEventView,
-  UserList as UserListView,
-  Typography as TypographyView,
   Account as AccountView,
   Settings as SettingsView,
   SignUp as SignUpView,
@@ -46,18 +44,6 @@ const Routes = () => {
         exact
         layout={MainLayout}
         path="/evaluate/:eventId"
-      />
-      <RouteWithLayout
-        component={UserListView}
-        exact
-        layout={MainLayout}
-        path="/users"
-      />
-      <RouteWithLayout
-        component={TypographyView}
-        exact
-        layout={MainLayout}
-        path="/typography"
       />
       <RouteWithLayout
         component={AccountView}

@@ -69,13 +69,13 @@ const makeParams = (data, uid) => {
   if (data.interchapter) params.type_interchapter = data.interchapter ? 1 : 0;
   if (data.fundraiser) params.type_fundraiser = data.fundraiser ? 1 : 0;
   if (data.startDate) {
-    let s = moment(data.startDate).format('YYYY-MM-DD hh:mm:ss');
+    let s = moment.utc(data.startDate).format('YYYY-MM-DD HH:mm:ss');
     params.date = s.slice(0, 10);
     params.time_start = s.slice(11, 19);
     params.start_at = s.slice(0, 19);
   }
   if (data.endDate) {
-    let s = moment(data.endDate).format('YYYY-MM-DD hh:mm:ss');
+    let s = moment.utc(data.endDate).format('YYYY-MM-DD HH:mm:ss');
     params.time_end = s.slice(11, 19);
     params.end_at = s.slice(0, 19);
   }
@@ -92,9 +92,13 @@ export function makeCommitChanges(f, uid) {
       if (!params.location) params.location = 'No Location Given';
       if (!params.description) params.description = '';
       if (!params.time_allday) params.time_allday = 0;
-      await axios.post(`${API_URL}/events/create`, params).then(res => {
-        f({ added, changed, deleted });
-      });
+      await axios
+        .post(`${API_URL}/events/create`, params, {
+          headers: { 'content-type': 'application/x-www-form-urlencoded' }
+        })
+        .then(res => {
+          f({ added, changed, deleted });
+        });
     } else if (changed) {
       for (const [eventId, data] of Object.entries(changed)) {
         let params = makeParams(data, uid);
@@ -105,9 +109,15 @@ export function makeCommitChanges(f, uid) {
           })
           .then(response => {
             if (response.data.length > 0) {
-              axios.post(`${API_URL}/events/edit`, params).then(res => {
-                f({ added, changed, deleted });
-              });
+              axios
+                .post(`${API_URL}/events/edit`, params, {
+                  headers: {
+                    'content-type': 'application/x-www-form-urlencoded'
+                  }
+                })
+                .then(res => {
+                  f({ added, changed, deleted });
+                });
             } else {
               alert('Only Admins and Chairs May Edit Events');
             }
@@ -121,10 +131,18 @@ export function makeCommitChanges(f, uid) {
         .then(response => {
           if (response.data.length > 0) {
             axios
-              .post(`${API_URL}/events/delete`, {
-                eventId: deleted,
-                userId: uid
-              })
+              .post(
+                `${API_URL}/events/delete`,
+                {
+                  eventId: deleted,
+                  userId: uid
+                },
+                {
+                  headers: {
+                    'content-type': 'application/x-www-form-urlencoded'
+                  }
+                }
+              )
               .then(res => {
                 f({ added, changed, deleted });
               });

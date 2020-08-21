@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/styles';
@@ -11,8 +11,10 @@ import {
   Grid,
   IconButton
 } from '@material-ui/core';
-import { Link as RouterLink, withRouter } from 'react-router-dom';
 import moment from 'moment';
+import axios from 'axios';
+import { unsanitize } from '../../../functions';
+const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -22,45 +24,46 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NextEvents = props => {
-  const { className, ...rest } = props;
-  const { history } = props;
+  const { history, userid, className, ...rest } = props;
   const classes = useStyles();
   const theme = useTheme();
+  const [data, setData] = useState([]);
 
-  const data = [
-    {
-      title: 'eat ass',
-      location: 'aakarshs house',
-      start_at: '2020-09-03 12:00:00',
-      end_at: '2020-09-03 14:00:00',
-      event_id: 122,
-      date: '2020-09-03',
-      time_allday: 0
-    },
-    {
-      title: 'gain mass',
-      location: 'aakarshs moms house',
-      start_at: '2020-09-04 3:00:00',
-      end_at: '2020-09-04 6:00:00',
-      event_id: 123,
-      date: '2020-09-04',
-      time_allday: 1
-    }
-  ];
+  useEffect(() => {
+    getNext();
+  }, [userid]);
+
+  const getNext = async () => {
+    await axios
+      .get(`${API_URL}/people/next3/`, {
+        params: {
+          userId: userid
+        }
+      })
+      .then(response => {
+        setData(response.data);
+      });
+  };
 
   return (
     <Card {...rest} className={clsx(classes.root, className)}>
       <CardHeader title="Your Next Events" />
       <Divider />
       {data.map(item => {
-        let day = moment(item.date).format('MMM Do YYYY');
-        let date = moment(item.date).format('YYYY-MM-DD');
+        let day = moment
+          .utc(item.start_at)
+          .local()
+          .format('MMM Do YYYY');
+        let date = moment
+          .utc(item.start_at)
+          .local()
+          .format('YYYY-MM-DD');
         var time;
-        if (item.time_allday) {
+        if (item.time_allday === '1') {
           time = 'All Day';
         } else {
-          let starttime = moment(item.start_at);
-          let endtime = moment(item.end_at);
+          let starttime = moment.utc(item.start_at).local();
+          let endtime = moment.utc(item.end_at).local();
           time = starttime.format('h:mm a') + ' to ' + endtime.format('h:mm a');
         }
         return (
@@ -73,14 +76,16 @@ const NextEvents = props => {
                       history.push(`/day/${date}`);
                     }}>
                     <Typography color="primary" gutterBottom variant="h4">
-                      {item.title}
+                      {unsanitize(item.title)}
                     </Typography>
                   </IconButton>
                 </Grid>
               </Grid>
               <Grid container justify="space-between">
                 <Grid item className={classes.centered}>
-                  <Typography variant="h5">{item.location}</Typography>
+                  <Typography variant="h5">
+                    {unsanitize(item.location)}
+                  </Typography>
                 </Grid>
               </Grid>
               <Grid container justify="space-between">
@@ -110,4 +115,4 @@ NextEvents.propTypes = {
   className: PropTypes.string
 };
 
-export default withRouter(NextEvents);
+export default NextEvents;
