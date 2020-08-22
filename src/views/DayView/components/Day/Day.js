@@ -14,7 +14,6 @@ import {
   ConfirmationDialog
 } from '@devexpress/dx-react-scheduler-material-ui';
 import { Button, Grid } from '@material-ui/core';
-import KeyboardReturnIcon from '@material-ui/icons/KeyboardReturn';
 import BasicLayout from '../../../BasicAppointmentLayout';
 import Event from './Event';
 import axios from 'axios';
