@@ -69,6 +69,14 @@ const MonthCalendar = props => {
     );
   }, [currentDate]);
 
+  const TimeScaleCell = props => (
+    <MonthView.TimeTableCell
+      {...props}
+      onClick={() => {
+        history.push(`/day/${props.startDate.toISOString().slice(0, 10)}`);
+      }}
+    />
+  );
   const getMonthEvents = async (start, end) => {
     await axios
       .get(`${API_URL}/events/counts/`, {
@@ -112,9 +120,9 @@ const MonthCalendar = props => {
         setData(newList);
       });
   };
-  const commitChanges = makeCommitChanges(({ added, changed, deleted }) => {
-    window.location.reload(false);
-  }, global.userId);
+  // const commitChanges = makeCommitChanges(({ added, changed, deleted }) => {
+  //   window.location.reload(false);
+  // }, global.userId);
   return (
     <Scheduler data={data} height={660}>
       <ViewState
@@ -123,11 +131,11 @@ const MonthCalendar = props => {
           setCurrentDate(date);
         }}
       />
-      <EditingState onCommitChanges={commitChanges} />
-      <MonthView cellDuration={120} />
+      {/* <EditingState onCommitChanges={commitChanges} /> */}
+      <MonthView cellDuration={120} timeTableCellComponent={TimeScaleCell} />
       <AllDayPanel />
-      <EditRecurrenceMenu />
-      <ConfirmationDialog />
+      {/* <EditRecurrenceMenu /> */}
+      {/* <ConfirmationDialog /> */}
       <Appointments />
       <Resources data={resources} />
       <Toolbar />
@@ -138,7 +146,7 @@ const MonthCalendar = props => {
         })}
         showCloseButton
       />
-      {global.userId && <AppointmentForm basicLayoutComponent={BasicLayout} />}
+      {/* {global.userId && <AppointmentForm basicLayoutComponent={BasicLayout} />} */}
     </Scheduler>
   );
 };

@@ -13,7 +13,7 @@ import {
   AllDayPanel,
   ConfirmationDialog
 } from '@devexpress/dx-react-scheduler-material-ui';
-import { IconButton, Button, Grid } from '@material-ui/core';
+import { Button, Grid } from '@material-ui/core';
 import KeyboardReturnIcon from '@material-ui/icons/KeyboardReturn';
 import BasicLayout from '../../../BasicAppointmentLayout';
 import Event from './Event';
@@ -57,7 +57,14 @@ const resources = [
     instances: types
   }
 ];
-const ToolbarRootBase = setDay => {
+
+let makeNew = [];
+const TimeTableCell = ({ onDoubleClick, ...restProps }) => {
+  if (makeNew.length === 0) makeNew.push(onDoubleClick);
+  return <DayView.TimeTableCell onDoubleClick={onDoubleClick} {...restProps} />;
+};
+
+const ToolbarRootBase = () => {
   return ({ ...restProps }) => (
     <Toolbar.Root
       {...restProps}
@@ -68,16 +75,14 @@ const ToolbarRootBase = setDay => {
             paddingTop: 10,
             marginLeft: 'auto'
           }}>
-          <IconButton
-            style={{
-              backgroundColor: 'rgba(200, 0, 0, 0.1)',
-              color: '#000000'
-            }}
+          <Button
+            variant="outlined"
+            color="primary"
             onClick={() => {
-              setDay();
+              if (makeNew.length > 0) makeNew[0]();
             }}>
-            <KeyboardReturnIcon />
-          </IconButton>
+            <h4>Create Event</h4>
+          </Button>
         </div>
       }
     />
@@ -158,10 +163,10 @@ const Day = props => {
             }}
           />
           <EditingState onCommitChanges={commitChanges} />
-          <DayView cellDuration={180} />
+          <DayView cellDuration={180} timeTableCellComponent={TimeTableCell} />
           <Appointments />
           <Resources data={resources} />
-          <Toolbar flexibleSpaceComponent={ToolbarRootBase(props.setDay)} />
+          <Toolbar flexibleSpaceComponent={ToolbarRootBase()} />
           <AllDayPanel />
           <EditRecurrenceMenu />
           <ConfirmationDialog />

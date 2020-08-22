@@ -5,6 +5,8 @@ import { Link as RouterLink, withRouter } from 'react-router-dom';
 import moment from 'moment';
 
 const DayView = props => {
+  const { history } = props;
+
   if (!props.match.params.day) {
     history.push('/not-found');
   }
@@ -13,15 +15,9 @@ const DayView = props => {
   let day = moment(d)
     .add(d.getTimezoneOffset(), 'm')
     .toDate();
-  const { history } = props;
   return (
     <Paper>
-      <Day
-        day={day}
-        setDay={() => {
-          history.goBack();
-        }}
-      />
+      <Day day={day} />
     </Paper>
   );
 };
