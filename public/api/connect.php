@@ -46,7 +46,7 @@ switch ($request[0]) {
         case 'toEval':
           $sql = sprintf("SELECT event_id, title 
           FROM apo_calendar_attend JOIN apo_calendar_event USING (event_id) 
-          WHERE user_id=%s AND chair=1 AND evaluated=0 AND start_at < CURRENT_TIMESTAMP AND deleted=0
+          WHERE user_id=%s AND chair=1 AND evaluated=0 AND start_at < CURRENT_TIMESTAMP AND deleted=0 
           ORDER BY start_at ASC", $_GET['userId']);
           break;
         case 'next3':
