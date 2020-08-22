@@ -54,7 +54,7 @@ export default function Event(props) {
         let own = response.data.find(x => x.uid === global.userId);
         if (own) {
           setImAttending(true);
-          if (own.chair === 1) setImChair(true);
+          if (own.chair === '1') setImChair(true);
         } else {
           setImAttending(false);
           setImChair(false);

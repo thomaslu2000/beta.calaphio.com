@@ -2,6 +2,7 @@
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
+header("Cache-Control: no-cache");
 
 
 require("make_con.php");
