@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ViewState, EditingState } from '@devexpress/dx-react-scheduler';
+import { ViewState } from '@devexpress/dx-react-scheduler';
 import {
   Scheduler,
   MonthView,
@@ -8,21 +8,14 @@ import {
   Resources,
   Toolbar,
   DateNavigator,
-  AppointmentForm,
-  EditRecurrenceMenu,
-  AllDayPanel,
-  ConfirmationDialog
+  AllDayPanel
 } from '@devexpress/dx-react-scheduler-material-ui';
-import Button from '@material-ui/core/Button';
-import BasicLayout from '../../../BasicAppointmentLayout';
+import { Button, List, ListItem, ListItemText } from '@material-ui/core';
 import axios from 'axios';
 import moment from 'moment';
-import {
-  makeTypes,
-  makeCommitChanges
-} from '../../../AppointmentFormFunctions';
-import { useGlobal } from 'reactn';
+import { makeTypes } from '../../../AppointmentFormFunctions';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
+import { unsanitize } from '../../../functions';
 const API_URL = process.env.REACT_APP_SERVER;
 
 const Header = f => {
@@ -49,11 +42,28 @@ const resources = [
   }
 ];
 
+const Content = ({ children, appointmentData, classes, ...restProps }) => (
+  <AppointmentTooltip.Content {...restProps} appointmentData={appointmentData}>
+    <h2>Events</h2>
+    <List component="nav" aria-label="events">
+      {appointmentData.description.map(item => {
+        return (
+          <ListItem
+            button
+            component="a"
+            key={item}
+            href={`#/day/${item[2]}/event/${item[0]}`}>
+            <ListItemText primary={item[1]} />
+          </ListItem>
+        );
+      })}
+    </List>
+  </AppointmentTooltip.Content>
+);
 const MonthCalendar = props => {
   const { history } = props;
   const [currentDate, setCurrentDate] = useState(new Date());
   const [data, setData] = useState([]);
-  const [global] = useGlobal();
 
   useEffect(() => {
     let today = moment(currentDate);
@@ -79,50 +89,56 @@ const MonthCalendar = props => {
   );
   const getMonthEvents = async (start, end) => {
     await axios
-      .get(`${API_URL}/events/counts/`, {
+      .get(`${API_URL}/events/month/`, {
         params: {
           startDate: start,
           endDate: end
         }
       })
       .then(response => {
-        let newList = [];
+        let days = {};
         response.data.map(item => {
-          let service = item.service || 0;
-          let fellowship = item.fellowships || 0;
-          let total = item.total - service - fellowship || 0;
-          let date = moment(item.date);
-          let startDate = date.toDate();
-          let endDate = date.add(8, 'hours').toDate();
-          if (service > 0)
-            newList.push({
-              title: `${service} Service Events`,
-              startDate,
-              endDate,
-              typeId: 3
-            });
-          if (fellowship > 0)
-            newList.push({
-              title: `${fellowship} Fellowships`,
-              startDate,
-              endDate,
-              typeId: 5
-            });
-          if (total > 0)
-            newList.push({
-              title: `${total} Other Events`,
-              startDate,
-              endDate,
-              typeId: 6
-            });
-          return 0;
+          let type = item.service === '1' ? 0 : item.fellowship === '1' ? 1 : 2;
+          let date = moment
+            .utc(item.start_at)
+            .local()
+            .format('YYYY-MM-DD');
+          if (!days[date]) days[date] = [[], [], []];
+          days[date][type].push([item.event_id, unsanitize(item.title), date]);
         });
+        let newList = [];
+        for (const [day, cats] of Object.entries(days)) {
+          let date = moment(day);
+          let startDate = date.toDate();
+          let endDate = date.add(23, 'hours').toDate();
+          if (cats[0].length > 0)
+            newList.push({
+              title: `${cats[0].length} Service Events`,
+              startDate,
+              endDate,
+              typeId: 3,
+              description: cats[0]
+            });
+          if (cats[1].length > 0)
+            newList.push({
+              title: `${cats[1].length} Fellowships`,
+              startDate,
+              endDate,
+              typeId: 5,
+              description: cats[1]
+            });
+          if (cats[2].length > 0)
+            newList.push({
+              title: `${cats[2].length} Other Events`,
+              startDate,
+              endDate,
+              typeId: 6,
+              description: cats[2]
+            });
+        }
         setData(newList);
       });
   };
-  // const commitChanges = makeCommitChanges(({ added, changed, deleted }) => {
-  //   window.location.reload(false);
-  // }, global.userId);
   return (
     <Scheduler data={data} height={660}>
       <ViewState
@@ -131,11 +147,8 @@ const MonthCalendar = props => {
           setCurrentDate(date);
         }}
       />
-      {/* <EditingState onCommitChanges={commitChanges} /> */}
       <MonthView cellDuration={120} timeTableCellComponent={TimeScaleCell} />
       <AllDayPanel />
-      {/* <EditRecurrenceMenu /> */}
-      {/* <ConfirmationDialog /> */}
       <Appointments />
       <Resources data={resources} />
       <Toolbar />
@@ -144,9 +157,9 @@ const MonthCalendar = props => {
         headerComponent={Header(data => {
           history.push(`/day/${data.startDate.toISOString().slice(0, 10)}`);
         })}
+        contentComponent={Content}
         showCloseButton
       />
-      {/* {global.userId && <AppointmentForm basicLayoutComponent={BasicLayout} />} */}
     </Scheduler>
   );
 };

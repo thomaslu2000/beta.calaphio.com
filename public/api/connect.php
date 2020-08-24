@@ -68,6 +68,11 @@ switch ($request[0]) {
             type_fundraiser, creator_id, start_at, end_at, evaluated FROM apo_calendar_event 
             WHERE deleted=0 AND end_at>'%s' AND start_at<'%s'", $_GET['startDate'], $_GET['endDate']);
             break;
+          case 'month':
+            $sql = sprintf("SELECT event_id, start_at, end_at, title, (type_service_chapter | type_service_campus | type_service_community | type_service_country) as service, 
+            type_fellowship as fellowship FROM apo_calendar_event 
+            WHERE date >= '%s' AND date <= '%s' AND deleted=0", $_GET['startDate'], $_GET['endDate']);
+            break;
           case 'counts':
             $sql = sprintf("SELECT date, SUM(type_service_chapter | type_service_campus | type_service_community | type_service_country) as service, 
             SUM(type_fellowship) as fellowships, COUNT(*) as total FROM apo_calendar_event 

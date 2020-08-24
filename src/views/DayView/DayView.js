@@ -17,7 +17,11 @@ const DayView = props => {
     .toDate();
   return (
     <Paper>
-      <Day day={day} />
+      <Day
+        day={day}
+        eventId={props.match.params.event}
+        dayText={props.match.params.day}
+      />
     </Paper>
   );
 };

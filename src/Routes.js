@@ -40,6 +40,12 @@ const Routes = () => {
         path="/day/:day"
       />
       <RouteWithLayout
+        component={DayView}
+        exact
+        layout={MainLayout}
+        path="/day/:day/event/:event"
+      />
+      <RouteWithLayout
         component={EvaluateEventView}
         exact
         layout={MainLayout}

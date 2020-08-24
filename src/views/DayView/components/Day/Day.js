@@ -57,46 +57,48 @@ const resources = [
   }
 ];
 
-let makeNew = [];
-const TimeTableCell = ({ onDoubleClick, ...restProps }) => {
-  if (makeNew.length === 0) makeNew.push(onDoubleClick);
-  return <DayView.TimeTableCell onDoubleClick={onDoubleClick} {...restProps} />;
-};
-
-const ToolbarRootBase = () => {
-  return ({ ...restProps }) => (
-    <Toolbar.Root
-      {...restProps}
-      children={
-        <div
-          align="right"
-          style={{
-            paddingTop: 10,
-            marginLeft: 'auto'
-          }}>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => {
-              if (makeNew.length > 0) makeNew[0]();
-            }}>
-            <h4>Create Event</h4>
-          </Button>
-        </div>
-      }
-    />
-  );
-};
-
 const Day = props => {
   const [currentDate, setCurrentDate] = useState(props.day);
   const [eventData, setEventData] = useState(false);
   const [data, setData] = useState([]);
+  const make = [];
   const [global] = useGlobal();
 
   useEffect(() => {
     getDayEvents();
   }, [currentDate]);
+
+  let TimeTableCell = ({ onDoubleClick, ...restProps }) => {
+    if (make.length === 0) make.push(onDoubleClick);
+    return (
+      <DayView.TimeTableCell onDoubleClick={onDoubleClick} {...restProps} />
+    );
+  };
+
+  let ToolbarRootBase = () => {
+    return ({ ...restProps }) => (
+      <Toolbar.Root
+        {...restProps}
+        children={
+          <div
+            align="right"
+            style={{
+              paddingTop: 10,
+              marginLeft: 'auto'
+            }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => {
+                make[0]();
+              }}>
+              <h4>Create Event</h4>
+            </Button>
+          </div>
+        }
+      />
+    );
+  };
 
   const getDayEvents = async () => {
     await axios
@@ -147,6 +149,11 @@ const Day = props => {
       });
   };
 
+  if (data.length > 0 && props.eventId) {
+    let d = data.find(a => a.event_id === props.eventId);
+    if (d && !eventData) setEventData(d);
+  }
+
   const commitChanges = makeCommitChanges(({ added, changed, deleted }) => {
     window.location.reload(false);
   }, global.userId);
@@ -173,6 +180,11 @@ const Day = props => {
           <AppointmentTooltip
             headerComponent={Header(eventData => {
               setEventData(eventData);
+              window.history.replaceState(
+                null,
+                'Calaphio Website',
+                `#/day/${props.dayText}/event/${eventData.event_id}`
+              );
             })}
             showCloseButton
             showOpenButton
