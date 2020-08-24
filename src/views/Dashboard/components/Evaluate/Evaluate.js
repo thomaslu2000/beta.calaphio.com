@@ -7,8 +7,7 @@ import {
   CardContent,
   Grid,
   Typography,
-  Divider,
-  Avatar
+  Divider
 } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
@@ -29,16 +28,6 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     fontWeight: 700
-  },
-  avatar: {
-    backgroundColor: theme.palette.white,
-    color: theme.palette.primary.main,
-    height: 56,
-    width: 56
-  },
-  icon: {
-    height: 32,
-    width: 32
   },
   space: {
     paddingTop: 5,
@@ -77,28 +66,34 @@ const Evaluate = props => {
           className={classes.title}
           color="inherit"
           gutterBottom
-          variant="body2">
+          variant="h5">
           Evaluate Events
         </Typography>
-        {data.map(event => {
-          return (
-            <React.Fragment key={event.event_id}>
-              <Divider />
-              <Typography
-                color="inherit"
-                variant="h4"
-                className={classes.space}>
-                {unsanitize(event.title)}
-                <IconButton
-                  onClick={() => {
-                    goToEvaluate(event.event_id);
-                  }}>
-                  <ExitToAppIcon style={{ color: 'yellow' }} size="large" />
-                </IconButton>
-              </Typography>
-            </React.Fragment>
-          );
-        })}
+        {data.length === 0 ? (
+          <Typography color="inherit" gutterBottom variant="h6">
+            No Events To Evaluate :)
+          </Typography>
+        ) : (
+          data.map(event => {
+            return (
+              <React.Fragment key={event.event_id}>
+                <Divider />
+                <Typography
+                  color="inherit"
+                  variant="h4"
+                  className={classes.space}>
+                  {unsanitize(event.title)}
+                  <IconButton
+                    onClick={() => {
+                      goToEvaluate(event.event_id);
+                    }}>
+                    <ExitToAppIcon style={{ color: 'yellow' }} size="large" />
+                  </IconButton>
+                </Typography>
+              </React.Fragment>
+            );
+          })
+        )}
       </CardContent>
     </Card>
   );

@@ -124,9 +124,8 @@ const EvaluateEvent = props => {
               headers: { 'content-type': 'application/x-www-form-urlencoded' }
             })
             .then(res => {
-              // history.push('/');
-              console.log(res.data);
               alert('Successfully Evaluated :)');
+              history.push('/dashboard');
             });
         } else {
           alert(

@@ -13,7 +13,7 @@ import {
   AllDayPanel,
   ConfirmationDialog
 } from '@devexpress/dx-react-scheduler-material-ui';
-import { Button, Grid } from '@material-ui/core';
+import { Button, Grid, Box } from '@material-ui/core';
 import BasicLayout from '../../../BasicAppointmentLayout';
 import Event from './Event';
 import axios from 'axios';
@@ -160,48 +160,58 @@ const Day = props => {
 
   return (
     <Grid container spacing={4}>
-      <Grid item lg={8} sm={8}>
-        <Scheduler data={data}>
-          <ViewState
-            currentDate={currentDate}
-            onCurrentDateChange={date => {
-              setCurrentDate(date);
-            }}
-          />
-          <EditingState onCommitChanges={commitChanges} />
-          <DayView cellDuration={180} timeTableCellComponent={TimeTableCell} />
-          <Appointments />
-          <Resources data={resources} />
-          <Toolbar flexibleSpaceComponent={ToolbarRootBase()} />
-          <AllDayPanel />
-          <EditRecurrenceMenu />
-          <ConfirmationDialog />
-          <DateNavigator />
-          <AppointmentTooltip
-            headerComponent={Header(eventData => {
-              setEventData(eventData);
-              window.history.replaceState(
-                null,
-                'Calaphio Website',
-                `#/day/${props.dayText}/event/${eventData.event_id}`
-              );
-            })}
-            showCloseButton
-            showOpenButton
-            showDeleteButton
-          />
-          {global.userId && (
-            <AppointmentForm basicLayoutComponent={BasicLayout} />
-          )}
-        </Scheduler>
-      </Grid>
-      <Grid
-        item
-        lg={4}
-        sm={12}
-        style={{ marginLeft: 'auto', marginRight: 'auto' }}>
-        <Event eventData={eventData} />
-      </Grid>
+      <Box clone order={{ xs: 2, sm: 2, md: 1 }}>
+        <Grid item md={8} sm={8}>
+          <Scheduler data={data}>
+            <ViewState
+              currentDate={currentDate}
+              onCurrentDateChange={date => {
+                setCurrentDate(date);
+              }}
+            />
+            <EditingState onCommitChanges={commitChanges} />
+            <DayView
+              cellDuration={180}
+              timeTableCellComponent={TimeTableCell}
+            />
+            <Appointments />
+            <Resources data={resources} />
+            <Toolbar flexibleSpaceComponent={ToolbarRootBase()} />
+            <AllDayPanel />
+            <EditRecurrenceMenu />
+            <ConfirmationDialog />
+            <DateNavigator />
+            <AppointmentTooltip
+              headerComponent={Header(eventData => {
+                setEventData(eventData);
+                window.history.replaceState(
+                  null,
+                  'Calaphio Website',
+                  `#/day/${props.dayText}/event/${eventData.event_id}`
+                );
+              })}
+              showCloseButton
+              showOpenButton
+              showDeleteButton
+            />
+            {global.userId && (
+              <AppointmentForm basicLayoutComponent={BasicLayout} />
+            )}
+          </Scheduler>
+        </Grid>
+      </Box>
+      <Box clone order={{ sm: 1, md: 2 }}>
+        <Grid
+          item
+          lg={4}
+          sm={12}
+          style={{
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}>
+          <Event eventData={eventData} />
+        </Grid>
+      </Box>
     </Grid>
   );
 };

@@ -10,7 +10,7 @@ import {
   Announcements,
   NextEvents
 } from './components';
-import { Card, CardContent, Typography } from '@material-ui/core';
+import { Box, Card, CardContent, Typography } from '@material-ui/core';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
@@ -80,30 +80,44 @@ const Dashboard = props => {
   return (
     <div className={classes.root}>
       <Grid container spacing={4}>
-        <Grid item lg={3} sm={6} xl={3} xs={12}>
-          <ServiceHours
-            attended={data.service_hours_attended || 0}
-            flaked={data.service_hours_flaked || 0}
-          />
-        </Grid>
-        <Grid item lg={3} sm={6} xl={3} xs={12}>
-          <Fellowships
-            attended={data.fellowships_attended || 0}
-            flaked={data.fellowships_flaked || 0}
-          />
-        </Grid>
-        <Grid item lg={3} sm={6} xl={3} xs={12}>
-          <MiscStatus chaired={data.events_chaired || 0} />
-        </Grid>
-        <Grid item lg={3} sm={6} xl={3} xs={12}>
-          <Evaluate userId={global.userId} />
-        </Grid>
-        <Grid item lg={8} md={12} xl={9} xs={12}>
-          <Announcements />
-        </Grid>
-        <Grid item lg={4} md={6} xl={3} xs={12}>
-          <NextEvents history={history} userid={global.userId} />
-        </Grid>
+        <Box clone order={{ sm: 4 }}>
+          <Grid item lg={3} sm={6} xl={3} xs={12}>
+            <Evaluate userId={global.userId} />
+          </Grid>
+        </Box>
+        <Box clone order={{ sm: 6 }}>
+          <Grid item lg={4} md={6} xl={3} xs={12}>
+            <NextEvents history={history} userid={global.userId} />
+          </Grid>
+        </Box>
+
+        <Box clone order={{ sm: 5 }}>
+          <Grid item lg={8} md={12} xl={9} xs={12}>
+            <Announcements />
+          </Grid>
+        </Box>
+
+        <Box clone order={{ sm: 1 }}>
+          <Grid item lg={3} sm={6} xl={3} xs={12}>
+            <ServiceHours
+              attended={data.service_hours_attended || 0}
+              flaked={data.service_hours_flaked || 0}
+            />
+          </Grid>
+        </Box>
+        <Box clone order={{ sm: 2 }}>
+          <Grid item lg={3} sm={6} xl={3} xs={12}>
+            <Fellowships
+              attended={data.fellowships_attended || 0}
+              flaked={data.fellowships_flaked || 0}
+            />
+          </Grid>
+        </Box>
+        <Box clone order={{ sm: 3 }}>
+          <Grid item lg={3} sm={6} xl={3} xs={12}>
+            <MiscStatus chaired={data.events_chaired || 0} />
+          </Grid>
+        </Box>
       </Grid>
     </div>
   );
