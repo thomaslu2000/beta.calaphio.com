@@ -44,6 +44,9 @@ const resources = [
 
 const Content = ({ children, appointmentData, classes, ...restProps }) => (
   <AppointmentTooltip.Content {...restProps} appointmentData={appointmentData}>
+    <br />
+    <hr />
+    <br />
     <h2>Events</h2>
     <List component="nav" aria-label="events">
       {appointmentData.description.map(item => {

@@ -54,7 +54,7 @@ export default function Event(props) {
         let own = response.data.find(x => x.uid === global.userId);
         if (own) {
           setImAttending(true);
-          if (own.chair === '1') setImChair(true);
+          setImChair(own.chair === '1');
         } else {
           setImAttending(false);
           setImChair(false);
@@ -174,9 +174,19 @@ export default function Event(props) {
   let s = starttime.format('MMMM Do YYYY');
   let e = endtime.format('MMMM Do YYYY');
 
+  const sayChair = row => {
+    if (row.uid === global.userId) {
+      if (imChair) return 'Chair';
+      else return;
+    }
+    return row.chair === '1' && 'Chair';
+  };
+
   return (
     <Paper>
       <Card className={classes.root}>
+        {' '}
+        {imChair}
         <CardContent>
           <Typography variant="h5" component="h2">
             <b>{props.eventData.title}</b>
@@ -257,9 +267,7 @@ export default function Event(props) {
                       .local()
                       .fromNow()}
                   </TableCell>
-                  <TableCell align="right">
-                    {row.chair !== 0 && 'Chair'}
-                  </TableCell>
+                  <TableCell align="right">{sayChair(row)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
