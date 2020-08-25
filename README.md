@@ -10,7 +10,10 @@ Welcome our new website repo. We are using React and Material-UI.
 git clone https://github.com/thomaslu2000/beta.calaphio.com
 ```
 
+```
 - cd `beta.calaphio.com`
+```
+
 - Yarn is our package manager. Install it if you haven't already: https://classic.yarnpkg.com/en/docs/install/#mac-stable
 
 - Install dependencies
