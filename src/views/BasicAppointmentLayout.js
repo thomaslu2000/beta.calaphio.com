@@ -14,6 +14,7 @@ const BasicLayout = ({ onFieldChange, appointmentData, ...restProps }) => {
 
   return (
     <AppointmentForm.BasicLayout
+      locale={'en-US'}
       appointmentData={appointmentData}
       onFieldChange={onFieldChange}
       {...restProps}>

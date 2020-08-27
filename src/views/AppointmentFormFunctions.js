@@ -86,6 +86,10 @@ const typesa = makeTypes();
 export function makeCommitChanges(f, uid) {
   async function commitChanges({ added, changed, deleted }) {
     if (added) {
+      if (added.startDate > added.endDate) {
+        alert('Error: Start Date is After the End Date');
+        return;
+      }
       if (added.rRule) alert('Recurring Events Not Yet Implemented');
       let params = makeParams(added, uid);
       if (!params.title) params.title = 'Untitled Event';

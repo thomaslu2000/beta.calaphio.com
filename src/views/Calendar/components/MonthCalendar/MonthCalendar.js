@@ -106,38 +106,62 @@ const MonthCalendar = props => {
             .utc(item.start_at)
             .local()
             .format('YYYY-MM-DD');
+          let dateEnd = moment
+            .utc(item.end_at)
+            .local()
+            .format('YYYY-MM-DD');
           if (!days[date]) days[date] = [[], [], []];
           days[date][type].push([item.event_id, unsanitize(item.title), date]);
+          if (dateEnd !== date) {
+            if (!days[dateEnd]) days[dateEnd] = [[], [], []];
+            days[dateEnd][type].push([
+              item.event_id,
+              unsanitize(item.title),
+              dateEnd
+            ]);
+          }
         });
         let newList = [];
         for (const [day, cats] of Object.entries(days)) {
           let date = moment(day);
           let startDate = date.toDate();
           let endDate = date.add(23, 'hours').toDate();
-          if (cats[0].length > 0)
-            newList.push({
-              title: `${cats[0].length} Service Events`,
-              startDate,
-              endDate,
-              typeId: 3,
-              description: cats[0]
-            });
-          if (cats[1].length > 0)
-            newList.push({
-              title: `${cats[1].length} Fellowships`,
-              startDate,
-              endDate,
-              typeId: 5,
-              description: cats[1]
-            });
-          if (cats[2].length > 0)
-            newList.push({
-              title: `${cats[2].length} Other Events`,
-              startDate,
-              endDate,
-              typeId: 6,
-              description: cats[2]
-            });
+          let total = cats[0].length + cats[1].length + cats[2].length;
+          if (total <= 3) {
+            for (var i = 0; i < 3; i++) {
+              cats[i].map((ev, idx) => {
+                newList.push({
+                  title: ev[1],
+                  startDate,
+                  endDate,
+                  typeId: [3, 5, 6][i],
+                  description: [ev]
+                });
+              });
+            }
+          } else {
+            for (var i = 0; i < 3; i++) {
+              if (cats[i].length > 1)
+                newList.push({
+                  title: `${cats[i].length} ${
+                    ['Service', 'Fellowship', 'Other'][i]
+                  } Events`,
+                  startDate,
+                  endDate,
+                  typeId: [3, 5, 6][i],
+                  description: cats[i]
+                });
+              else if (cats[i].length === 1) {
+                newList.push({
+                  title: cats[i][0][1],
+                  startDate,
+                  endDate,
+                  typeId: [3, 5, 6][i],
+                  description: cats[i]
+                });
+              }
+            }
+          }
         }
         setData(newList);
       });
