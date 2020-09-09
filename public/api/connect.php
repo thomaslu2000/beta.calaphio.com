@@ -1,10 +1,7 @@
 <?php
 
-header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Cache-Control: no-cache");
-
-
 require("make_con.php");
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -15,7 +12,14 @@ if (!$con) {
 }
 
 if ($method == "POST") {
-  $data = json_decode(file_get_contents('php://input'));
+  $data = json_decode(file_get_contents('php://input'), true);
+  foreach ($data as $k => $v) {
+    $data[$k] = mysqli_real_escape_string($con, str_replace('apo_', 'ap o_', $v));
+  }
+} else {
+  foreach ($_GET as $k => $v) {
+    $_GET[$k] = mysqli_real_escape_string($con, str_replace('apo_', 'ap o_', $v));
+  }
 }
 $multi = FALSE;
 
@@ -24,7 +28,7 @@ switch ($request[0]) {
       switch($request[1]) {
         case 'login':
           $sql = sprintf("SELECT user_id, firstname, disabled FROM apo_users 
-          WHERE email='%s' AND passphrase=sha1(concat(salt, '%s')) LIMIT 1", $data->email, $data->passphrase);
+          WHERE email='%s' AND passphrase=sha1(concat(salt, '%s')) LIMIT 1", $data['email'], $data['passphrase']);
           break;
         case 'admin':
           $sql = sprintf("SELECT 1 FROM apo_permissions_groups 
@@ -84,42 +88,42 @@ switch ($request[0]) {
             break;
           case 'signUp':
             $sql = sprintf("INSERT INTO apo_calendar_attend (event_id, user_id, signup_time) 
-            VALUES (%s, %s, '%s')", $data->eventId, $data->userId, $data->timestamp);
+            VALUES (%s, %s, '%s')", $data['eventId'], $data['userId'], $data['timestamp']);
             break;
           case 'signOff':
             $sql = sprintf("DELETE FROM apo_calendar_attend 
-            WHERE event_id=%s AND user_id=%s", $data->eventId, $data->userId);
+            WHERE event_id=%s AND user_id=%s", $data['eventId'], $data['userId']);
             break;
           case 'changeChair':
             $sql = sprintf("UPDATE apo_calendar_attend SET chair=%s 
-            WHERE event_id=%s AND user_id=%s", $data->setting, $data->eventId, $data->userId);
+            WHERE event_id=%s AND user_id=%s", $data['setting'], $data['eventId'], $data['userId']);
             break;
           case 'create':
             $sql = sprintf("INSERT INTO apo_calendar_event (title, location, description, date, time_start, time_end, time_allday, 
             type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, type_fellowship, type_fundraiser, creator_id, start_at, end_at) 
             VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
-            $data->title, $data->location, $data->description, $data->date, $data->time_start, $data->time_end, $data->time_allday ? 1 : 0, 
-            $data->type_interchapter ? 1 : 0, $data->type_service_chapter ? 1 : 0,  $data->type_service_campus ? 1 : 0,  $data->type_service_community ? 1 : 0,
-            $data->type_service_country ? 1 : 0,  $data->type_fellowship ? 1 : 0,  $data->type_fundraiser ? 1 : 0, $data->creator_id, $data->start_at, $data->end_at);
+            $data['title'], $data['location'], $data['description'], $data['date'], $data['time_start'], $data['time_end'], $data['time_allday'] ? 1 : 0, 
+            $data['type_interchapter'] ? 1 : 0, $data['type_service_chapter'] ? 1 : 0,  $data['type_service_campus'] ? 1 : 0,  $data['type_service_community'] ? 1 : 0,
+            $data['type_service_country'] ? 1 : 0,  $data['type_fellowship'] ? 1 : 0,  $data['type_fundraiser'] ? 1 : 0, $data['creator_id'], $data['start_at'], $data['end_at']);
             break;
           case 'delete':
             $sql = sprintf("UPDATE apo_calendar_event SET deleted=1, 
-            creator_id=%s WHERE event_id=%s", $data->userId, $data->eventId);
+            creator_id=%s WHERE event_id=%s", $data['userId'], $data['eventId']);
             break;
           case 'edit':
             $things = array();
-            $eid = $data->eventId;
-            unset($data->eventId);
+            $eid = $data['eventId'];
+            unset($data['eventId']);
             foreach ($data as $k => $v) $things[] = sprintf("%s='%s'", $k, $v);
             $sql = sprintf("UPDATE apo_calendar_event SET %s WHERE event_id=%s", implode(', ', $things), $eid);
             break;
           case 'evaluate':
-            $queries = array(sprintf("UPDATE apo_calendar_event SET evaluated=1 WHERE event_id=%s", $data->eventId));
-            foreach($data->attend as $p) $queries[] = sprintf("UPDATE apo_calendar_attend SET attended=%s, chair=%s, flaked=%s, hours=%s WHERE event_id=%s AND user_id=%s", $p->attended, $p->chair, $p->flaked, $p->hours, $data->eventId, $p->userId);
-            if (count($data->delete) > 0) {
+            $queries = array(sprintf("UPDATE apo_calendar_event SET evaluated=1 WHERE event_id=%s", $data['eventId']));
+            foreach($data['attend'] as $p) $queries[] = sprintf("UPDATE apo_calendar_attend SET attended=%s, chair=%s, flaked=%s, hours=%s WHERE event_id=%s AND user_id=%s", $p->attended, $p->chair, $p->flaked, $p->hours, $data['eventId'], $p->userId);
+            if (count($data['delete']) > 0) {
               $deletes = array();
-              foreach($data->delete as $id) $deletes[] = sprintf("user_id=%s", $id);
-              $queries[] = sprintf("DELETE FROM apo_calendar_attend WHERE event_id=%s AND (%s)", $data->eventId, implode(' OR ', $deletes));
+              foreach($data['delete'] as $id) $deletes[] = sprintf("user_id=%s", $id);
+              $queries[] = sprintf("DELETE FROM apo_calendar_attend WHERE event_id=%s AND (%s)", $data['eventId'], implode(' OR ', $deletes));
             }
             $multi = TRUE;
             $sql = implode('; ', $queries);
