@@ -2,6 +2,8 @@ export function unsanitize(str) {
   if (!str) return '';
   return unescape(
     str
+      .replace(/%26/g, '&')
+      .replace(/%3B/g, ';')
       .replace(/&amp;/g, '&')
       .replace(/&#039;/g, "'")
       .replace(/&rsquo;/g, '’')

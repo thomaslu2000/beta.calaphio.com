@@ -124,6 +124,11 @@ const Day = props => {
               .utc(item.end_at.replace(' ', 'T'))
               .local()
               .toDate();
+            if (item.endDate < item.startDate) {
+              item.endDate = moment(item.startDate)
+                .add(2, 'hours')
+                .toDate();
+            }
             if (item.time_allday === 1) {
               item.allDay = true;
             }

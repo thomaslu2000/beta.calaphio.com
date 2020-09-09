@@ -106,6 +106,10 @@ export function makeCommitChanges(f, uid) {
     } else if (changed) {
       for (const [eventId, data] of Object.entries(changed)) {
         let params = makeParams(data, uid);
+        if (data.startDate && data.endDate && data.startDate > data.endDate) {
+          alert('Error: Start Date is After the End Date');
+          return;
+        }
         params.eventId = eventId;
         await axios
           .get(`${API_URL}/people/adminOrChair`, {
