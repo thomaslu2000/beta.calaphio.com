@@ -14,6 +14,7 @@ import {
   SignOut as SignOutView,
   NotFound as NotFoundView,
   Calendar as CalendarView,
+  Search as SearchView,
   DayView
 } from './views';
 
@@ -32,6 +33,12 @@ const Routes = () => {
         exact
         layout={MainLayout}
         path="/calendar"
+      />
+      <RouteWithLayout
+        component={SearchView}
+        exact
+        layout={MainLayout}
+        path="/search"
       />
       <RouteWithLayout
         component={DayView}
@@ -55,7 +62,7 @@ const Routes = () => {
         component={AccountView}
         exact
         layout={MainLayout}
-        path="/account"
+        path="/account/:userId"
       />
       <RouteWithLayout
         component={SettingsView}

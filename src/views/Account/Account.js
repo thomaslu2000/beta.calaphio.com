@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Grid } from '@material-ui/core';
-
-import { AccountProfile, AccountDetails } from './components';
+import { useGlobal } from 'reactn';
+import { AccountProfile, AccountDetails, MyAccountDetails } from './components';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -10,32 +10,24 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Account = () => {
+const Account = props => {
   const classes = useStyles();
+  const [global] = useGlobal();
+  const userId = props.match.params.userId;
 
+  console.log();
   return (
     <div className={classes.root}>
-      <Grid
-        container
-        spacing={4}
-      >
-        <Grid
-          item
-          lg={4}
-          md={6}
-          xl={4}
-          xs={12}
-        >
-          <AccountProfile />
+      <Grid container spacing={4}>
+        <Grid item lg={4} md={6} xl={4} xs={12}>
+          <AccountProfile id={props.match.params.userId} />
         </Grid>
-        <Grid
-          item
-          lg={8}
-          md={6}
-          xl={8}
-          xs={12}
-        >
-          <AccountDetails />
+        <Grid item lg={8} md={6} xl={8} xs={12}>
+          {userId === global.userId ? (
+            <MyAccountDetails id={userId} />
+          ) : (
+            <AccountDetails id={props.match.params.userId} />
+          )}
         </Grid>
       </Grid>
     </div>

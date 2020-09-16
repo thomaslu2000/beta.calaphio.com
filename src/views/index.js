@@ -8,3 +8,4 @@ export { default as SignUp } from './SignUp';
 export { default as SignOut } from './SignOut';
 export { default as Calendar } from './Calendar';
 export { default as DayView } from './DayView';
+export { default as Search } from './Search';

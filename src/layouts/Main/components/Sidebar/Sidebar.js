@@ -6,6 +6,7 @@ import { Divider, Drawer } from '@material-ui/core';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 import EventIcon from '@material-ui/icons/Event';
+import SearchIcon from '@material-ui/icons/Search';
 import { Profile, SidebarNav } from './components';
 import { useGlobal } from 'reactn';
 import { useCookies } from 'react-cookie';
@@ -56,6 +57,11 @@ const Sidebar = props => {
       title: 'Calendar',
       href: '/calendar',
       icon: <EventIcon />
+    },
+    {
+      title: 'Search Members',
+      href: '/search',
+      icon: <SearchIcon />
     },
     inlog || global.userId
       ? {
