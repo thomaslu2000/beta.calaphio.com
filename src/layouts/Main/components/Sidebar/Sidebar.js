@@ -7,6 +7,7 @@ import DashboardIcon from '@material-ui/icons/Dashboard';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 import EventIcon from '@material-ui/icons/Event';
 import SearchIcon from '@material-ui/icons/Search';
+import BuildIcon from '@material-ui/icons/Build';
 import { Profile, SidebarNav } from './components';
 import { useGlobal } from 'reactn';
 import { useCookies } from 'react-cookie';
@@ -62,6 +63,11 @@ const Sidebar = props => {
       title: 'Search Members',
       href: '/search',
       icon: <SearchIcon />
+    },
+    {
+      title: 'Admin Tools',
+      href: '/admin',
+      icon: <BuildIcon />
     },
     inlog || global.userId
       ? {

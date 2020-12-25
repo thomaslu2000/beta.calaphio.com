@@ -9,3 +9,4 @@ export { default as SignOut } from './SignOut';
 export { default as Calendar } from './Calendar';
 export { default as DayView } from './DayView';
 export { default as Search } from './Search';
+export { default as Admin } from './Admin';
