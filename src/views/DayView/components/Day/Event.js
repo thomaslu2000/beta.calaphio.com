@@ -5,6 +5,7 @@ import {
   Card,
   CardActions,
   CardContent,
+  CardHeader,
   Grid,
   Typography,
   Paper,
@@ -17,6 +18,7 @@ import {
 import axios from 'axios';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
+import { gCalAdd } from '../../../functions'
 
 const API_URL = process.env.REACT_APP_SERVER;
 
@@ -185,8 +187,14 @@ export default function Event(props) {
   return (
     <Paper>
       <Card className={classes.root}>
-        {' '}
-        {imChair}
+    <CardHeader
+    action={
+          <Button
+              size="large"
+              variant="outlined"
+              onClick={() => {gCalAdd([props.eventData])}}>
+              Add To Google Calendar
+            </Button>} />
         <CardContent>
           <Typography variant="h5" component="h2">
             <b>{props.eventData.title}</b>

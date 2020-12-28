@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/styles';
 import {
+  Button,
   Card,
   CardHeader,
   CardContent,
@@ -13,7 +14,7 @@ import {
 } from '@material-ui/core';
 import moment from 'moment';
 import axios from 'axios';
-import { unsanitize } from '../../../functions';
+import { unsanitize, dayToObj, gCalAdd } from '../../../functions';
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
@@ -45,9 +46,30 @@ const NextEvents = props => {
       });
   };
 
+  const addToCal = async () => {
+    await axios
+      .get(`${API_URL}/people/upcoming/`, {
+        params: {
+          userId: userid
+        }
+      })
+      .then(response => {
+        gCalAdd(response.data.map(dayToObj))
+      });
+  };
+
   return (
     <Card {...rest} className={clsx(classes.root, className)}>
-      <CardHeader title="Your Next Events" />
+      <div 
+            style={{textAlign:'center', paddingBottom: 10}}>
+      <CardHeader title="Your Next 3 Events" 
+          /> 
+        <Button
+              variant="outlined"
+              onClick={addToCal}>
+              Add To Google Calendar
+            </Button>
+            </div>
       <Divider />
       {data.map(item => {
         let day = moment

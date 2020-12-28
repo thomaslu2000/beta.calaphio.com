@@ -18,7 +18,7 @@ import BasicLayout from '../../../BasicAppointmentLayout';
 import Event from './Event';
 import axios from 'axios';
 import moment from 'moment';
-import { unsanitize } from '../../../functions';
+import { unsanitize, dayToObj } from '../../../functions';
 import {
   makeTypes,
   makeCommitChanges
@@ -115,41 +115,7 @@ const Day = props => {
       })
       .then(response => {
         setData(
-          response.data.map(item => {
-            item.startDate = moment
-              .utc(item.start_at.replace(' ', 'T'))
-              .local()
-              .toDate();
-            item.endDate = moment
-              .utc(item.end_at.replace(' ', 'T'))
-              .local()
-              .toDate();
-            if (item.endDate < item.startDate) {
-              item.endDate = moment(item.startDate)
-                .add(2, 'hours')
-                .toDate();
-            }
-            if (item.time_allday === 1) {
-              item.allDay = true;
-            }
-            item.title = unsanitize(item.title);
-            item.location = unsanitize(item.location || '');
-            item.description = unsanitize(item.description || '');
-            item.id = item.event_id;
-            item.typeId =
-              item.type_service_chapter === '1'
-                ? 1
-                : item.type_service_campus === '1'
-                ? 2
-                : item.type_service_community === '1'
-                ? 3
-                : item.type_service_country === '1'
-                ? 4
-                : item.type_fellowship === '1'
-                ? 5
-                : 6;
-            return item;
-          })
+          response.data.map(dayToObj)
         );
       });
   };

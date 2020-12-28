@@ -24,6 +24,25 @@ if ($method == "POST") {
 $multi = FALSE;
 
 switch ($request[0]) {
+    case 'admin':
+      //security stuff here
+      switch($request[1]) {
+        case 'pledge_stats':
+          $sql = sprintf("SELECT user_id, firstname, lastname, SUM(a.attended * a.hours * (e.type_service_chapter = 1 OR e.type_service_campus=1 OR e.type_service_community = 1 OR e.type_service_country = 1)) AS service_hours_attended, 
+          SUM(a.flaked*a.hours * (e.type_service_chapter = 1 OR e.type_service_campus=1 OR e.type_service_community = 1 OR e.type_service_country = 1)) as service_hours_flaked, 
+          SUM(a.attended * e.type_fellowship) as fellowships_attended, SUM(a.flaked * e.type_fellowship) as fellowships_flaked, SUM(a.chair * a.attended) AS events_chaired, 
+          SUM(a.attended * e.type_fundraiser) as fundraisers_attended FROM apo_pledges LEFT JOIN apo_calendar_attend a USING (user_id) JOIN apo_users u USING(user_id) JOIN apo_calendar_event e USING (event_id) JOIN (SELECT * FROM apo_semesters ORDER BY id DESC LIMIT 1) ls
+          WHERE ls.start <e.date AND e.date< CURRENT_TIMESTAMP
+          GROUP BY user_id");
+          break;
+        case 'unevaluated':
+          $sql = sprintf("SELECT event_id, title, date, COUNT(user_id) as num_attending 
+          FROM apo_calendar_event LEFT JOIN apo_calendar_attend USING (event_id) 
+          WHERE evaluated=0 AND start_at > '%s' AND date <= '%s' AND deleted=0 
+          GROUP BY event_id ORDER BY start_at ASC", $_GET['startDate'], $_GET['endDate']);
+          break;
+      }
+      break;
     case 'people':
       switch($request[1]) {
         case 'login':
@@ -56,6 +75,14 @@ switch ($request[0]) {
         case 'next3':
           $sql = sprintf("SELECT event_id, title, location, start_at, end_at, time_allday FROM apo_calendar_event JOIN apo_calendar_attend USING (event_id) 
           WHERE user_id = %s AND end_at > CURRENT_TIMESTAMP AND deleted = 0 ORDER BY start_at LIMIT 3 ", $_GET['userId']);
+          break;
+        case 'upcoming':
+          $sql = sprintf("SELECT event_id, title, location, start_at, end_at, time_allday FROM apo_calendar_event JOIN apo_calendar_attend USING (event_id) 
+          WHERE user_id = %s AND end_at > CURRENT_TIMESTAMP AND deleted = 0 ORDER BY start_at", $_GET['userId']);
+          break;
+        case 'search':
+          $sql = sprintf("SELECT user_id, firstname, lastname, pledgeclass, email, dynasty FROM apo_users 
+          WHERE CONCAT(firstname, ' ', lastname) LIKE '%s%%' ORDER BY user_id DESC", $_GET['query']);
           break;
       }
       break;

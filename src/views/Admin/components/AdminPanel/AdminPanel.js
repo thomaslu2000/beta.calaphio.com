@@ -9,14 +9,22 @@ import {
   CardHeader,
   CardContent,
   Divider,
+  IconButton,
+  Select,
+  MenuItem,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   Typography,
   TextField
 } from '@material-ui/core';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { Link as RouterLink, withRouter } from 'react-router-dom';
+import { unsanitize } from '../../../functions';
+
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles((theme) => ({
@@ -26,10 +34,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const AdminPanel = props => {
-  const { userId, ...rest } = props;
+  const { userId, history, ...rest } = props;
   const [window, setWindow] = useState(1);
   const [values, setValues] = useState({});
-  const [display, setDisplay] = useState(<div></div>);
+  const [display, setDisplay] = useState();
   const classes = useStyles();
 
   const adminFuncs = [
@@ -41,27 +49,102 @@ const AdminPanel = props => {
     url: '/people/admin/',
     type: 'GET',
     callback: response => {
-      if (response.data[0]) alert('admiN!'); 
+      if (response.data[0]) alert('This is an admin!'); 
+      else alert('Not an admin');
     }
   },
   {
-    title: 'View Stats',
+    title: 'View Individual Stats',
     forms: {userId: 'User Id (number)', startDate: 'Start Date (YYYY-MM-DD)', endDate: 'End Date (YYYY-MM-DD)'},
     url: '/people/stats/',
     type: 'GET',
     callback: response => {
-      if (response.data[0]){
-        setDisplay(
-          <ul>
-            {Object.entries(response.data[0]).map(([title, val]) => {
-              return <li key={title}><Typography>{title}: {val}</Typography></li>
-            })}
-          </ul>
-        )
-      } 
+      tablefy(response.data)
+    }
+  },
+  {
+    title: 'View Pledge Stats',
+    forms: {},
+    url: '/admin/pledge_stats/',
+    type: 'GET',
+    callback: response => {
+      tablefy(response.data)
+    }
+  },
+  {
+    title: 'Search Users',
+    forms: {query: 'Name (First Last)'},
+    url: '/people/search/',
+    type: 'GET',
+    callback: response => {
+      tablefy(response.data)
+    }
+  },
+  {
+    title: 'View Unevaluated Events',
+    forms: {startDate: 'Start of search (YYYY-MM-DD)', endDate: 'End of search (YYYY-MM-DD)'},
+    url: '/admin/unevaluated/',
+    type: 'GET',
+    callback: response => {
+      tablefy(response.data, [['Evaluate Link', o => {
+        return <IconButton
+        onClick={() => {
+          history.push(`/evaluate/${o.event_id}`);
+        }}>
+        <ExitToAppIcon style={{ color: 'blue' }} size="large" />
+      </IconButton>
+      }]])
     }
   }
 ];
+
+const tablefy = (data, extra=[]) => {
+  // this function literally just turns the list of objects into a table
+  // extra is of the form: [ [cell_name1, cell_code1(entry)], [cell_name2, cell_code2(entry)]...]
+  if (data.length === 0) return setDisplay("No Data Found");
+  let keys = Object.keys(data[0]);
+  let extra_titles = extra.map(([title, func]) => {return title});
+  let codes = extra.map(([title, func]) => {return func})
+  return setDisplay(
+    <TableContainer style={{overflowX:'auto'}}>
+    <Table
+            className={classes.table}
+            size="small">
+            <TableHead>
+              <TableRow>
+                {keys.map(k => {
+                  return (<TableCell align="left" key={k}>{unsanitize(k)}</TableCell>)
+                })}
+                {extra_titles.map(k => {
+                  return (<TableCell align="left" key={k}>{unsanitize(k)}</TableCell>)
+                })}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((entry, i) => {
+                return (
+                <TableRow key={'row'+i}>
+
+                  {keys.map(k => {
+                  return <TableCell align="left" key={k+i}>
+                    {unsanitize(entry[k])}
+                  </TableCell>
+                })}
+
+                {codes.map((f, j) => {
+                  return <TableCell align="left" key={'extra '+extra_titles[j]}>
+                    {f(entry)}
+                  </TableCell>
+                })}
+
+                </TableRow>)
+              })}
+            </TableBody>
+          </Table></TableContainer>
+  )
+
+
+}
 
   return (
     <div>
@@ -76,9 +159,31 @@ const AdminPanel = props => {
         gutterBottom>
         Note: Authorized use only! Errors and security bugs WILL NOT be caught!
       </Typography>
+      <div align='center'>
+        <Select
+          value={window}
+          onChange={e => {setDisplay(); setWindow(e.target.value)}}
+        >
+          {adminFuncs.map((o, i) => {
+            return (<MenuItem value={i} key={'dropdown '+o.title}>{o.title}</MenuItem>)
+          })}
+        </Select></div>
           <div>
             <Typography variant="h1"  className={classes.padded}>
-              {adminFuncs[window].title}
+              {adminFuncs[window].title} 
+        <Button
+            style={{marginLeft: 30}}
+            size="large"
+            variant="outlined"
+            onClick={async () => {
+              if (adminFuncs[window].type==='GET'){
+              await axios.get(`${API_URL}/${adminFuncs[window].url}`, {
+                params: values
+              })
+              .then(adminFuncs[window].callback)
+            }}}>
+            Run
+          </Button>
             </Typography>
           </div>
           {Object.entries(adminFuncs[window].forms).map(([param, title], idx) => {
@@ -99,23 +204,10 @@ const AdminPanel = props => {
             />)
        })}
 
-        <Button
-            size="large"
-            variant="outlined"
-            onClick={async () => {
-              if (adminFuncs[window].type==='GET'){
-              await axios.get(`${API_URL}/${adminFuncs[window].url}`, {
-                params: values
-              })
-              .then(adminFuncs[window].callback)
-            }}}>
-            Run
-          </Button>
-
        </CardContent>
        <CardContent className={classes.padded}>{display}</CardContent>
     </Card></div>
   );
 };
 
-export default AdminPanel;
+export default withRouter(AdminPanel);
