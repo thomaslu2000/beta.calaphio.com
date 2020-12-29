@@ -1,51 +1,86 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import moment from 'moment';
 import { makeStyles } from '@material-ui/styles';
 import {
   Card,
   CardActions,
   CardContent,
   Avatar,
+  Grid,
   Typography,
   Divider,
   Button,
-  LinearProgress
+  TextareaAutosize
 } from '@material-ui/core';
+import {unsanitize, clean, imageExists} from '../../../functions'
+import axios from 'axios';
+const API_URL = process.env.REACT_APP_SERVER;
 
-const useStyles = makeStyles(theme => ({
-  root: {},
-  details: {
-    display: 'flex'
-  },
-  avatar: {
-    marginLeft: 'auto',
-    height: 110,
-    width: 100,
-    flexShrink: 0,
-    flexGrow: 0
-  },
-  progress: {
-    marginTop: theme.spacing(2)
-  },
-  uploadButton: {
-    marginRight: theme.spacing(2)
+const face_folder = process.env.REACT_APP_FACES;
+const extensions = ['jpg', 'png', 'jpeg']
+
+const avatarSearch = userdata => {
+  var pic_path = '/images/avatars/avatar_11.png' 
+  if (userdata) {
+    if (userdata.profile_pic) {
+      return userdata.profile_pic;
+    }
+    let id = userdata.user_id;
+    var pic_path = '/images/avatars/avatar_11.png' 
+    if (id)
+      for (let i = 0; i< 3; i++){
+        let r = `${face_folder}${id}.${extensions[i]}`
+        if (imageExists(r)){ pic_path = r; break; }
+      }
   }
-}));
+  return pic_path;
+}
 
 const AccountProfile = props => {
-  const { className, ...rest } = props;
+  const { className, userdata, viewerid, ...rest } = props;
+  const [editing, setEditing] = useState(false);
+  const [description, setDescription] = useState('')
+
+  useEffect(() => {
+    setDescription(userdata.description || 'No Description Provided')
+  }, [userdata])
 
   const classes = useStyles();
 
-  const user = {
-    name: 'Shen Zhi',
-    city: 'Los Angeles',
-    country: 'USA',
-    timezone: 'GTM-7',
-    avatar: '/images/avatars/avatar_11.png'
-  };
+  const editDescription = async () => {
+    await axios
+        .post(
+          `${API_URL}/people/updateDescription/`,
+          {
+            userId: viewerid,
+            description: clean(description)
+          },
+          { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+        )
+        .then(response => {
+          alert('description updated!')
+        });
+  }
+
+  const upload = async (e) => {
+    console.log(e.target.files[0])
+    const formData = new FormData();
+    formData.append('file', e.target.files[0]);
+    formData.append('pathTo', face_folder);
+    formData.append('userId', viewerid);
+    axios.post(`${API_URL}/people/uploadPFP/`, 
+    formData,
+    {
+      headers: {
+          'content-type': 'multipart/form-data'
+      }
+  }).then(res => {
+    console.log(res)
+  })
+  }
+
+  let mine = viewerid===userdata.user_id;
 
   return (
     <Card {...rest} className={clsx(classes.root, className)}>
@@ -53,34 +88,84 @@ const AccountProfile = props => {
         <div className={classes.details}>
           <div>
             <Typography gutterBottom variant="h2">
-              John Doe
+              {userdata.firstname || ''} {userdata.lastname || ''}
             </Typography>
             <Typography
               className={classes.locationText}
               color="textSecondary"
               variant="body1">
-              {user.city}, {user.country}
+              {userdata.dynasty || ''} Dynasty
             </Typography>
             <Typography
-              className={classes.dateText}
+              className={classes.locationText}
               color="textSecondary"
               variant="body1">
-              {moment().format('hh:mm A')} ({user.timezone})
+              {userdata.pledgeclass || ''} Pledge Class
             </Typography>
           </div>
-          <Avatar className={classes.avatar} src={user.avatar} />
-        </div>
-        <div className={classes.progress}>
-          <Typography variant="body1">Profile Completeness: 70%</Typography>
-          <LinearProgress value={70} variant="determinate" />
+          <Grid  className={classes.avatarContainer} >
+          <Grid item><Avatar className={classes.avatar} src={avatarSearch(userdata)} /></Grid>
+          {mine && 
+          <Grid item className={classes.uploadButton}>
+            <Button size='small' component="label">
+             Upload Pic
+             <input
+              accept="image/png, image/jpeg, image/jpg"
+              type="file"
+              onChange={upload}
+              hidden
+            /> </Button></Grid>}
+          </Grid>
         </div>
       </CardContent>
+      <Divider />
+				<CardContent style={{ textAlign: "center" }}>
+          {editing ? 
+          <TextareaAutosize  style={{ width: '80%'}} rowsMin={3} value={unsanitize(description)} onChange={e => {setDescription(e.target.value)}} /> :
+					<Typography
+						dangerouslySetInnerHTML={{
+							__html: unsanitize(description)
+						}}
+					/>}
+          <div />
+          {mine && 
+          <Button className={classes.uploadButton} size='small'
+          onClick={() => {
+            if (editing){
+              editDescription();
+              setEditing(false);
+            } else {
+              setEditing(true);
+            }
+          }}> 
+          {editing ? 'Upload Description' : 'Edit Description'} </Button>}
+				</CardContent>
     </Card>
   );
 };
 
-AccountProfile.propTypes = {
-  className: PropTypes.string
-};
-
+const useStyles = makeStyles(theme => ({
+  root: {},
+  details: {
+    display: 'flex'
+  },
+  avatar: {
+    height: 130,
+    width: 130,
+    flexShrink: 0,
+    flexGrow: 0
+  },
+  avatarContainer: {
+    marginLeft: 'auto'
+  },
+  progress: {
+    marginTop: theme.spacing(2)
+  },
+  uploadButton: {
+    textAlign: 'center',
+    marginTop: theme.spacing(1),
+    marginRight: 'auto',
+    marginLeft: 'auto'
+  }
+}));
 export default AccountProfile;

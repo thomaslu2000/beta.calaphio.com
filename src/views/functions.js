@@ -1,5 +1,22 @@
 
 import moment from 'moment';
+import sanitizeHtml from 'sanitize-html';
+const CLIENT_ID = process.env.REACT_APP_G_CLIENT_ID;
+const API_KEY = process.env.REACT_APP_G_API_KEY;
+
+export function imageExists(image_url){
+
+  var http = new XMLHttpRequest();
+
+  http.open('HEAD', image_url, false);
+  http.send();
+
+  return http.status !== 404;
+}
+
+export function clean(str) {
+  return escape(sanitizeHtml(str));
+}
 
 export function unsanitize(str) {
   if (!str) return '';
@@ -54,8 +71,6 @@ export function dayToObj(item) {
   return item;
 }
 
-var CLIENT_ID = "840091936666-fvlmpju2955ch09beafj1fucm2tn8gtv.apps.googleusercontent.com";
-var API_KEY = "AIzaSyBsjwigdMsuckox6oxvyXAu4-QRQdtE4Yg";
 export function gCalAdd(events) {
   var gapi = window.gapi;
   var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
@@ -75,7 +90,7 @@ export function gCalAdd(events) {
             event.summary = event.title
             if (event.allDay){
               event.start = {date: event.startDate.toISOString().split('T')[0]};
-              event.end = {date: event.endDate.toISOString().split('T')[0]};
+              event.end = {date: event.end_at.substring(0, 10)};
             } else {
               event.start = {dateTime: event.startDate};
               event.end = {dateTime: event.endDate};

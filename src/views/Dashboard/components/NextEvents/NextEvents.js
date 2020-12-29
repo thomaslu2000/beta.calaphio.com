@@ -19,7 +19,7 @@ const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
   root: {
-    height: '100%'
+    // height: '100%'
   },
   centered: { marginLeft: 'auto', marginRight: 'auto' }
 }));
@@ -33,7 +33,7 @@ const NextEvents = props => {
   useEffect(() => {
     getNext();
   }, [userid]);
-
+  
   const getNext = async () => {
     await axios
       .get(`${API_URL}/people/next3/`, {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
@@ -12,145 +12,92 @@ import {
   Button,
   TextField
 } from '@material-ui/core';
+import {unsanitize, clean} from '../../../functions'
+import axios from 'axios';
+const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(() => ({
-  root: {}
+  root: {
+    "& .MuiInputBase-root.Mui-disabled": {
+      color: "rgba(0, 0, 0, 1)" // (default alpha is 0.38)
+    }}
 }));
 
+const cellData = [['firstname', 'First Name'], ['lastname', 'Last Name'], ['email', 'Email'], ['cellphone', 'Phone'], ['phone', 'How to Reach Me'],
+ ['address', 'Address'], ['city', 'City'], ['zipcode', 'Zipcode']];
+
 const AccountDetails = props => {
-  const { className, id, ...rest } = props;
+  const { className, userdata, viewerid, ...rest } = props;
+  const [values, setValues] = useState({});
+
+  useEffect(() => {
+    setValues(userdata)
+  }, [userdata])
 
   const classes = useStyles();
 
-  const [values, setValues] = useState({
-    firstName: 'Shen',
-    lastName: 'Zhi',
-    email: 'shen.zhi@devias.io',
-    phone: '',
-    state: 'Alabama',
-    country: 'USA'
-  });
-
-  const handleChange = event => {
-    setValues({
-      ...values,
-      [event.target.name]: event.target.value
-    });
-  };
-
-  const states = [
-    {
-      value: 'alabama',
-      label: 'Alabama'
-    },
-    {
-      value: 'new-york',
-      label: 'New York'
-    },
-    {
-      value: 'san-francisco',
-      label: 'San Francisco'
+  const makeChangeHandler = (id) => {
+    return (e) => {
+      setValues({
+        ...values,
+        [id]: clean(e.target.value)
+      });
     }
-  ];
+  }
+
+  const updateProfile = async () => {
+    await axios
+        .post(
+          `${API_URL}/people/updateProfile/`,
+          {
+            ...values,
+            userId: viewerid
+          },
+          { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+        )
+        .then(response => {
+          alert('Profile Updated!')
+        });
+  }
+
+  let mine = viewerid === userdata.user_id;
 
   return (
     <Card {...rest} className={clsx(classes.root, className)}>
       <CardHeader
-        subheader="Change this so its not a form"
-        title={"Someone Else's Profile, id is " + id}
+        title={mine ? "Edit Your Account" : `Viewing ${userdata.firstname}'s account:`}
       />
       <Divider />
       <CardContent>
         <Grid container spacing={3}>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              helperText="Please specify the first name"
-              label="First name"
-              margin="dense"
-              name="firstName"
-              onChange={handleChange}
-              required
-              value={values.firstName}
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              label="Last name"
-              margin="dense"
-              name="lastName"
-              onChange={handleChange}
-              required
-              value={values.lastName}
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              label="Email Address"
-              margin="dense"
-              name="email"
-              onChange={handleChange}
-              required
-              value={values.email}
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              label="Phone Number"
-              margin="dense"
-              name="phone"
-              onChange={handleChange}
-              type="number"
-              value={values.phone}
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              label="Select State"
-              margin="dense"
-              name="state"
-              onChange={handleChange}
-              required
-              select
-              // eslint-disable-next-line react/jsx-sort-props
-              SelectProps={{ native: true }}
-              value={values.state}
-              variant="outlined">
-              {states.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </TextField>
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <TextField
-              fullWidth
-              label="Country"
-              margin="dense"
-              name="country"
-              onChange={handleChange}
-              required
-              value={values.country}
-              variant="outlined"
-            />
-          </Grid>
+          {
+            cellData.map(([id, label]) => {
+              return (
+              <Grid item md={6} xs={12} 
+              key={id}>
+                <TextField
+                  disabled={!mine}
+                  fullWidth
+                  label={label}
+                  color='secondary'
+                  margin="dense"
+                  onChange={makeChangeHandler(id)}
+                  value={unsanitize(values[id] || '')}
+                  // variant="outlined"
+                />
+              </Grid>
+              )
+            })
+          }
         </Grid>
       </CardContent>
       <Divider />
+      {mine && 
       <CardActions>
-        <Button color="primary" variant="contained">
+        <Button color="primary" variant="contained" onClick={updateProfile}>
           Save details
         </Button>
-      </CardActions>
+      </CardActions>}
     </Card>
   );
 };

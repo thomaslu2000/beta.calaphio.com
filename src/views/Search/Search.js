@@ -39,11 +39,9 @@ const Search = props => {
         <div  style={{width:'50%', marginLeft:'auto', marginRight:'auto'}}>
       <TextField
               fullWidth
-              size='large'
               label='Search Name Here'
               style={{marginTop: 30, marginBottom:30}}
               onChange={async (e) => {
-                console.log(e.target.value);
                 if (e.target.value.length > 0)
               await axios.get(`${API_URL}/people/search`, {
                 params: {

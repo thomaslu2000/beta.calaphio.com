@@ -18,7 +18,7 @@ import {
 import axios from 'axios';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
-import { gCalAdd } from '../../../functions'
+import { gCalAdd } from '../../../functions';
 
 const API_URL = process.env.REACT_APP_SERVER;
 
@@ -33,6 +33,7 @@ const eventType = item => {
   if (types.length === 0) types.push('Other');
   return types.join(', ');
 };
+
 
 export default function Event(props) {
   const classes = useStyles();

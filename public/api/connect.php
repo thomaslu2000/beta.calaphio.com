@@ -84,6 +84,34 @@ switch ($request[0]) {
           $sql = sprintf("SELECT user_id, firstname, lastname, pledgeclass, email, dynasty FROM apo_users 
           WHERE CONCAT(firstname, ' ', lastname) LIKE '%s%%' ORDER BY user_id DESC", $_GET['query']);
           break;
+        case 'userData':
+          $sql = sprintf("SELECT user_id, firstname, lastname, pledgeclass, email, dynasty, 
+          phone, cellphone, address, city, zipcode, profile_pic, description FROM apo_users LEFT JOIN apo_wiki_user_description USING(user_id)
+          WHERE user_id=%s", $_GET['userId']);
+          break;
+        case 'updateDescription':
+          $sql = sprintf("UPDATE apo_wiki_user_description SET description='%s' 
+          WHERE user_id=%s", $data['description'], $data['userId']);
+          break;
+        case 'updateProfile':
+          $sql = sprintf("UPDATE apo_users SET firstname='%s', lastname='%s', email='%s', cellphone='%s', 
+          phone='%s', address='%s', city='%s', zipcode='%s' WHERE user_id=%s", $data['firstname'], $data['lastname'], $data['email'], 
+          $data['cellphone'], $data['phone'], $data['address'], $data['city'], $data['zipcode'], $data['userId']);
+          break;
+        case 'uploadPFP':
+          $path = $_REQUEST['pathTo'];
+          $uid = $_REQUEST['userId'];
+          $ext = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
+          $new_path = $path . $uid . '.';
+          array_map('unlink', glob('../' . $new_path . '*'));
+          $new_path .= $ext;
+          if (($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png') && 
+            move_uploaded_file($_FILES["file"]["tmp_name"], '../' . $new_path)) {
+            $sql = sprintf("UPDATE apo_users SET profile_pic='%s' WHERE user_id=%s", $new_path, $uid);
+          } else {
+            $sql = sprintf("SELECT 'failed' FROM apo_users LIMIT 1");
+          }
+          break;
       }
       break;
     case 'events': 

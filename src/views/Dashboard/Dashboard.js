@@ -10,7 +10,8 @@ import {
   Announcements,
   NextEvents
 } from './components';
-import { Box, Card, CardContent, Typography } from '@material-ui/core';
+import {default as Account} from '../Account'
+import { Box, Card, CardContent, Divider, Typography } from '@material-ui/core';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
@@ -88,6 +89,8 @@ const Dashboard = props => {
         <Box clone order={{ sm: 6 }}>
           <Grid item lg={4} md={6} xl={3} xs={12}>
             <NextEvents history={history} userid={global.userId} />
+            <Divider />
+            <Account userId={global.userId} mini />
           </Grid>
         </Box>
 
