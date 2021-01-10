@@ -41,6 +41,72 @@ switch ($request[0]) {
           WHERE evaluated=0 AND start_at > '%s' AND date <= '%s' AND deleted=0 
           GROUP BY event_id ORDER BY start_at ASC", $_GET['startDate'], $_GET['endDate']);
           break;
+        case 'superstars':
+          $sql = sprintf("SELECT *, attendedTime + COALESCE(flakedTime, 0 ) as totalTime 
+          from (SELECT firstname, lastname, user_id, pledgeclass, sum(hours) as attendedTime 
+          FROM (apo_calendar_event JOIN apo_calendar_attend USING (event_id)) Join apo_users USING (user_id)  
+          WHERE (type_service_chapter=TRUE OR type_service_campus=TRUE OR type_service_community=TRUE OR type_service_country=TRUE OR type_fundraiser=TRUE) 
+          AND attended = TRUE AND deleted=FALSE AND date BETWEEN '%s' AND '%s' AND disabled = 0 Group By user_id) as attendedHours left join 
+          (SELECT user_id, sum(hours) * -1 as flakedTime FROM (apo_calendar_event JOIN apo_calendar_attend USING (event_id)) Join apo_users USING (user_id)  
+          WHERE (type_service_chapter=TRUE OR type_service_campus=TRUE OR type_service_community=TRUE OR type_service_country=TRUE OR type_fundraiser=TRUE) 
+          AND flaked = TRUE AND deleted=FALSE AND date BETWEEN '%s' AND '%s' AND disabled = 0 Group By user_id) as flakedHours using (user_id) group by user_id order by totalTime DESC
+          ", $_GET['start'], $_GET['end'], $_GET['start'], $_GET['end']);
+          break;
+        case 'getPledges':
+          $sql = sprintf("SELECT user_id, firstname, lastname, pledgeclass FROM apo_pledges LEFT JOIN apo_users USING(user_id)");
+          break;
+        case 'updatePledges':
+          $toDepledge = explode(',', $data["depledge"]);
+          $toCross = explode(',', $data["cross"]);
+          $queries = array();
+          foreach($toDepledge as $p) $queries[] = sprintf("UPDATE apo_users SET depledged=1, disabled=1 WHERE user_id=%s", $p);
+          if (count($toDepledge) + count($toCross) > 0) {
+            $deletes = array();
+            foreach(array_merge($toDepledge, $toCross) as $id) $deletes[] = sprintf("user_id=%s", $id);
+            $queries[] = sprintf("DELETE FROM apo_pledges WHERE %s", implode(' OR ', $deletes));
+          }
+          $multi = TRUE;
+          $sql = implode('; ', $queries);
+          break;
+        case 'addPledges':
+          $d = explode('%&^%', $data['data']);
+          $keys = $data['keys'];
+          $indivKeys = explode(',', $keys);
+
+          $sid = array_search( "sid" , $indivKeys );
+          if ($sid === false) {
+            $sql = "SELECT 1/0 FROM apo_users;";
+            break;
+          }
+
+          $extra = sprintf(",'%s', CURRENT_TIMESTAMP, %s", $data['pledgeclass'], $data['uid']);
+          $toAdd = array();
+
+          foreach($d as $datum){
+            $salt = substr(md5(uniqid(rand(), true)), 0, 32);
+            $datum = explode(',', $datum);
+            $datum[] = $salt; $datum[] = sha1($salt . $datum[$sid]);
+            $datum = array_map(function($x) {return '"'.$x.'"';}, $datum);
+            $toAdd[] = implode(',', $datum) . $extra;
+          } 
+
+          $sql = "INSERT INTO apo_users (".$keys.", salt, passphrase, pledgeclass, registration_timestamp, registration_user) 
+          VALUES (".implode('), (', $toAdd) . "); SET @firstid := LAST_INSERT_ID(); 
+          INSERT INTO apo_pledges (user_id)
+          SELECT user_id
+          FROM (SELECT user_id from apo_users where user_id>=@firstid) as p;
+          ";
+          $multi = TRUE;
+          break;
+        case 'get':
+          $sql = "SELECT user_id, firstname, lastname FROM apo_permissions_groups LEFT JOIN apo_users USING(user_id) WHERE group_id=1";
+          break;
+        case 'remove':
+          $sql = sprintf("DELETE FROM apo_permissions_groups WHERE user_id=%s", $data['userId']);
+          break;
+        case 'add':
+          $sql = sprintf("INSERT INTO apo_permissions_groups (user_id, group_id) VALUES(%s, 1)", $data['userId']);
+          break;
       }
       break;
     case 'people':
@@ -81,17 +147,20 @@ switch ($request[0]) {
           WHERE user_id = %s AND end_at > CURRENT_TIMESTAMP AND deleted = 0 ORDER BY start_at", $_GET['userId']);
           break;
         case 'search':
-          $sql = sprintf("SELECT user_id, firstname, lastname, pledgeclass, email, dynasty FROM apo_users 
-          WHERE CONCAT(firstname, ' ', lastname) LIKE '%s%%' ORDER BY user_id DESC", $_GET['query']);
+          $sql = sprintf("SELECT user_id, firstname, lastname, pledgeclass, email, phone, dynasty FROM apo_users 
+          WHERE CONCAT(firstname, ' ', lastname) LIKE '%s%%' AND disabled=0 ORDER BY user_id DESC", $_GET['query']);
           break;
         case 'userData':
           $sql = sprintf("SELECT user_id, firstname, lastname, pledgeclass, email, dynasty, 
           phone, cellphone, address, city, zipcode, profile_pic, description FROM apo_users LEFT JOIN apo_wiki_user_description USING(user_id)
           WHERE user_id=%s", $_GET['userId']);
           break;
+        case 'changePass':
+          $sql = sprintf("UPDATE apo_users SET passphrase=sha1(concat(salt, '%s')) where user_id=%s", $data['pass'], $data['userId']);
+          break;
         case 'updateDescription':
-          $sql = sprintf("UPDATE apo_wiki_user_description SET description='%s' 
-          WHERE user_id=%s", $data['description'], $data['userId']);
+          $sql = sprintf("INSERT INTO apo_wiki_user_description (user_id, description) VALUES(%s, '%s') ON DUPLICATE KEY UPDATE    
+          description='%s'", $data['userId'], $data['description'], $data['description']);
           break;
         case 'updateProfile':
           $sql = sprintf("UPDATE apo_users SET firstname='%s', lastname='%s', email='%s', cellphone='%s', 
@@ -138,8 +207,8 @@ switch ($request[0]) {
             WHERE date >= '%s' AND date <= '%s' AND deleted=0 GROUP BY date", $_GET['startDate'], $_GET['endDate']);
             break;
           case 'attending':
-            $sql = sprintf("SELECT a.user_id as uid, signup_time, chair, firstname, lastname FROM apo_calendar_attend as a 
-            JOIN apo_users as u USING (user_id) WHERE event_id = %s", $_GET['eventId']);
+            $sql = sprintf("SELECT a.user_id as uid, signup_time, chair, firstname, lastname, phone FROM apo_calendar_attend as a 
+            JOIN apo_users as u USING (user_id) WHERE event_id = %s ORDER BY signup_time ASC", $_GET['eventId']);
             break;
           case 'signUp':
             $sql = sprintf("INSERT INTO apo_calendar_attend (event_id, user_id, signup_time) 

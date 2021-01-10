@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import axios from 'axios';
@@ -22,6 +22,8 @@ import {
   TextField
 } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import UpdatePledge from './UpdatePledge'
+import AddPledges from './AddPledges'
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import { unsanitize } from '../../../functions';
 
@@ -40,6 +42,12 @@ const AdminPanel = props => {
   const [display, setDisplay] = useState();
   const classes = useStyles();
 
+  useEffect(() => {
+    if (Object.keys(adminFuncs[window].forms).length === 0) {
+      handleLoad();
+    }
+  }, [window])
+
   const adminFuncs = [
   {
     title: 'Check if Admin',
@@ -49,8 +57,19 @@ const AdminPanel = props => {
     url: '/people/admin/',
     type: 'GET',
     callback: response => {
-      if (response.data[0]) alert('This is an admin!'); 
+      if (response.data[0]) alert('This is an Admin!'); //alert(JSON.stringify(response)); 
       else alert('Not an admin');
+    }
+  },
+  {
+    title: 'Change Password',
+    forms: {
+      userId: 'User Id (number)', pass: 'New Password'
+    },
+    url: '/people/changePass/',
+    type: 'POST',
+    callback: response => {
+      alert('Let User Check');
     }
   },
   {
@@ -95,56 +114,114 @@ const AdminPanel = props => {
       </IconButton>
       }]])
     }
+  },
+  {
+    title: 'Update Pledge Status',
+    forms: {},
+    url: '/admin/getPledges/',
+    type: 'GET',
+    callback: response => {
+      setDisplay(<UpdatePledge data={response.data} />);
+    }
+  },
+  {
+    title: 'Add Pledges (xlsx)',
+    forms: {},
+    type: 'none',
+    callback: response => {
+      setDisplay(<AddPledges uid={userId}/>);
+    }
+  },
+  {
+    title: 'View Admins',
+    forms: {},
+    url: '/admin/get/',
+    type: 'GET',
+    callback: response => {
+      tablefy(response.data);
+    }
+  },
+  {
+    title: 'Remove Admins',
+    forms: {userId: 'User Id (number)'},
+    url: '/admin/remove/',
+    type: 'POST',
+    callback: response => {
+      alert("Action Performed")
+    }
+  },
+  {
+    title: 'Add Admins',
+    forms: {userId: 'User Id (number)'},
+    url: '/admin/add/',
+    type: 'POST',
+    callback: response => {
+      alert("Action Performed")
+    }
   }
 ];
+  const handleLoad = async () => {
+    if (adminFuncs[window].type==='GET'){
+    await axios.get(`${API_URL}/${adminFuncs[window].url}`, {
+      params: values
+    })
+    .then(adminFuncs[window].callback)
+    } else if (adminFuncs[window].type==='POST') {
+      await axios.post(`${API_URL}/${adminFuncs[window].url}`, values, {
+        headers: { 'content-type': 'application/x-www-form-urlencoded' }})
+      .then(adminFuncs[window].callback)
+    } else if (adminFuncs[window].type==='none') {
+      adminFuncs[window].callback();
+    }
+  }
 
-const tablefy = (data, extra=[]) => {
-  // this function literally just turns the list of objects into a table
-  // extra is of the form: [ [cell_name1, cell_code1(entry)], [cell_name2, cell_code2(entry)]...]
-  if (data.length === 0) return setDisplay("No Data Found");
-  let keys = Object.keys(data[0]);
-  let extra_titles = extra.map(([title, func]) => {return title});
-  let codes = extra.map(([title, func]) => {return func})
-  return setDisplay(
-    <TableContainer style={{overflowX:'auto'}}>
-    <Table
-            className={classes.table}
-            size="small">
-            <TableHead>
-              <TableRow>
-                {keys.map(k => {
-                  return (<TableCell align="left" key={k}>{unsanitize(k)}</TableCell>)
-                })}
-                {extra_titles.map(k => {
-                  return (<TableCell align="left" key={k}>{unsanitize(k)}</TableCell>)
-                })}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map((entry, i) => {
-                return (
-                <TableRow key={'row'+i}>
-
+  const tablefy = (data, extra=[]) => {
+    // this function literally just turns the list of objects into a table
+    // extra is of the form: [ [cell_name1, cell_code1(entry)], [cell_name2, cell_code2(entry)]...]
+    if (data.length === 0) return setDisplay("No Data Found");
+    let keys = Object.keys(data[0]);
+    let extra_titles = extra.map(([title, func]) => {return title});
+    let codes = extra.map(([title, func]) => {return func})
+    return setDisplay(
+      <TableContainer style={{overflowX:'auto'}}>
+      <Table
+              className={classes.table}
+              size="small">
+              <TableHead>
+                <TableRow>
                   {keys.map(k => {
-                  return <TableCell align="left" key={k+i}>
-                    {unsanitize(entry[k])}
-                  </TableCell>
+                    return (<TableCell align="left" key={k}>{unsanitize(k)}</TableCell>)
+                  })}
+                  {extra_titles.map(k => {
+                    return (<TableCell align="left" key={k}>{unsanitize(k)}</TableCell>)
+                  })}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data.map((entry, i) => {
+                  return (
+                  <TableRow key={'row'+i}>
+
+                    {keys.map(k => {
+                    return <TableCell align="left" key={k+i}>
+                      {unsanitize(entry[k])}
+                    </TableCell>
+                  })}
+
+                  {codes.map((f, j) => {
+                    return <TableCell align="left" key={'extra '+extra_titles[j]}>
+                      {f(entry)}
+                    </TableCell>
+                  })}
+
+                  </TableRow>)
                 })}
-
-                {codes.map((f, j) => {
-                  return <TableCell align="left" key={'extra '+extra_titles[j]}>
-                    {f(entry)}
-                  </TableCell>
-                })}
-
-                </TableRow>)
-              })}
-            </TableBody>
-          </Table></TableContainer>
-  )
+              </TableBody>
+            </Table></TableContainer>
+    )
 
 
-}
+  }
 
   return (
     <div>
@@ -171,19 +248,15 @@ const tablefy = (data, extra=[]) => {
           <div>
             <Typography variant="h1"  className={classes.padded}>
               {adminFuncs[window].title} 
-        <Button
+            {Object.keys(adminFuncs[window].forms).length > 0 && 
+            <Button
             style={{marginLeft: 30}}
             size="large"
             variant="outlined"
-            onClick={async () => {
-              if (adminFuncs[window].type==='GET'){
-              await axios.get(`${API_URL}/${adminFuncs[window].url}`, {
-                params: values
-              })
-              .then(adminFuncs[window].callback)
-            }}}>
+            
+            onClick={handleLoad}>
             Run
-          </Button>
+          </Button>}
             </Typography>
           </div>
           {Object.entries(adminFuncs[window].forms).map(([param, title], idx) => {

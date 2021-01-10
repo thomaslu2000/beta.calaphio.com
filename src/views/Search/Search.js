@@ -14,6 +14,7 @@ import {
   TextField
 } from '@material-ui/core';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
+import {unsanitize} from '../functions';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
@@ -36,7 +37,7 @@ const Search = props => {
     <div className={classes.root}>
       <Paper className={classes.root}>
         <Typography variant='h1' style={{marginLeft:'auto', marginRight:'auto'}}>User Search</Typography>
-        <div  style={{width:'50%', marginLeft:'auto', marginRight:'auto'}}>
+        <div  style={{width:'75%', marginLeft:'auto', marginRight:'auto'}}>
       <TextField
               fullWidth
               label='Search Name Here'
@@ -61,6 +62,7 @@ const Search = props => {
               <TableRow>
               <TableCell align="left" >Name</TableCell>
               <TableCell align="left" >Pledge Class</TableCell>
+              <TableCell align="left" >How to Reach Me</TableCell>
               <TableCell align="left" >Email</TableCell>
               <TableCell align="left" >Dynasty</TableCell>
               </TableRow>
@@ -82,6 +84,10 @@ const Search = props => {
                   <TableCell align="left">
                       <Typography gutterBottom variant="h5">
                     {entry.pledgeclass}</Typography>
+                  </TableCell>
+                  <TableCell align="left">
+                      <Typography gutterBottom variant="h5">
+                    {unsanitize(entry.phone)}</Typography>
                   </TableCell>
                   <TableCell align="left">
                       <Typography gutterBottom variant="h5">

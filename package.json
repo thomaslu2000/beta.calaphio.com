@@ -57,7 +57,8 @@
     "sanitize-html": "^1.27.2",
     "underscore": "^1.9.1",
     "uuid": "^3.3.2",
-    "validate.js": "^0.13.1"
+    "validate.js": "^0.13.1",
+    "xlsx": "^0.16.9"
   },
   "devDependencies": {
     "eslint": "5.16.0",

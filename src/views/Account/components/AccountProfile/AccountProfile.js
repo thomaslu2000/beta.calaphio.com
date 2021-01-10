@@ -21,13 +21,12 @@ const face_folder = process.env.REACT_APP_FACES;
 const extensions = ['jpg', 'png', 'jpeg']
 
 const avatarSearch = userdata => {
-  var pic_path = '/images/avatars/avatar_11.png' 
+  var pic_path = 'https://icon-library.net/images/default-profile-icon/default-profile-icon-17.jpg' 
   if (userdata) {
     if (userdata.profile_pic) {
       return userdata.profile_pic;
     }
     let id = userdata.user_id;
-    var pic_path = '/images/avatars/avatar_11.png' 
     if (id)
       for (let i = 0; i< 3; i++){
         let r = `${face_folder}${id}.${extensions[i]}`
@@ -64,7 +63,7 @@ const AccountProfile = props => {
   }
 
   const upload = async (e) => {
-    console.log(e.target.files[0])
+    // console.log(e.target.files[0])
     const formData = new FormData();
     formData.append('file', e.target.files[0]);
     formData.append('pathTo', face_folder);
@@ -76,8 +75,14 @@ const AccountProfile = props => {
           'content-type': 'multipart/form-data'
       }
   }).then(res => {
-    console.log(res)
+    if (res.data.length > 0) {
+      alert('Image Upload Failed');
+    } else {
+      alert('Upload Succeeded!');
+      window.location.reload(false); 
+    }
   })
+  alert('Please Wait While the File is Processed!');
   }
 
   let mine = viewerid===userdata.user_id;

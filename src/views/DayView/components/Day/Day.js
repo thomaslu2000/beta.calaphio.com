@@ -132,7 +132,9 @@ const Day = props => {
   return (
     <Grid container spacing={4}>
       <Box clone order={{ xs: 2, sm: 2, md: 1 }}>
-        <Grid item md={8} sm={8}>
+        <Grid item 
+          md={6}
+          sm={12}>
           <Scheduler data={data}>
             <ViewState
               currentDate={currentDate}
@@ -174,7 +176,7 @@ const Day = props => {
       <Box clone order={{ sm: 1, md: 2 }}>
         <Grid
           item
-          lg={4}
+          md={6}
           sm={12}
           style={{
             marginLeft: 'auto',

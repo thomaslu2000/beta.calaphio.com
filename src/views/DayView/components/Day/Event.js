@@ -18,7 +18,7 @@ import {
 import axios from 'axios';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
-import { gCalAdd } from '../../../functions';
+import { unsanitize, gCalAdd } from '../../../functions';
 
 const API_URL = process.env.REACT_APP_SERVER;
 
@@ -259,18 +259,22 @@ export default function Event(props) {
             aria-label="a dense table">
             <TableHead>
               <TableRow>
-                <TableCell align="right">Name</TableCell>
-                <TableCell align="right">Sign Up Time</TableCell>
+                <TableCell align="left">Name</TableCell>
+                <TableCell align="left">How to Reach</TableCell>
+                <TableCell align="left">Sign Up Time</TableCell>
                 <TableCell align="right"></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {attending.map(row => (
                 <TableRow key={row.firstname + row.lastname}>
-                  <TableCell component="th" scope="row">
+                  <TableCell component="th" scope="row">{console.log('what the', row)}
                     {row.firstname + ' ' + row.lastname}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell component="th" scope="row">
+                    {unsanitize(row.phone)}
+                  </TableCell>
+                  <TableCell align="left">
                     {moment
                       .utc(row.signup_time)
                       .local()
