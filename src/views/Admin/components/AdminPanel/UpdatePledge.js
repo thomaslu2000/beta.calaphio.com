@@ -61,7 +61,7 @@ const UpdatePledge = props => {
               headers: { 'content-type': 'application/x-www-form-urlencoded' }
             })
             .then(res => {
-                // console.log(res.data)
+                console.log(res.data)
               alert('Successfully Updated');
               window.location.reload(false);
             });

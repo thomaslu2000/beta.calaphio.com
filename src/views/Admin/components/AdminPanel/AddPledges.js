@@ -20,7 +20,6 @@ const useStyles = makeStyles((theme) => ({
 
 
 const AddPledges = props => {
-  let attending = props.data;
   const classes = useStyles();
   const [value, setValue] = useState({});
   const [pledgeclass, setPledgeclass] = useState("");

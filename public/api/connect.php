@@ -59,10 +59,10 @@ switch ($request[0]) {
           $toDepledge = explode(',', $data["depledge"]);
           $toCross = explode(',', $data["cross"]);
           $queries = array();
-          foreach($toDepledge as $p) $queries[] = sprintf("UPDATE apo_users SET depledged=1, disabled=1 WHERE user_id=%s", $p);
+          foreach($toDepledge as $p) if($p) $queries[] = sprintf("UPDATE apo_users SET depledged=1, disabled=1 WHERE user_id=%s", $p);
           if (count($toDepledge) + count($toCross) > 0) {
             $deletes = array();
-            foreach(array_merge($toDepledge, $toCross) as $id) $deletes[] = sprintf("user_id=%s", $id);
+            foreach(array_merge($toDepledge, $toCross) as $id) if ($id) $deletes[] = sprintf("user_id=%s", $id);
             $queries[] = sprintf("DELETE FROM apo_pledges WHERE %s", implode(' OR ', $deletes));
           }
           $multi = TRUE;

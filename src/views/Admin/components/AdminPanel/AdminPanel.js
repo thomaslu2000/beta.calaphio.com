@@ -129,7 +129,7 @@ const AdminPanel = props => {
     forms: {},
     type: 'none',
     callback: response => {
-      setDisplay(<AddPledges uid={userId}/>);
+      setDisplay(<AddPledges/>);
     }
   },
   {
