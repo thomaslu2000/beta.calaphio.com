@@ -69,7 +69,7 @@ const AdminPanel = props => {
     url: '/people/changePass/',
     type: 'POST',
     callback: response => {
-      alert('Let User Check');
+      alert('Complete! Double Check With User.');
     }
   },
   {
