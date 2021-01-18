@@ -58,6 +58,7 @@ const Announcements = props => {
   return (
     <div {...rest} className={clsx(classes.root, className)}>
       {data.map((item, i) => {
+        // console.log(unsanitize(item.text))
         return (
           <Card className={classes.card} key={item.publish_time}>
             <Typography gutterBottom variant="h3" component="h2" align="center">
@@ -65,12 +66,6 @@ const Announcements = props => {
             </Typography>
             <Divider />
             <CardContent>
-              <ShowMoreText
-                lines={5}
-                more="Show more"
-                less="Show less"
-                anchorClass=""
-                expanded={false}>
                 <Typography
                   gutterBottom
                   variant="h4"
@@ -79,7 +74,6 @@ const Announcements = props => {
                     __html: unsanitize(item.text)
                   }}
                 />
-              </ShowMoreText>
               <Typography className={classes.name} color="textSecondary">
                 - {item.firstname} {item.lastname} ({item.pledgeclass}),{' '}
                 {moment(item.publish_time).fromNow()}

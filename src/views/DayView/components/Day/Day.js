@@ -101,13 +101,14 @@ const Day = props => {
   };
 
   const getDayEvents = async () => {
+
     await axios
       .get(`${API_URL}/events/day/`, {
         params: {
-          startDate: moment(currentDate)
+          startDate: moment(currentDate).subtract(1, 'days')
             .utc()
             .format('YYYY-MM-DD HH:mm:ss'),
-          endDate: moment(currentDate)
+          endDate: moment(currentDate).add(1, 'days')
             .add(1, 'days')
             .utc()
             .format('YYYY-MM-DD HH:mm:ss')

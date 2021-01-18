@@ -107,6 +107,16 @@ switch ($request[0]) {
         case 'add':
           $sql = sprintf("INSERT INTO apo_permissions_groups (user_id, group_id) VALUES(%s, 1)", $data['userId']);
           break;
+        case 'addAnnouncement':
+          $sql = sprintf("INSERT INTO apo_announcements (user_id, text, publish_time, title) 
+          VALUES (%s, '%s', CURRENT_TIME, '%s')", $data['userId'], $data['text'], $data['title']);
+          break;
+        case 'updateAnnouncement':
+          $sql = sprintf("UPDATE apo_announcements SET text='%s', title='%s' WHERE id=%s", $data['text'], $data['title'], $data['id']);
+          break;
+        case 'deleteAnnouncement':
+          $sql = sprintf("DELETE FROM apo_announcements WHERE id=%s", $data['id']);
+          break;
       }
       break;
     case 'people':
@@ -261,7 +271,7 @@ switch ($request[0]) {
           $sql = "SELECT * FROM apo_semesters ORDER BY id DESC LIMIT 1";
           break;
         case 'announcements':
-          $sql = "SELECT a.user_id, a.text, a.publish_time, a.title, u.firstname, u.lastname, u.pledgeclass, e.start 
+          $sql = "SELECT a.id, a.user_id, a.text, a.publish_time, a.title, u.firstname, u.lastname, u.pledgeclass, e.start 
           FROM apo_announcements a JOIN apo_users u 
           USING (user_id) JOIN (SELECT MAX(start) as start FROM apo_semesters) as e 
           WHERE a.publish_time > e.start 

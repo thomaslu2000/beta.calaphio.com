@@ -19,19 +19,19 @@ export function clean(str) {
 }
 
 export function unsanitize(str) {
-  if (!str) return '';
+  if (!str || typeof(str) !== 'string') return '';
   return unescape(
     str
-      .replaceAll(/%26/g, '&')
-      .replaceAll(/%3B/g, ';')
-      .replaceAll(/&amp;/g, '&')
-      .replaceAll(/&#039;/g, "'")
-      .replaceAll(/&rsquo;/g, '’')
-      .replaceAll(/&lt;/g, '<')
-      .replaceAll(/&gt;/g, '>')
-      .replaceAll(/&quot;/g, '"')
-      .replaceAll(/&Phi;/g, 'Φ')
-      .replaceAll(/&Omega;/g, 'Ω')
+      .replace(/%26/g, '&')
+      .replace(/%3B/g, ';')
+      .replace(/&amp;/g, '&')
+      .replace(/&#039;/g, "'")
+      .replace(/&rsquo;/g, '’')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&Phi;/g, 'Φ')
+      .replace(/&Omega;/g, 'Ω')
   );
 }
 

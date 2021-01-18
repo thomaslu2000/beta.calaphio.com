@@ -44,7 +44,7 @@ const AddPledges = props => {
         for (let i = 0; i < dataParse.length; i++) {
             while (dataParse[i].length < keys.length) dataParse[i].push("");
             newData.push(
-                dataParse[i].map((e, j) => e.replaceAll(',', 'ˏ')).toString()
+                dataParse[i].map((e, j) => e.replace(/,/g, 'ˏ')).toString()
             );
         }
         let base = {keys:keys.toString(), data:newData.join('%&^%')};

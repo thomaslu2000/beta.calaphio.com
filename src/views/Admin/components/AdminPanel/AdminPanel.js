@@ -22,8 +22,9 @@ import {
   TextField
 } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import UpdatePledge from './UpdatePledge'
-import AddPledges from './AddPledges'
+import UpdatePledge from './UpdatePledge';
+import AddPledges from './AddPledges';
+import EditAnnouncements from './EditAnnouncements';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import { unsanitize } from '../../../functions';
 
@@ -37,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 
 const AdminPanel = props => {
   const { userId, history, ...rest } = props;
-  const [window, setWindow] = useState(1);
+  const [window, setWindow] = useState(0);
   const [values, setValues] = useState({});
   const [display, setDisplay] = useState();
   const classes = useStyles();
@@ -49,6 +50,14 @@ const AdminPanel = props => {
   }, [window])
 
   const adminFuncs = [
+    {
+    title: 'Add / Edit Announcements',
+    forms: {},
+    type: 'none',
+    callback: response => {
+      setDisplay(<EditAnnouncements />);
+    }
+  },
   {
     title: 'Check if Admin',
     forms: {

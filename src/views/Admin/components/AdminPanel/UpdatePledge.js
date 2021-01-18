@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 const UpdatePledge = props => {
   let attending = props.data;
   const classes = useStyles();
-  const [statuses, setStatuses] = React.useState({});
+  const [statuses, setStatuses] = useState({});
 
 //   console.log(statuses)
 
