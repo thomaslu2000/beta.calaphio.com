@@ -86,7 +86,7 @@ const Dashboard = props => {
             <Evaluate userId={global.userId} />
           </Grid>
         </Box>
-        <Box clone order={{ sm: 6 }}>
+        <Box clone order={{ xs: 6 }}>
           <Grid item lg={4} md={6} xl={3} xs={12}>
             <NextEvents history={history} userid={global.userId} />
             <Divider />
