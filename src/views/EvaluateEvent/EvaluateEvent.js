@@ -23,6 +23,7 @@ import { useGlobal } from 'reactn';
 import axios from 'axios';
 import moment from 'moment';
 import { unsanitize } from '../functions';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const EvaluateEvent = props => {
@@ -50,7 +51,8 @@ const EvaluateEvent = props => {
     await axios
       .get(`${API_URL}/events/`, {
         params: {
-          eventId: eid
+          eventId: eid,
+          API_SECRET
         }
       })
       .then(response => {
@@ -66,7 +68,8 @@ const EvaluateEvent = props => {
     await axios
       .get(`${API_URL}/events/attending/`, {
         params: {
-          eventId: eid
+          eventId: eid,
+          API_SECRET
         }
       })
       .then(response => {
@@ -115,7 +118,7 @@ const EvaluateEvent = props => {
     let params = makeParams();
     await axios
       .get(`${API_URL}/people/adminOrChair`, {
-        params: { userId: global.userId || -1, eventId: eid }
+        params: { userId: global.userId || -1, eventId: eid, API_SECRET }
       })
       .then(response => {
         if (response.data.length > 0) {

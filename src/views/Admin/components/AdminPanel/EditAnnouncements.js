@@ -17,6 +17,7 @@ import RichTextEditor from 'react-rte';
 import { useGlobal } from 'reactn';
 import { unsanitize, clean } from '../../../functions';
 
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles((theme) => ({
@@ -50,7 +51,7 @@ const EditAnnouncements = props => {
   const getAnnouncements = async () => {
     await axios
       .get(`${API_URL}/general/announcements/`, {
-        params: {}
+        params: {API_SECRET}
       })
       .then(response => {
         setData(response.data);
@@ -59,7 +60,7 @@ const EditAnnouncements = props => {
 
   const postAnnouncement = async () => {
       if (curr === -1) {
-        await axios.post(`${API_URL}/admin/addAnnouncement`, {userId: global.userId, text: text.toString('html'), title: title}, {
+        await axios.post(`${API_URL}/admin/addAnnouncement`, {userId: global.userId, text: text.toString('html'), title: title, API_SECRET}, {
             headers: { 'content-type': 'application/x-www-form-urlencoded' }})
           .then((res) => {
                 alert('Announcement Published!');
@@ -67,7 +68,7 @@ const EditAnnouncements = props => {
             }
           );
       } else {
-        await axios.post(`${API_URL}/admin/updateAnnouncement`, {id: data[curr].id, text: text.toString('html'), title: title}, {
+        await axios.post(`${API_URL}/admin/updateAnnouncement`, {id: data[curr].id, text: text.toString('html'), title: title, API_SECRET}, {
             headers: { 'content-type': 'application/x-www-form-urlencoded' }})
           .then((res) => {
                 alert('Announcement Updated!');
@@ -78,7 +79,7 @@ const EditAnnouncements = props => {
   }
 
   const deleteAnnouncement = async () => {
-    await axios.post(`${API_URL}/admin/deleteAnnouncement`, {id: data[curr].id}, {
+    await axios.post(`${API_URL}/admin/deleteAnnouncement`, {id: data[curr].id, API_SECRET}, {
         headers: { 'content-type': 'application/x-www-form-urlencoded' }})
       .then((res) => {
           alert("Announcement Deleted!");

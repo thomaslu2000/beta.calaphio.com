@@ -16,6 +16,7 @@ import { useGlobal } from 'reactn';
 import { useCookies } from 'react-cookie';
 import Alert from '@material-ui/lab/Alert';
 import axios from 'axios';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const schema = {
@@ -114,7 +115,8 @@ const SignIn = props => {
         `${API_URL}/people/login/`,
         {
           email: formState.values.email,
-          passphrase: formState.values.password
+          passphrase: formState.values.password,
+          API_SECRET
         },
         {
           headers: { 'content-type': 'application/x-www-form-urlencoded' }

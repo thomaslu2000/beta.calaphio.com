@@ -16,6 +16,7 @@ import moment from 'moment';
 import { useGlobal } from 'reactn';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
@@ -38,7 +39,7 @@ const Dashboard = props => {
   const getLatest = async () => {
     await axios
       .get(`${API_URL}/general/lastSem/`, {
-        params: {}
+        params: {API_SECRET}
       })
       .then(response => {
         let sem = response.data[0];
@@ -55,7 +56,8 @@ const Dashboard = props => {
         params: {
           startDate,
           endDate,
-          userId: global.userId
+          userId: global.userId,
+          API_SECRET
         }
       })
       .then(response => {

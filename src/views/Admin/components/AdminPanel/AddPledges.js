@@ -10,6 +10,7 @@ import { unsanitize, clean } from '../../../functions';
 import { useGlobal } from 'reactn';
 import * as XLSX from 'xlsx';
 
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles((theme) => ({
@@ -97,6 +98,7 @@ const AddPledges = props => {
               if (value.data.length > 0){
                 value['pledgeclass'] = pledgeclass;
                 value['uid'] = global.userId;
+                value['API_SECRET'] = API_SECRET;
                 axios
                 .post(`${API_URL}/admin/addPledges`, 
                 value

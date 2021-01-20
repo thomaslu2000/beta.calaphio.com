@@ -14,6 +14,7 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import { unsanitize } from '../../../functions';
 import axios from 'axios';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
@@ -48,7 +49,7 @@ const Evaluate = props => {
   const getEvents = async () => {
     await axios
       .get(`${API_URL}/people/toEval/`, {
-        params: { userId: props.userId }
+        params: { userId: props.userId, API_SECRET }
       })
       .then(response => {
         setData(response.data);

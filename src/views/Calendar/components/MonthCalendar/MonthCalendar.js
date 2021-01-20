@@ -16,6 +16,7 @@ import moment from 'moment';
 import { makeTypes } from '../../../AppointmentFormFunctions';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import { unsanitize } from '../../../functions';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const Header = f => {
@@ -95,29 +96,32 @@ const MonthCalendar = props => {
       .get(`${API_URL}/events/month/`, {
         params: {
           startDate: start,
-          endDate: end
+          endDate: end,
+          API_SECRET
         }
       })
       .then(response => {
         let days = {};
         response.data.map(item => {
           let type = item.service === '1' ? 0 : item.fellowship === '1' ? 1 : 2;
-          let date = moment
-            .utc(item.start_at)
-            .local()
+          let timeStart = moment
+          .utc(item.start_at)
+          .local();
+          let timeEnd = moment
+          .utc(item.end_at)
+          .local();
+          let date = timeStart
             .format('YYYY-MM-DD');
-          let dateEnd = moment
-            .utc(item.end_at)
-            .local()
+          let dateEnd = timeEnd
             .format('YYYY-MM-DD');
           if (!days[date]) days[date] = [[], [], []];
-          days[date][type].push([item.event_id, unsanitize(item.title), date]);
+          days[date][type].push([item.event_id, unsanitize(item.title), date, timeStart, timeEnd]);
           if (dateEnd !== date) {
             if (!days[dateEnd]) days[dateEnd] = [[], [], []];
             days[dateEnd][type].push([
               item.event_id,
               unsanitize(item.title),
-              dateEnd
+              dateEnd, timeStart, timeEnd
             ]);
           }
         });
@@ -132,8 +136,8 @@ const MonthCalendar = props => {
               cats[i].map((ev, idx) => {
                 newList.push({
                   title: ev[1],
-                  startDate,
-                  endDate,
+                  startDate: ev[3],
+                  endDate: ev[4],
                   typeId: [3, 5, 6][i],
                   description: [ev]
                 });
@@ -154,8 +158,8 @@ const MonthCalendar = props => {
               else if (cats[i].length === 1) {
                 newList.push({
                   title: cats[i][0][1],
-                  startDate,
-                  endDate,
+                  startDate: cats[i][0][3],
+                  endDate: cats[i][0][4],
                   typeId: [3, 5, 6][i],
                   description: cats[i]
                 });

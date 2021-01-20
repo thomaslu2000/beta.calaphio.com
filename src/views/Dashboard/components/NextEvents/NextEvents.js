@@ -15,6 +15,7 @@ import {
 import moment from 'moment';
 import axios from 'axios';
 import { unsanitize, dayToObj, gCalAdd } from '../../../functions';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
@@ -38,7 +39,7 @@ const NextEvents = props => {
     await axios
       .get(`${API_URL}/people/next3/`, {
         params: {
-          userId: userid
+          userId: userid, API_SECRET
         }
       })
       .then(response => {
@@ -50,7 +51,7 @@ const NextEvents = props => {
     await axios
       .get(`${API_URL}/people/upcoming/`, {
         params: {
-          userId: userid
+          userId: userid, API_SECRET
         }
       })
       .then(response => {

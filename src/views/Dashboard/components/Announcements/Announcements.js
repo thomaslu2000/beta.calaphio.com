@@ -17,6 +17,7 @@ import { unsanitize } from '../../../functions';
 import moment from 'moment';
 import ShowMoreText from 'react-show-more-text';
 import axios from 'axios';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(() => ({
@@ -46,7 +47,7 @@ const Announcements = props => {
   const getAnnouncements = async () => {
     await axios
       .get(`${API_URL}/general/announcements/`, {
-        params: {}
+        params: {API_SECRET}
       })
       .then(response => {
         setData(response.data);

@@ -13,6 +13,7 @@ import {
   AdminPanel
 } from './components';
 import { useGlobal } from 'reactn';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
@@ -33,7 +34,7 @@ const Admin = props => {
   const getAdmin = async () => {
     await axios
       .get(`${API_URL}/people/admin/`, {
-        params: {userId: global.userId}
+        params: {userId: global.userId, API_SECRET}
       })
       .then(response => {
         if (response.data[0]) setAdminPermission(true);

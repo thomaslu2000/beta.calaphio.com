@@ -28,6 +28,7 @@ import EditAnnouncements from './EditAnnouncements';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import { unsanitize } from '../../../functions';
 
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles((theme) => ({
@@ -172,11 +173,11 @@ const AdminPanel = props => {
   const handleLoad = async () => {
     if (adminFuncs[window].type==='GET'){
     await axios.get(`${API_URL}/${adminFuncs[window].url}`, {
-      params: values
+      params: {...values, API_SECRET}
     })
     .then(adminFuncs[window].callback)
     } else if (adminFuncs[window].type==='POST') {
-      await axios.post(`${API_URL}/${adminFuncs[window].url}`, values, {
+      await axios.post(`${API_URL}/${adminFuncs[window].url}`, {...values, API_SECRET}, {
         headers: { 'content-type': 'application/x-www-form-urlencoded' }})
       .then(adminFuncs[window].callback)
     } else if (adminFuncs[window].type==='none') {

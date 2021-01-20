@@ -1,6 +1,7 @@
 import axios from 'axios';
 import moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 export function makeTypes() {
@@ -62,6 +63,7 @@ const makeParams = (data, uid) => {
       creator_id: uid
     };
   }
+  params.API_SECRET = API_SECRET;
   if (data.title) params.title = escape(sanitizeHtml(data.title));
   if (data.location) params.location = escape(sanitizeHtml(data.location));
   if (data.notes) params.description = escape(sanitizeHtml(data.notes));
@@ -113,7 +115,7 @@ export function makeCommitChanges(f, uid) {
         params.eventId = eventId;
         await axios
           .get(`${API_URL}/people/adminOrChair`, {
-            params: { userId: uid, eventId: eventId }
+            params: { userId: uid, eventId: eventId, API_SECRET}
           })
           .then(response => {
             if (response.data.length > 0) {

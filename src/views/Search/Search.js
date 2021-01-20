@@ -18,6 +18,7 @@ import {unsanitize} from '../functions';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
@@ -46,7 +47,8 @@ const Search = props => {
                 if (e.target.value.length > 0)
               await axios.get(`${API_URL}/people/search`, {
                 params: {
-                  query: e.target.value
+                  query: e.target.value,
+                  API_SECRET
                 }
               })
               .then(response => {

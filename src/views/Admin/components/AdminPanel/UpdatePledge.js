@@ -18,6 +18,7 @@ import {
 } from '@material-ui/core';
 import { unsanitize } from '../../../functions';
 
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles((theme) => ({
@@ -55,7 +56,8 @@ const UpdatePledge = props => {
             .post(`${API_URL}/admin/updatePledges`, 
             {
                 'cross': cross.toString(),
-                'depledge': depledge.toString()
+                'depledge': depledge.toString(),
+                API_SECRET
             }
             , {
               headers: { 'content-type': 'application/x-www-form-urlencoded' }

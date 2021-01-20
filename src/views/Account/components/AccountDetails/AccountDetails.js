@@ -14,6 +14,7 @@ import {
 } from '@material-ui/core';
 import {unsanitize, clean} from '../../../functions'
 import axios from 'axios';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(() => ({
@@ -51,7 +52,8 @@ const AccountDetails = props => {
           `${API_URL}/people/updateProfile/`,
           {
             ...values,
-            userId: viewerid
+            userId: viewerid,
+            API_SECRET
           },
           { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
         )

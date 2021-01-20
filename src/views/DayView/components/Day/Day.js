@@ -24,6 +24,7 @@ import {
   makeCommitChanges
 } from '../../../AppointmentFormFunctions';
 import { useGlobal } from 'reactn';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const Header = f => {
@@ -111,7 +112,8 @@ const Day = props => {
           endDate: moment(currentDate).add(1, 'days')
             .add(1, 'days')
             .utc()
-            .format('YYYY-MM-DD HH:mm:ss')
+            .format('YYYY-MM-DD HH:mm:ss'),
+            API_SECRET
         }
       })
       .then(response => {
@@ -134,7 +136,7 @@ const Day = props => {
     <Grid container spacing={4}>
       <Box clone order={{ xs: 2, sm: 2, md: 1 }}>
         <Grid item 
-          md={6}
+          md={7}
           sm={12}>
           <Scheduler data={data}>
             <ViewState
@@ -177,7 +179,7 @@ const Day = props => {
       <Box clone order={{ sm: 1, md: 2 }}>
         <Grid
           item
-          md={6}
+          md={5}
           sm={12}
           style={{
             marginLeft: 'auto',

@@ -20,6 +20,7 @@ import moment from 'moment';
 import { useGlobal } from 'reactn';
 import { unsanitize, gCalAdd } from '../../../functions';
 
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const eventType = item => {
@@ -50,7 +51,8 @@ export default function Event(props) {
     await axios
       .get(`${API_URL}/events/attending/`, {
         params: {
-          eventId: props.eventData.event_id
+          eventId: props.eventData.event_id,
+          API_SECRET
         }
       })
       .then(response => {
@@ -76,7 +78,8 @@ export default function Event(props) {
             userId: global.userId,
             timestamp: moment()
               .utc()
-              .format('YYYY-MM-DD HH:mm:ss')
+              .format('YYYY-MM-DD HH:mm:ss'),
+              API_SECRET
           },
           { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
         )
@@ -104,7 +107,8 @@ export default function Event(props) {
         `${API_URL}/events/signOff/`,
         {
           eventId: props.eventData.event_id,
-          userId: global.userId
+          userId: global.userId,
+          API_SECRET
         },
         { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
       )
@@ -122,7 +126,8 @@ export default function Event(props) {
         {
           eventId: props.eventData.event_id,
           userId: global.userId,
-          setting: 1
+          setting: 1,
+          API_SECRET
         },
         { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
       )
@@ -143,7 +148,8 @@ export default function Event(props) {
         {
           eventId: props.eventData.event_id,
           userId: global.userId,
-          setting: 0
+          setting: 0,
+          API_SECRET
         },
         { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
       )
@@ -268,7 +274,7 @@ export default function Event(props) {
             <TableBody>
               {attending.map(row => (
                 <TableRow key={row.firstname + row.lastname}>
-                  <TableCell component="th" scope="row">{console.log('what the', row)}
+                  <TableCell component="th" scope="row">
                     {row.firstname + ' ' + row.lastname}
                   </TableCell>
                   <TableCell component="th" scope="row">

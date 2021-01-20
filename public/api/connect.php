@@ -16,10 +16,14 @@ if ($method == "POST") {
   foreach ($data as $k => $v) {
     $data[$k] = mysqli_real_escape_string($con, str_replace('apo_', 'ap o_', $v));
   }
+  if ($data['API_SECRET'] !== $secret){ die("Connection failed: fuck you"); return;}
+  unset($data['API_SECRET']);
 } else {
   foreach ($_GET as $k => $v) {
     $_GET[$k] = mysqli_real_escape_string($con, str_replace('apo_', 'ap o_', $v));
   }
+  if ($_GET['API_SECRET'] !== $secret){ die("Connection failed: don't do this"); return;}
+  unset($_GET['API_SECRET']);
 }
 $multi = FALSE;
 
@@ -121,6 +125,13 @@ switch ($request[0]) {
       break;
     case 'people':
       switch($request[1]) {
+        case 'changePassVerify':
+          $sql = sprintf("UPDATE apo_users SET passphrase=sha1(concat(salt, '%s')) 
+          where user_id=%s and passphrase=sha1(concat(salt,'%s'));", $data['newPass'], $data['userId'], $data['oldPass']);
+          break;
+        case 'loginId':
+          $sql = sprintf("SELECT user_id FROM apo_users WHERE user_id=%s AND passphrase=sha1(concat(salt, '%s')) LIMIT 1", $_GET['userId'], $_GET['oldPass']);
+          break;
         case 'login':
           $sql = sprintf("SELECT user_id, firstname, disabled FROM apo_users 
           WHERE email='%s' AND passphrase=sha1(concat(salt, '%s')) LIMIT 1", $data['email'], $data['passphrase']);
@@ -178,6 +189,7 @@ switch ($request[0]) {
           $data['cellphone'], $data['phone'], $data['address'], $data['city'], $data['zipcode'], $data['userId']);
           break;
         case 'uploadPFP':
+          if ($_REQUEST['API_SECRET'] !== $secret){ die("Connection failed: don't do this"); return;}
           $path = $_REQUEST['pathTo'];
           $uid = $_REQUEST['userId'];
           $ext = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));

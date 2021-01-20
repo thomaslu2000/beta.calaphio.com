@@ -11,10 +11,12 @@ import {
   Typography,
   Divider,
   Button,
-  TextareaAutosize
+  TextareaAutosize,
+  TextField
 } from '@material-ui/core';
 import {unsanitize, clean, imageExists} from '../../../functions'
 import axios from 'axios';
+const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const face_folder = process.env.REACT_APP_FACES;
@@ -39,7 +41,9 @@ const avatarSearch = userdata => {
 const AccountProfile = props => {
   const { className, userdata, viewerid, ...rest } = props;
   const [editing, setEditing] = useState(false);
-  const [description, setDescription] = useState('')
+  const [description, setDescription] = useState('');
+  const [oldPass, setOldPass] = useState('');
+  const [newPass, setNewPass] = useState('');
 
   useEffect(() => {
     setDescription(userdata.description || 'No Description Provided')
@@ -53,12 +57,35 @@ const AccountProfile = props => {
           `${API_URL}/people/updateDescription/`,
           {
             userId: viewerid,
-            description: clean(description)
+            description: clean(description),
+            API_SECRET
           },
           { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
         )
         .then(response => {
           alert('description updated!')
+        });
+  }
+
+  const doPasswordUpdate = async() => {
+    await axios.get(`${API_URL}/people/loginId/`, 
+    {params: {userId: viewerid, oldPass, API_SECRET}}).then(res => {
+      if (res.data.length > 0) changePassword()
+      else alert('Password Incorrect!')
+    })
+  }
+  const changePassword = async () => {
+    await axios
+        .post(
+          `${API_URL}/people/changePassVerify/`,
+          {
+            userId: viewerid,
+            newPass, oldPass,
+            API_SECRET
+          },
+          { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+        )
+        .then(response => {alert('Password Updated!');
         });
   }
 
@@ -68,6 +95,7 @@ const AccountProfile = props => {
     formData.append('file', e.target.files[0]);
     formData.append('pathTo', face_folder);
     formData.append('userId', viewerid);
+    formData.append('API_SECRET', API_SECRET);
     axios.post(`${API_URL}/people/uploadPFP/`, 
     formData,
     {
@@ -107,6 +135,24 @@ const AccountProfile = props => {
               variant="body1">
               {userdata.pledgeclass || ''} Pledge Class
             </Typography>
+            <div>
+            <TextField
+              label="Old Password"
+              value={oldPass}
+              onChange={(e) => {setOldPass(e.target.value)}}
+              size='small'
+              type="password"
+              style={{marginLeft: 5}}
+            />
+            <TextField
+              label="New Password"
+              value={newPass}
+              onChange={(e) => {setNewPass(e.target.value)}}
+              size='small'
+              type='password'
+              style={{marginLeft: 5}}
+            /></div>
+            <div style={{textAlign: 'center'}}><Button onClick={doPasswordUpdate}>Change Password</Button></div>
           </div>
           <Grid  className={classes.avatarContainer} >
           <Grid item><Avatar className={classes.avatar} src={avatarSearch(userdata)} /></Grid>
