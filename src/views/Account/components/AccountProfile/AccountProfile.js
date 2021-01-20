@@ -136,6 +136,8 @@ const AccountProfile = props => {
               variant="body1">
               {userdata.pledgeclass || ''} Pledge Class
             </Typography>
+            {mine && 
+            <div>
             <div>
             <TextField
               label="Old Password"
@@ -154,6 +156,7 @@ const AccountProfile = props => {
               style={{marginLeft: 5}}
             /></div>
             <div style={{textAlign: 'center'}}><Button onClick={doPasswordUpdate}>Change Password</Button></div>
+            </div>}
           </div>
           <Grid  className={classes.avatarContainer} >
           <Grid item><Avatar className={classes.avatar} src={avatarSearch(userdata)} /></Grid>

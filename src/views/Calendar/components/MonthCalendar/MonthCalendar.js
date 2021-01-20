@@ -171,7 +171,7 @@ const MonthCalendar = props => {
       });
   };
   return (
-    <Scheduler data={data} height={660}>
+    <Scheduler data={data}>
       <ViewState
         currentDate={currentDate}
         onCurrentDateChange={date => {
