@@ -87,7 +87,7 @@ const MonthCalendar = props => {
     <MonthView.TimeTableCell
       {...props}
       onClick={() => {
-        history.push(`/day/${props.startDate.toISOString().slice(0, 10)}`);
+        history.push(`/day/${moment(props.startDate).format('YYYY-MM-DD')}`);
       }}
     />
   );
@@ -186,7 +186,8 @@ const MonthCalendar = props => {
       <DateNavigator />
       <AppointmentTooltip
         headerComponent={Header(data => {
-          history.push(`/day/${data.startDate.toISOString().slice(0, 10)}`);
+          // console.log(data)
+          history.push(`/day/${moment(data.startDate).format('YYYY-MM-DD')}`);
         })}
         contentComponent={Content}
         showCloseButton

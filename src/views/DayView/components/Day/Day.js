@@ -133,7 +133,7 @@ const Day = props => {
   }, global.userId);
 
   return (
-    <Grid container spacing={4}>
+    <Grid container>
       <Box clone order={{ xs: 2, sm: 2, md: 1 }}>
         <Grid item 
           md={7}
@@ -183,7 +183,9 @@ const Day = props => {
           sm={12}
           style={{
             marginLeft: 'auto',
-            marginRight: 'auto'
+            marginRight: 'auto',
+            paddingLeft: 5,
+            paddingRight: 5
           }}>
           <Event eventData={eventData} />
         </Grid>

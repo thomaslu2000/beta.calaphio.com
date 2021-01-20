@@ -16,7 +16,7 @@ const DayView = props => {
     .add(d.getTimezoneOffset(), 'm')
     .toDate();
   return (
-    <Paper>
+    <Paper style={{width: '100%', marginRight:0}}>
       <Day
         day={day}
         eventId={props.match.params.event}
