@@ -166,7 +166,7 @@ export default function Event(props) {
 
   if (!props.eventData) {
     return (
-      <Paper
+      <Card className={classes.root} 
         style={{
           marginTop: 30,
           marginRight: 20,
@@ -175,7 +175,7 @@ export default function Event(props) {
         <Typography variant="h5" component="h2">
           <b>Select An Event on the Schedule</b>
         </Typography>
-      </Paper>
+      </Card>
     );
   }
   let starttime = moment(props.eventData.startDate);
@@ -192,8 +192,7 @@ export default function Event(props) {
   };
 
   return (
-    <Paper>
-      <Card className={classes.root}>
+      <Card className={classes.root} >
     <CardHeader
     action={
           <Button
@@ -293,14 +292,15 @@ export default function Event(props) {
           </Table>
         </CardContent>
       </Card>
-    </Paper>
   );
 }
 
 const useStyles = makeStyles({
   root: {
-    minWidth: 275,
-    marginTop: 30
+    minWidth: 300,
+    marginTop: 30,
+    border: 'none',
+    boxShadow: 'none'
   },
   title: {
     fontSize: 14
