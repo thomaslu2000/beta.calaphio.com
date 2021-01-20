@@ -103,6 +103,7 @@ const AccountProfile = props => {
           'content-type': 'multipart/form-data'
       }
   }).then(res => {
+    // console.log(res.data);
     if (res.data.length > 0) {
       alert('Image Upload Failed');
     } else {

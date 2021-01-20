@@ -16,7 +16,7 @@ if ($method == "POST") {
   foreach ($data as $k => $v) {
     $data[$k] = mysqli_real_escape_string($con, str_replace('apo_', 'ap o_', $v));
   }
-  if ($data['API_SECRET'] !== $secret){ die("Connection failed: fuck you"); return;}
+  if ($data['API_SECRET'] !== $secret && $_REQUEST['API_SECRET'] !== $secret){ die("Connection failed: fuck you"); return;}
   unset($data['API_SECRET']);
 } else {
   foreach ($_GET as $k => $v) {

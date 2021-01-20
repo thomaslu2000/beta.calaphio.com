@@ -145,7 +145,8 @@ export function makeCommitChanges(f, uid) {
                 `${API_URL}/events/delete`,
                 {
                   eventId: deleted,
-                  userId: uid
+                  userId: uid,
+                  API_SECRET
                 },
                 {
                   headers: {
