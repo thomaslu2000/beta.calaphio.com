@@ -149,7 +149,7 @@ switch ($request[0]) {
           SUM(a.flaked*a.hours * (e.type_service_chapter = 1 OR e.type_service_campus=1 OR e.type_service_community = 1 OR e.type_service_country = 1)) as service_hours_flaked, 
           SUM(a.attended * e.type_fellowship) as fellowships_attended, SUM(a.flaked * e.type_fellowship) as fellowships_flaked, SUM(a.chair * a.attended) AS events_chaired, 
           SUM(a.attended * e.type_fundraiser) as fundraisers_attended FROM apo_calendar_event e JOIN apo_calendar_attend a USING (event_id) 
-          WHERE '%s'<e.date AND e.date<'%s' AND user_id=%s", $_GET['startDate'], $_GET['endDate'], $_GET['userId']);
+          WHERE '%s'<e.date AND e.date<'%s' AND user_id=%s AND deleted=0", $_GET['startDate'], $_GET['endDate'], $_GET['userId']);
           break;
         case 'toEval':
           $sql = sprintf("SELECT event_id, title 
