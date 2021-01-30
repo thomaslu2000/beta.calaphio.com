@@ -4,7 +4,6 @@ import { Grid } from '@material-ui/core';
 import { useGlobal } from 'reactn';
 import { AccountProfile, AccountDetails } from './components';
 import axios from 'axios';
-const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const useStyles = makeStyles(theme => ({
@@ -27,8 +26,7 @@ const Account = props => {
       await axios
       .get(`${API_URL}/people/userData/`, {
         params: {
-          userId,
-          API_SECRET
+          userId
         }
       })
       .then(response => {

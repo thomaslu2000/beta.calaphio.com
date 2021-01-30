@@ -173,7 +173,7 @@ const AdminPanel = props => {
   const handleLoad = async () => {
     if (adminFuncs[window].type==='GET'){
     await axios.get(`${API_URL}/${adminFuncs[window].url}`, {
-      params: {...values, API_SECRET}
+      params: values
     })
     .then(adminFuncs[window].callback)
     } else if (adminFuncs[window].type==='POST') {

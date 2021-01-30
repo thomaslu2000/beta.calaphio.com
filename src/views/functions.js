@@ -4,6 +4,10 @@ import sanitizeHtml from 'sanitize-html';
 const CLIENT_ID = process.env.REACT_APP_G_CLIENT_ID;
 const API_KEY = process.env.REACT_APP_G_API_KEY;
 
+const face_folder = process.env.REACT_APP_FACES;
+
+const extensions = ['jpg', 'png', 'jpeg']
+
 export function imageExists(image_url){
 
   var http = new XMLHttpRequest();
@@ -16,6 +20,22 @@ export function imageExists(image_url){
 
 export function clean(str) {
   return escape(sanitizeHtml(str));
+}
+
+export function avatarSearch(userdata) {
+  var pic_path = 'https://icon-library.net/images/default-profile-icon/default-profile-icon-17.jpg' 
+  if (userdata) {
+    if (userdata.profile_pic) {
+      return userdata.profile_pic;
+    }
+    let id = userdata.user_id;
+    if (id)
+      for (let i = 0; i< 3; i++){
+        let r = `${face_folder}${id}.${extensions[i]}`
+        if (imageExists(r)){ pic_path = r; break; }
+      }
+  }
+  return pic_path;
 }
 
 export function unsanitize(str) {

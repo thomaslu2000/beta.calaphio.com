@@ -51,7 +51,7 @@ const EditAnnouncements = props => {
   const getAnnouncements = async () => {
     await axios
       .get(`${API_URL}/general/announcements/`, {
-        params: {API_SECRET}
+        params: {}
       })
       .then(response => {
         setData(response.data);

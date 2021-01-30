@@ -112,8 +112,7 @@ const Day = props => {
           endDate: moment(currentDate).add(1, 'days')
             .add(1, 'days')
             .utc()
-            .format('YYYY-MM-DD HH:mm:ss'),
-            API_SECRET
+            .format('YYYY-MM-DD HH:mm:ss')
         }
       })
       .then(response => {

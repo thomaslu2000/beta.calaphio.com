@@ -115,7 +115,7 @@ export function makeCommitChanges(f, uid) {
         params.eventId = eventId;
         await axios
           .get(`${API_URL}/people/adminOrChair`, {
-            params: { userId: uid, eventId: eventId, API_SECRET}
+            params: { userId: uid, eventId: eventId}
           })
           .then(response => {
             if (response.data.length > 0) {

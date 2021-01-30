@@ -16,7 +16,6 @@ import moment from 'moment';
 import { makeTypes } from '../../../AppointmentFormFunctions';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import { unsanitize } from '../../../functions';
-const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const Header = f => {
@@ -96,8 +95,7 @@ const MonthCalendar = props => {
       .get(`${API_URL}/events/month/`, {
         params: {
           startDate: start,
-          endDate: end,
-          API_SECRET
+          endDate: end
         }
       })
       .then(response => {

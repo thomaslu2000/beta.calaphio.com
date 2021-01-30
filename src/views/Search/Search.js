@@ -47,8 +47,7 @@ const Search = props => {
                 if (e.target.value.length > 0)
               await axios.get(`${API_URL}/people/search`, {
                 params: {
-                  query: e.target.value,
-                  API_SECRET
+                  query: e.target.value
                 }
               })
               .then(response => {

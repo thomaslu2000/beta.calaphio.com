@@ -19,6 +19,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
 import { unsanitize, gCalAdd } from '../../../functions';
+import Comments from './Comments';
 
 const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
@@ -41,6 +42,7 @@ export default function Event(props) {
   const [attending, setAttending] = useState([]);
   const [imAttending, setImAttending] = useState(false);
   const [imChair, setImChair] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const [global] = useGlobal();
 
   useEffect(() => {
@@ -51,8 +53,7 @@ export default function Event(props) {
     await axios
       .get(`${API_URL}/events/attending/`, {
         params: {
-          eventId: props.eventData.event_id,
-          API_SECRET
+          eventId: props.eventData.event_id
         }
       })
       .then(response => {
@@ -185,10 +186,10 @@ export default function Event(props) {
 
   const sayChair = row => {
     if (row.uid === global.userId) {
-      if (imChair) return 'Chair';
+      if (imChair) return '👑';
       else return;
     }
-    return row.chair === '1' && 'Chair';
+    return row.chair === '1' && '👑';
   };
 
   return (
@@ -291,6 +292,12 @@ export default function Event(props) {
             </TableBody>
           </Table>
         </CardContent>
+      <CardActions>
+        <Button  className={classes.alignMid} size="small" onClick={() => {setShowComments(!showComments)}}>
+          {showComments ? 'Hide' : 'Show'} Comments
+          </Button>
+      </CardActions>
+      {showComments && <Comments eventId={props.eventData.event_id} />}
       </Card>
   );
 }
@@ -307,5 +314,12 @@ const useStyles = makeStyles({
   },
   pos: {
     marginTop: 12
+  },
+  table: {
+    width: '100%'
+  }, 
+  alignMid: {
+    marginLeft: 'auto',
+    marginRight: 'auto'
   }
 });

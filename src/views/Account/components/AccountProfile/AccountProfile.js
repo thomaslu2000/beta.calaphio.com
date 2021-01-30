@@ -14,29 +14,11 @@ import {
   TextareaAutosize,
   TextField
 } from '@material-ui/core';
-import {unsanitize, clean, imageExists} from '../../../functions'
+import {unsanitize, clean, avatarSearch} from '../../../functions'
 import axios from 'axios';
-const API_SECRET = process.env.REACT_APP_SECRET;
-const API_URL = process.env.REACT_APP_SERVER;
+const API_SECRET = process.env.REACT_APP_SECRET;const API_URL = process.env.REACT_APP_SERVER;
 
 const face_folder = process.env.REACT_APP_FACES;
-const extensions = ['jpg', 'png', 'jpeg']
-
-const avatarSearch = userdata => {
-  var pic_path = 'https://icon-library.net/images/default-profile-icon/default-profile-icon-17.jpg' 
-  if (userdata) {
-    if (userdata.profile_pic) {
-      return userdata.profile_pic;
-    }
-    let id = userdata.user_id;
-    if (id)
-      for (let i = 0; i< 3; i++){
-        let r = `${face_folder}${id}.${extensions[i]}`
-        if (imageExists(r)){ pic_path = r; break; }
-      }
-  }
-  return pic_path;
-}
 
 const AccountProfile = props => {
   const { className, userdata, viewerid, ...rest } = props;
@@ -69,7 +51,7 @@ const AccountProfile = props => {
 
   const doPasswordUpdate = async() => {
     await axios.get(`${API_URL}/people/loginId/`, 
-    {params: {userId: viewerid, oldPass, API_SECRET}}).then(res => {
+    {params: {userId: viewerid, oldPass}}).then(res => {
       if (res.data.length > 0) changePassword()
       else alert('Password Incorrect!')
     })

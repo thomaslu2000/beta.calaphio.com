@@ -39,7 +39,7 @@ const NextEvents = props => {
     await axios
       .get(`${API_URL}/people/next3/`, {
         params: {
-          userId: userid, API_SECRET
+          userId: userid
         }
       })
       .then(response => {
@@ -51,7 +51,7 @@ const NextEvents = props => {
     await axios
       .get(`${API_URL}/people/upcoming/`, {
         params: {
-          userId: userid, API_SECRET
+          userId: userid
         }
       })
       .then(response => {

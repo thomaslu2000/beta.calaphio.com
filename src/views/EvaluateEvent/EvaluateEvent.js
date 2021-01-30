@@ -51,8 +51,7 @@ const EvaluateEvent = props => {
     await axios
       .get(`${API_URL}/events/`, {
         params: {
-          eventId: eid,
-          API_SECRET
+          eventId: eid
         }
       })
       .then(response => {
@@ -68,8 +67,7 @@ const EvaluateEvent = props => {
     await axios
       .get(`${API_URL}/events/attending/`, {
         params: {
-          eventId: eid,
-          API_SECRET
+          eventId: eid
         }
       })
       .then(response => {
@@ -93,24 +91,29 @@ const EvaluateEvent = props => {
   };
 
   const makeParams = () => {
+    let attend = [];
+    let del = [];
     let params = {
-      eventId: eid,
-      attend: [],
-      delete: []
+      eventId: eid
     };
     for (const [userId, hours] of Object.entries(attendingHours)) {
       let status = attendingSelect[userId];
       let chair = attendingChair[userId];
       if (status < 2)
-        params.attend.push({
-          attended: status,
-          flaked: 1 - status,
-          userId,
-          hours,
-          chair: chair ? 1 : 0
-        });
-      else params.delete.push(userId);
+        attend.push([
+          status, 1-status, userId, hours, chair ? 1 : 0
+        ].join(',')
+          // {attended: status,
+          // flaked: 1 - status,
+          // userId,
+          // hours,
+          // chair: chair ? 1 : 0}
+        );
+      else del.push(userId);
     }
+    params.API_SECRET = API_SECRET;
+    params.attend = attend.join('-');
+    params.delete = del.join('-')
     return params;
   };
 
@@ -118,7 +121,7 @@ const EvaluateEvent = props => {
     let params = makeParams();
     await axios
       .get(`${API_URL}/people/adminOrChair`, {
-        params: { userId: global.userId || -1, eventId: eid, API_SECRET }
+        params: { userId: global.userId || -1, eventId: eid }
       })
       .then(response => {
         if (response.data.length > 0) {

@@ -39,7 +39,7 @@ const Dashboard = props => {
   const getLatest = async () => {
     await axios
       .get(`${API_URL}/general/lastSem/`, {
-        params: {API_SECRET}
+        params: {}
       })
       .then(response => {
         let sem = response.data[0];
@@ -56,8 +56,7 @@ const Dashboard = props => {
         params: {
           startDate,
           endDate,
-          userId: global.userId,
-          API_SECRET
+          userId: global.userId
         }
       })
       .then(response => {

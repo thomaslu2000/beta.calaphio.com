@@ -22,8 +22,6 @@ if ($method == "POST") {
   foreach ($_GET as $k => $v) {
     $_GET[$k] = mysqli_real_escape_string($con, str_replace('apo_', 'ap o_', $v));
   }
-  if ($_GET['API_SECRET'] !== $secret){ die("Connection failed: don't do this"); return;}
-  unset($_GET['API_SECRET']);
 }
 $multi = FALSE;
 
@@ -212,6 +210,19 @@ switch ($request[0]) {
         WHERE event_id=%s", $_GET['eventId']);
       else {
         switch($request[1]) {
+          case 'postComment':
+            $sql = sprintf("INSERT INTO apo_calendar_comment (user_id, body, timestamp, event_id) VALUES (%s, '%s', '%s', %s)",
+          $data['userId'], $data['body'], $data['timestamp'], $data['eventId']);
+            break;
+          case 'deleteComment':
+            $sql = sprintf("UPDATE apo_calendar_comment SET deleted=1 WHERE comment_id=%s",
+          $data['commentId']);
+            break;
+          case 'getComments':
+            $sql = sprintf("SELECT comment_id, user_id, timestamp, body, firstname, lastname, profile_pic 
+            FROM apo_calendar_comment JOIN apo_users USING(user_id) WHERE deleted=0 AND event_id=%s
+            ORDER BY timestamp ASC", $_GET['eventId']);
+            break;
           case 'day':
             $sql = sprintf("SELECT event_id, title, location, description, time_start, time_end, time_allday, 
             type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, type_fellowship, 
@@ -265,14 +276,20 @@ switch ($request[0]) {
             break;
           case 'evaluate':
             $queries = array(sprintf("UPDATE apo_calendar_event SET evaluated=1 WHERE event_id=%s", $data['eventId']));
-            foreach($data['attend'] as $p) $queries[] = sprintf("UPDATE apo_calendar_attend SET attended=%s, chair=%s, flaked=%s, hours=%s WHERE event_id=%s AND user_id=%s", $p->attended, $p->chair, $p->flaked, $p->hours, $data['eventId'], $p->userId);
+            foreach(explode('-', $data['attend']) as $p){
+              $p = explode(',', $p);
+              $queries[] = sprintf("UPDATE apo_calendar_attend SET attended=%s, chair=%s, flaked=%s, hours=%s WHERE event_id=%s AND user_id=%s",
+               $p[0], $p[4], $p[1], $p[3], $data['eventId'], $p[2]);
+            } 
+            $data['delete'] = explode('-', $data['delete']);
             if (count($data['delete']) > 0) {
               $deletes = array();
-              foreach($data['delete'] as $id) $deletes[] = sprintf("user_id=%s", $id);
-              $queries[] = sprintf("DELETE FROM apo_calendar_attend WHERE event_id=%s AND (%s)", $data['eventId'], implode(' OR ', $deletes));
+              foreach($data['delete'] as $id) if ($id != "") $deletes[] = sprintf("user_id=%s", $id);
+              if (count($deletes) > 0) $queries[] = sprintf("DELETE FROM apo_calendar_attend WHERE event_id=%s AND (%s)", $data['eventId'], implode(' OR ', $deletes));
             }
             $multi = TRUE;
             $sql = implode('; ', $queries);
+            // echo '['.$sql.']';
             break;
         }
       }
