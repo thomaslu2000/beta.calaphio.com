@@ -81,23 +81,26 @@ switch ($request[0]) {
             break;
           }
 
+
           $extra = sprintf(",'%s', CURRENT_TIMESTAMP, %s", $data['pledgeclass'], $data['uid']);
           $toAdd = array();
+          $sids = array();
 
           foreach($d as $datum){
-            $salt = substr(md5(uniqid(rand(), true)), 0, 32);
-            $datum = explode(',', $datum);
-            $datum[] = $salt; $datum[] = sha1($salt . $datum[$sid]);
-            $datum = array_map(function($x) {return '"'.$x.'"';}, $datum);
-            $toAdd[] = implode(',', $datum) . $extra;
+            if ($datum[$sid]!=',') {
+              $salt = substr(md5(uniqid(rand(), true)), 0, 32);
+              $datum = explode(',', $datum);
+              $sids[] = $datum[$sid];
+              $datum[] = $salt; $datum[] = sha1($salt . $datum[$sid]);
+              $datum = array_map(function($x) {return '"'.$x.'"';}, $datum);
+              $toAdd[] = implode(',', $datum) . $extra;
+            }
           } 
 
           $sql = "INSERT INTO apo_users (".$keys.", salt, passphrase, pledgeclass, registration_timestamp, registration_user) 
-          VALUES (".implode('), (', $toAdd) . "); SET @firstid := LAST_INSERT_ID(); 
-          INSERT INTO apo_pledges (user_id)
-          SELECT user_id
-          FROM (SELECT user_id from apo_users where user_id>=@firstid) as p;
-          ";
+          VALUES (".implode('), (', $toAdd) . ") ON DUPLICATE KEY UPDATE disabled=0, depledged=0, pledgeclass='".$data['pledgeclass']."'; SET @firstid := LAST_INSERT_ID(); " .
+          "INSERT IGNORE INTO apo_pledges (user_id)
+          SELECT user_id from apo_users where sid IN (". implode(", ", $sids). ");";
           $multi = TRUE;
           break;
         case 'get':
@@ -145,11 +148,31 @@ switch ($request[0]) {
           WHERE user_id=%s AND event_id=%s AND chair=1", $_GET['userId'], $_GET['userId'], $_GET['eventId']);
           break;
         case 'stats':
-          $sql = sprintf("SELECT SUM(a.attended * a.hours * (e.type_service_chapter = 1 OR e.type_service_campus=1 OR e.type_service_community = 1 OR e.type_service_country = 1)) AS service_hours_attended, 
-          SUM(a.flaked*a.hours * (e.type_service_chapter = 1 OR e.type_service_campus=1 OR e.type_service_community = 1 OR e.type_service_country = 1)) as service_hours_flaked, 
+          $sql = sprintf("SELECT SUM(a.attended * a.hours * (e.type_service_chapter | e.type_service_campus | e.type_service_community | e.type_service_country)) AS service_hours_attended, 
+          SUM(a.flaked*a.hours * (e.type_service_chapter | e.type_service_campus | e.type_service_community | e.type_service_country)) as service_hours_flaked, 
           SUM(a.attended * e.type_fellowship) as fellowships_attended, SUM(a.flaked * e.type_fellowship) as fellowships_flaked, SUM(a.chair * a.attended) AS events_chaired, 
           SUM(a.attended * e.type_fundraiser) as fundraisers_attended FROM apo_calendar_event e JOIN apo_calendar_attend a USING (event_id) 
           WHERE '%s'<e.date AND e.date<'%s' AND user_id=%s AND deleted=0", $_GET['startDate'], $_GET['endDate'], $_GET['userId']);
+          break;
+        case 'allCurrentEvents':
+          $sql = sprintf("SELECT e.event_id as id, e.title AS title, e.start_at as date, a.chair as chair, 
+          (e.type_service_chapter | e.type_service_campus | e.type_service_community | e.type_service_country) as service, 
+          e.type_fellowship as fellowship, a.flaked as flake, a.hours as hours 
+          FROM apo_calendar_event e JOIN apo_calendar_attend a USING (event_id) JOIN 
+          (SELECT start FROM apo_semesters ORDER BY start DESC LIMIT 1) f
+          WHERE user_id=%s AND e.evaluated=1 AND deleted=0 AND f.start < e.start_at ORDER BY date", $_GET['userId']);
+          break;
+        case 'allEvents':
+          $sql = sprintf("SELECT  e.event_id as id, e.title AS title, e.start_at as date, a.chair as chair, 
+          (e.type_service_chapter | e.type_service_campus | e.type_service_community | e.type_service_country) as service, 
+          e.type_fellowship as fellowship, a.flaked as flake, a.hours as hours 
+          FROM apo_calendar_event e JOIN apo_calendar_attend a USING (event_id) 
+          WHERE user_id=%s AND e.evaluated=1 AND deleted=0 ORDER BY date", $_GET['userId']);
+          break;
+        case 'allPositions':
+          $sql = sprintf("SELECT position_title, position_name, semester, year 
+          FROM apo_wiki_positions as pos JOIN apo_wiki_positions_basic_info as bas USING (basic_info_id)
+          WHERE user_id=%s ORDER BY bas.year ASC, bas.semester ASC, pos.position_type ASC", $_GET['userId']);
           break;
         case 'toEval':
           $sql = sprintf("SELECT event_id, title 

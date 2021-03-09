@@ -1,6 +1,8 @@
 
 import moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
+import {decode} from 'html-entities';
+
 const CLIENT_ID = process.env.REACT_APP_G_CLIENT_ID;
 const API_KEY = process.env.REACT_APP_G_API_KEY;
 
@@ -22,6 +24,7 @@ export function clean(str) {
   return escape(sanitizeHtml(str));
 }
 
+
 export function avatarSearch(userdata) {
   var pic_path = 'https://icon-library.net/images/default-profile-icon/default-profile-icon-17.jpg' 
   if (userdata) {
@@ -38,20 +41,13 @@ export function avatarSearch(userdata) {
   return pic_path;
 }
 
+
 export function unsanitize(str) {
   if (!str || typeof(str) !== 'string') return '';
-  return unescape(
+  return unescape(decode(
     str
       .replace(/%26/g, '&')
-      .replace(/%3B/g, ';')
-      .replace(/&amp;/g, '&')
-      .replace(/&#039;/g, "'")
-      .replace(/&rsquo;/g, '’')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&Phi;/g, 'Φ')
-      .replace(/&Omega;/g, 'Ω')
+      .replace(/%3B/g, ';'))
   );
 }
 

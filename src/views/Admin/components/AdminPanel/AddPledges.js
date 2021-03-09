@@ -106,6 +106,7 @@ const AddPledges = props => {
                     headers: { 'content-type': 'application/x-www-form-urlencoded' }
                 })
                 .then(res => {
+                    console.log(res.data);
                     if (res.data.length === 0) alert("SUCCESS");
                     else alert("FAILED, please verify csv");
                 });

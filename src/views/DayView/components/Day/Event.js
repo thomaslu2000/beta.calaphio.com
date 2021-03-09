@@ -42,7 +42,7 @@ export default function Event(props) {
   const [attending, setAttending] = useState([]);
   const [imAttending, setImAttending] = useState(false);
   const [imChair, setImChair] = useState(false);
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
   const [global] = useGlobal();
 
   useEffect(() => {

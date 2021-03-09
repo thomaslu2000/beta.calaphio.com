@@ -89,14 +89,18 @@ const Comments = props => {
       primary={unsanitize(comment.body)}
       secondary={
         <React.Fragment>
+          
+        <IconButton
+        onClick={() => {
+          history.push(`/account/${comment.user_id}`);
+        }}>
           <Typography
-            component="span"
-            variant="body2"
-            className={classes.inline}
-            color="textPrimary"
-          >
-            {comment.firstname} {comment.lastname}
-          </Typography>
+        component="span"
+        variant="body2"
+        className={classes.inline}
+        color="textPrimary"
+      >{comment.firstname} {comment.lastname} 
+      </Typography> </IconButton>
           {'   --'} {moment.utc(comment.timestamp).fromNow()} {comment.comment_id && comment.user_id===global.userId && 
           <IconButton size='small' style={{ color: 'Crimson' }} onClick={()=>deleteComment(comment.comment_id)}>
           <DeleteIcon fontSize="small" />
