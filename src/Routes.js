@@ -16,6 +16,7 @@ import {
   Calendar as CalendarView,
   Search as SearchView,
   Admin as AdminView,
+  Wiki as WikiView,
   DayView
 } from './views';
 
@@ -52,6 +53,18 @@ const Routes = () => {
         exact
         layout={MainLayout}
         path="/day/:day/event/:event"
+      />
+      <RouteWithLayout
+        component={WikiView}
+        exact
+        layout={MainLayout}
+        path="/wiki/:pageId"
+      />
+      <RouteWithLayout
+        component={WikiView}
+        exact
+        layout={MainLayout}
+        path="/wiki"
       />
       <RouteWithLayout
         component={EvaluateEventView}

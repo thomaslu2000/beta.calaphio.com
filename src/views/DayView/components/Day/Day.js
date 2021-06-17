@@ -14,7 +14,7 @@ import {
   ConfirmationDialog
 } from '@devexpress/dx-react-scheduler-material-ui';
 import { Button, Grid, Box } from '@material-ui/core';
-import BasicLayout from '../../../BasicAppointmentLayout';
+import makeBasicLayout from '../../../BasicAppointmentLayout';
 import Event from './Event';
 import axios from 'axios';
 import moment from 'moment';
@@ -61,6 +61,7 @@ const resources = [
 const Day = props => {
   const [currentDate, setCurrentDate] = useState(props.day);
   const [eventData, setEventData] = useState(false);
+  const [stretchDay, setStretchDay] = useState(false);
   const [data, setData] = useState([]);
   const make = [];
   const [global] = useGlobal();
@@ -102,23 +103,22 @@ const Day = props => {
   };
 
   const getDayEvents = async () => {
-
     await axios
       .get(`${API_URL}/events/day/`, {
         params: {
-          startDate: moment(currentDate).subtract(1, 'days')
+          startDate: moment(currentDate)
+            .subtract(1, 'days')
             .utc()
             .format('YYYY-MM-DD HH:mm:ss'),
-          endDate: moment(currentDate).add(1, 'days')
+          endDate: moment(currentDate)
+            .add(1, 'days')
             .add(1, 'days')
             .utc()
             .format('YYYY-MM-DD HH:mm:ss')
         }
       })
       .then(response => {
-        setData(
-          response.data.map(dayToObj)
-        );
+        setData(response.data.map(dayToObj));
       });
   };
 
@@ -131,12 +131,20 @@ const Day = props => {
     window.location.reload(false);
   }, global.userId);
 
+  const onAppointmentEdit = changes => {
+    if ('rRule' in changes) {
+      if (changes['rRule'] === undefined) {
+        setStretchDay(false);
+      } else {
+        setStretchDay(true);
+      }
+    }
+  };
+
   return (
     <Grid container>
       <Box clone order={{ xs: 2, sm: 2, md: 1 }}>
-        <Grid item 
-          md={7}
-          sm={12}>
+        <Grid item md={stretchDay ? 12 : 7} sm={12}>
           <Scheduler data={data}>
             <ViewState
               currentDate={currentDate}
@@ -170,7 +178,9 @@ const Day = props => {
               showDeleteButton
             />
             {global.userId && (
-              <AppointmentForm basicLayoutComponent={BasicLayout} />
+              <AppointmentForm
+                basicLayoutComponent={makeBasicLayout(onAppointmentEdit)}
+              />
             )}
           </Scheduler>
         </Grid>
@@ -184,7 +194,8 @@ const Day = props => {
             marginLeft: 'auto',
             marginRight: 'auto',
             paddingLeft: 5,
-            paddingRight: 5
+            paddingRight: 5,
+            zIndex: '0'
           }}>
           <Event eventData={eventData} />
         </Grid>

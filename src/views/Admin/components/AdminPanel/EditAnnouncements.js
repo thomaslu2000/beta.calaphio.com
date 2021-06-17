@@ -20,7 +20,7 @@ import { unsanitize, clean } from '../../../functions';
 const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   padded: {
     padding: theme.spacing(4)
   }
@@ -31,7 +31,7 @@ const EditAnnouncements = props => {
   const [data, setData] = useState([]);
   const [curr, setCurr] = useState(-1);
   const [text, setText] = useState(RichTextEditor.createEmptyValue());
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState('');
   const [global] = useGlobal();
 
   useEffect(() => {
@@ -39,13 +39,18 @@ const EditAnnouncements = props => {
   }, []);
 
   useEffect(() => {
-      if (curr === -1) {
-        setText(RichTextEditor.createEmptyValue());
-        setTitle("");
-      } else {
-        setText(RichTextEditor.createValueFromString(unsanitize(data[curr].text), 'html'));
-        setTitle(data[curr].title);
-      }
+    if (curr === -1) {
+      setText(RichTextEditor.createEmptyValue());
+      setTitle('');
+    } else {
+      setText(
+        RichTextEditor.createValueFromString(
+          unsanitize(data[curr].text),
+          'html'
+        )
+      );
+      setTitle(data[curr].title);
+    }
   }, [curr]);
 
   const getAnnouncements = async () => {
@@ -59,85 +64,112 @@ const EditAnnouncements = props => {
   };
 
   const postAnnouncement = async () => {
-      if (curr === -1) {
-        await axios.post(`${API_URL}/admin/addAnnouncement`, {userId: global.userId, text: text.toString('html'), title: title, API_SECRET}, {
-            headers: { 'content-type': 'application/x-www-form-urlencoded' }})
-          .then((res) => {
-                alert('Announcement Published!');
-                window.location.reload();
-            }
-          );
-      } else {
-        await axios.post(`${API_URL}/admin/updateAnnouncement`, {id: data[curr].id, text: text.toString('html'), title: title, API_SECRET}, {
-            headers: { 'content-type': 'application/x-www-form-urlencoded' }})
-          .then((res) => {
-                alert('Announcement Updated!');
-                window.location.reload();
-            }
-          );
-      }
-  }
+    if (curr === -1) {
+      await axios
+        .post(
+          `${API_URL}/admin/addAnnouncement`,
+          {
+            userId: global.userId,
+            text: text.toString('html'),
+            title: title,
+            API_SECRET
+          },
+          {
+            headers: { 'content-type': 'application/x-www-form-urlencoded' }
+          }
+        )
+        .then(res => {
+          alert('Announcement Published!');
+          window.location.reload();
+        });
+    } else {
+      await axios
+        .post(
+          `${API_URL}/admin/updateAnnouncement`,
+          {
+            id: data[curr].id,
+            text: text.toString('html'),
+            title: title,
+            API_SECRET
+          },
+          {
+            headers: { 'content-type': 'application/x-www-form-urlencoded' }
+          }
+        )
+        .then(res => {
+          alert('Announcement Updated!');
+          window.location.reload();
+        });
+    }
+  };
 
   const deleteAnnouncement = async () => {
-    await axios.post(`${API_URL}/admin/deleteAnnouncement`, {id: data[curr].id, API_SECRET}, {
-        headers: { 'content-type': 'application/x-www-form-urlencoded' }})
-      .then((res) => {
-          alert("Announcement Deleted!");
-          window.location.reload();
+    await axios
+      .post(
+        `${API_URL}/admin/deleteAnnouncement`,
+        { id: data[curr].id, API_SECRET },
+        {
+          headers: { 'content-type': 'application/x-www-form-urlencoded' }
         }
       )
-  }
+      .then(res => {
+        alert('Announcement Deleted!');
+        window.location.reload();
+      });
+  };
 
   return (
-      <div>
-          <div align='center'>
+    <div>
+      <div align="center">
         <Select
           value={curr}
-          onChange={e => {setCurr(e.target.value)}}
-        >
-            <MenuItem value={-1} key={'addNew'}>Add New Announcement</MenuItem>
+          onChange={e => {
+            setCurr(e.target.value);
+          }}>
+          <MenuItem value={-1} key={'addNew'}>
+            Add New Announcement
+          </MenuItem>
           {data.map((o, i) => {
-            return (<MenuItem value={i} key={'dropdown '+o.title}>{o.title}</MenuItem>)
+            return (
+              <MenuItem value={i} key={'dropdown ' + o.title}>
+                {o.title}
+              </MenuItem>
+            );
           })}
         </Select>
-        <Divider 
-              style={{marginTop: 10, marginBottom:10}}/>
-              <div style={{width: "50%"}}>
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    className={classes.button}
-                    startIcon={<SaveIcon />}
-                    style={{float:'left'}}
-                    onClick={postAnnouncement}
-                >
-                    Save
-                </Button> 
-                {curr !== -1 &&
-                <Button
-                    variant="contained"
-                    className={classes.button}
-                    startIcon={<DeleteIcon />}
-                    style={{float:'right', color: 'white', backgroundColor: 'red'}}
-                    onClick={deleteAnnouncement}
-                >
-                    Delete
-                </Button>}
-                </div>
-        <TextField
-              label="Title"
-              value={title}
-              style={{marginBottom: 10, width: '75%'}}
-              onChange={(e) => {
-                setTitle(e.target.value);
-              }}
-            />
-        <RichTextEditor
-        value={text}
-        onChange={v => setText(v)}
-      />
+        <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+        <div style={{ width: '50%' }}>
+          <Button
+            variant="contained"
+            color="secondary"
+            className={classes.button}
+            startIcon={<SaveIcon />}
+            style={{ float: 'left' }}
+            onClick={postAnnouncement}>
+            Save
+          </Button>
+          {curr !== -1 && (
+            <Button
+              variant="contained"
+              className={classes.button}
+              startIcon={<DeleteIcon />}
+              style={{ float: 'right', color: 'white', backgroundColor: 'red' }}
+              onClick={deleteAnnouncement}>
+              Delete
+            </Button>
+          )}
         </div>
+        <TextField
+          label="Title"
+          value={title}
+          style={{ marginBottom: 10, width: '75%' }}
+          onChange={e => {
+            setTitle(e.target.value);
+          }}
+        />
+        <RichTextEditor value={text} onChange={v => setText(v)} />
       </div>
+    </div>
   );
 };
 

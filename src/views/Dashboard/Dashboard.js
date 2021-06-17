@@ -10,7 +10,7 @@ import {
   Announcements,
   NextEvents
 } from './components';
-import {default as Account} from '../Account'
+import { default as Account } from '../Account';
 import { Box, Card, CardContent, Divider, Typography } from '@material-ui/core';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
@@ -91,7 +91,7 @@ const Dashboard = props => {
           <Grid item lg={4} md={6} xl={3} xs={12}>
             <NextEvents history={history} userid={global.userId} />
             <Divider />
-            <Account userId={global.userId} mini />
+            <Account userId={global.userId} mini min />
           </Grid>
         </Box>
 

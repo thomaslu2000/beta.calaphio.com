@@ -80,8 +80,6 @@ switch ($request[0]) {
             $sql = "SELECT 1/0 FROM apo_users;";
             break;
           }
-
-
           $extra = sprintf(",'%s', CURRENT_TIMESTAMP, %s", $data['pledgeclass'], $data['uid']);
           $toAdd = array();
           $sids = array();
@@ -157,17 +155,17 @@ switch ($request[0]) {
         case 'allCurrentEvents':
           $sql = sprintf("SELECT e.event_id as id, e.title AS title, e.start_at as date, a.chair as chair, 
           (e.type_service_chapter | e.type_service_campus | e.type_service_community | e.type_service_country) as service, 
-          e.type_fellowship as fellowship, a.flaked as flake, a.hours as hours 
+          e.type_fellowship as fellowship, a.flaked as flake, a.hours as hours, e.evaluated as evaluated
           FROM apo_calendar_event e JOIN apo_calendar_attend a USING (event_id) JOIN 
           (SELECT start FROM apo_semesters ORDER BY start DESC LIMIT 1) f
-          WHERE user_id=%s AND e.evaluated=1 AND deleted=0 AND f.start < e.start_at ORDER BY date", $_GET['userId']);
+          WHERE user_id=%s AND deleted=0 AND f.start < e.start_at ORDER BY date", $_GET['userId']);
           break;
         case 'allEvents':
           $sql = sprintf("SELECT  e.event_id as id, e.title AS title, e.start_at as date, a.chair as chair, 
           (e.type_service_chapter | e.type_service_campus | e.type_service_community | e.type_service_country) as service, 
-          e.type_fellowship as fellowship, a.flaked as flake, a.hours as hours 
+          e.type_fellowship as fellowship, a.flaked as flake, a.hours as hours, e.evaluated as evaluated
           FROM apo_calendar_event e JOIN apo_calendar_attend a USING (event_id) 
-          WHERE user_id=%s AND e.evaluated=1 AND deleted=0 ORDER BY date", $_GET['userId']);
+          WHERE user_id=%s AND deleted=0 ORDER BY date", $_GET['userId']);
           break;
         case 'allPositions':
           $sql = sprintf("SELECT position_title, position_name, semester, year 
@@ -263,7 +261,7 @@ switch ($request[0]) {
             WHERE date >= '%s' AND date <= '%s' AND deleted=0 GROUP BY date", $_GET['startDate'], $_GET['endDate']);
             break;
           case 'attending':
-            $sql = sprintf("SELECT a.user_id as uid, signup_time, chair, firstname, lastname, phone FROM apo_calendar_attend as a 
+            $sql = sprintf("SELECT a.user_id as uid, signup_time, chair, firstname, lastname, phone, flaked, attended, hours FROM apo_calendar_attend as a 
             JOIN apo_users as u USING (user_id) WHERE event_id = %s ORDER BY signup_time ASC", $_GET['eventId']);
             break;
           case 'signUp':
@@ -279,13 +277,29 @@ switch ($request[0]) {
             WHERE event_id=%s AND user_id=%s", $data['setting'], $data['eventId'], $data['userId']);
             break;
           case 'create':
-            $sql = sprintf("INSERT INTO apo_calendar_event (title, location, description, date, time_start, time_end, time_allday, 
+            $starts = explode(',', $data['rStarts']);
+            $ends = explode(',', $data['rEnds']);
+            $sql = "INSERT INTO apo_calendar_event (title, location, description, date, time_start, time_end, time_allday, 
             type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, type_fellowship, type_fundraiser, creator_id, start_at, end_at) 
-            VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
-            $data['title'], $data['location'], $data['description'], $data['date'], $data['time_start'], $data['time_end'], $data['time_allday'] ? 1 : 0, 
-            $data['type_interchapter'] ? 1 : 0, $data['type_service_chapter'] ? 1 : 0,  $data['type_service_campus'] ? 1 : 0,  $data['type_service_community'] ? 1 : 0,
-            $data['type_service_country'] ? 1 : 0,  $data['type_fellowship'] ? 1 : 0,  $data['type_fundraiser'] ? 1 : 0, $data['creator_id'], $data['start_at'], $data['end_at']);
+            VALUES ";
+            $rows = array();
+            for ($i = 0; $i < count($starts); $i++) {
+              $date = substr($starts[$i], 0, 10);
+              $rows[] = sprintf("('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ", 
+              $data['title'], $data['location'], $data['description'], $date, $data['time_start'], $data['time_end'], $data['time_allday'] ? 1 : 0, 
+              $data['type_interchapter'] ? 1 : 0, $data['type_service_chapter'] ? 1 : 0,  $data['type_service_campus'] ? 1 : 0,  $data['type_service_community'] ? 1 : 0,
+              $data['type_service_country'] ? 1 : 0,  $data['type_fellowship'] ? 1 : 0,  $data['type_fundraiser'] ? 1 : 0, $data['creator_id'], $starts[$i], $ends[$i]);
+            } 
+            $sql .= implode(', ', $rows);
             break;
+
+            // $sql = sprintf("INSERT INTO apo_calendar_event (title, location, description, date, time_start, time_end, time_allday, 
+            // type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, type_fellowship, type_fundraiser, creator_id, start_at, end_at) 
+            // VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
+            // $data['title'], $data['location'], $data['description'], $data['date'], $data['time_start'], $data['time_end'], $data['time_allday'] ? 1 : 0, 
+            // $data['type_interchapter'] ? 1 : 0, $data['type_service_chapter'] ? 1 : 0,  $data['type_service_campus'] ? 1 : 0,  $data['type_service_community'] ? 1 : 0,
+            // $data['type_service_country'] ? 1 : 0,  $data['type_fellowship'] ? 1 : 0,  $data['type_fundraiser'] ? 1 : 0, $data['creator_id'], $data['start_at'], $data['end_at']);
+            // break;
           case 'delete':
             $sql = sprintf("UPDATE apo_calendar_event SET deleted=1, 
             creator_id=%s WHERE event_id=%s", $data['userId'], $data['eventId']);
@@ -322,6 +336,20 @@ switch ($request[0]) {
         case 'lastSem':
           $sql = "SELECT * FROM apo_semesters ORDER BY id DESC LIMIT 1";
           break;
+        case 'allSems':
+          $sql = "SELECT * FROM apo_semesters ORDER BY end DESC";
+          break;
+        case 'updateSem':
+          $sql = sprintf("INSERT INTO apo_semesters (id, semester, start, end, namesake, namesake_short) 
+          VALUES('%s', '%s', '%s', '%s', '%s', '%s') ON DUPLICATE KEY UPDATE    
+          semester='%s', start='%s', end='%s', namesake='%s', namesake_short='%s'",
+          $data['id'], $data['semester'], $data['start'], $data['end'], $data['namesake'], $data['namesake_short'],
+          $data['semester'], $data['start'], $data['end'], $data['namesake'], $data['namesake_short']
+          );
+          break;
+        case 'deleteSem':
+          $sql = sprintf("DELETE FROM apo_semesters WHERE id='%s'", $data['id']);
+          break;
         case 'announcements':
           $sql = "SELECT a.id, a.user_id, a.text, a.publish_time, a.title, u.firstname, u.lastname, u.pledgeclass, e.start 
           FROM apo_announcements a JOIN apo_users u 
@@ -331,6 +359,17 @@ switch ($request[0]) {
           break;
       }
       break;
+      case 'wiki':
+        switch($request[1]) {
+          case 'pages':
+            $sql = "SELECT * FROM apo_wiki_pages ORDER BY timestamp desc";
+            break;
+          case 'addPage':
+            $sql = sprintf("INSERT INTO apo_wiki_pages (page_name, description, timestamp, creator_user_id) 
+            VALUES ('%s', '%s', CURRENT_TIMESTAMP, %s)", $data['title'], $data['description'], $data['userId']);
+            break;
+        }
+        break;
     default:
       echo("oops");
 }

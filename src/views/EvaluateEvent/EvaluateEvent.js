@@ -45,7 +45,7 @@ const EvaluateEvent = props => {
     if (eid) {
       getEvent();
     }
-  }, [eid]);
+  }, [eid, global.userId]);
 
   const getEvent = async () => {
     await axios
@@ -57,8 +57,23 @@ const EvaluateEvent = props => {
       .then(response => {
         setEventData(response.data[0]);
         getAttending(response.data[0]);
+        // console.log(response.data[0])
+        if (response.data[0])
+          axios
+            .get(`${API_URL}/people/adminOrChair`, {
+              params: { userId: global.userId || -1, eventId: eid }
+            })
+            .then(res => {
+              if (res.data.length == 0) {
+                let start_date = moment.utc(response.data[0].start_at).local();
+                history.push(
+                  `/day/${start_date.format('YYYY-MM-DD')}/event/${eid}`
+                );
+              }
+            });
       });
   };
+
   const getAttending = async ed => {
     let dt1 = new Date(ed.start_at);
     let dt2 = new Date(ed.end_at);
@@ -72,11 +87,14 @@ const EvaluateEvent = props => {
       })
       .then(response => {
         setAttendingSelect(
-          response.data.reduce((o, key) => ({ ...o, [key.uid]: 1 }), {})
+          response.data.reduce(
+            (o, key) => ({ ...o, [key.uid]: +(key.flaked === '0') }),
+            {}
+          )
         );
         setAttendingHours(
           response.data.reduce(
-            (o, key) => ({ ...o, [key.uid]: defaultHours }),
+            (o, key) => ({ ...o, [key.uid]: key.hours || defaultHours }),
             {}
           )
         );
@@ -100,20 +118,14 @@ const EvaluateEvent = props => {
       let status = attendingSelect[userId];
       let chair = attendingChair[userId];
       if (status < 2)
-        attend.push([
-          status, 1-status, userId, hours, chair ? 1 : 0
-        ].join(',')
-          // {attended: status,
-          // flaked: 1 - status,
-          // userId,
-          // hours,
-          // chair: chair ? 1 : 0}
+        attend.push(
+          [status, 1 - status, userId, hours, chair ? 1 : 0].join(',')
         );
       else del.push(userId);
     }
     params.API_SECRET = API_SECRET;
     params.attend = attend.join('-');
-    params.delete = del.join('-')
+    params.delete = del.join('-');
     return params;
   };
 

@@ -10,7 +10,16 @@ import {
   DateNavigator,
   AllDayPanel
 } from '@devexpress/dx-react-scheduler-material-ui';
-import { Button, List, ListItem, ListItemText } from '@material-ui/core';
+import {
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Checkbox,
+  ListItemSecondaryAction
+} from '@material-ui/core';
+import LaunchIcon from '@material-ui/icons/Launch';
 import axios from 'axios';
 import moment from 'moment';
 import { makeTypes } from '../../../AppointmentFormFunctions';
@@ -42,6 +51,60 @@ const resources = [
   }
 ];
 
+// const SignUpCheck = props => {
+//   const signUp = async () => {
+//     if (global.userId)
+//       await axios
+//         .post(
+//           `${API_URL}/events/signUp/`,
+//           {
+//             eventId: props.eventData.event_id,
+//             userId: global.userId,
+//             timestamp: moment()
+//               .utc()
+//               .format('YYYY-MM-DD HH:mm:ss'),
+//               API_SECRET
+//           },
+//           { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+//         )
+//         .then(response => {
+//           setImAttending(true);
+//           let n = [
+//             {
+//               uid: global.userId,
+//               signup_time: moment()
+//                 .utc()
+//                 .format('YYYY-MM-DD HH:mm:ss'),
+//               chair: 0,
+//               firstname: '',
+//               lastname: 'You'
+//             },
+//             ...attending
+//           ];
+//           setAttending(n);
+//         });
+//   };
+
+//   const signOff = async () => {
+//     await axios
+//       .post(
+//         `${API_URL}/events/signOff/`,
+//         {
+//           eventId: props.eventData.event_id,
+//           userId: global.userId,
+//           API_SECRET
+//         },
+//         { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+//       )
+//       .then(response => {
+//         setAttending(attending.filter(x => x.uid !== global.userId));
+//         setImAttending(false);
+//         setImChair(false);
+//       });
+//   };
+//   return ()
+// }
+
 const Content = ({ children, appointmentData, classes, ...restProps }) => (
   <AppointmentTooltip.Content {...restProps} appointmentData={appointmentData}>
     <br />
@@ -56,7 +119,21 @@ const Content = ({ children, appointmentData, classes, ...restProps }) => (
             component="a"
             key={item}
             href={`#/day/${item[2]}/event/${item[0]}`}>
+            <ListItemIcon>
+              <LaunchIcon color="secondary" />
+            </ListItemIcon>
             <ListItemText primary={item[1]} />
+
+            {/* <ListItemSecondaryAction>
+            <ListItemIcon>
+              <Checkbox
+                edge="start"
+                // checked={checked.indexOf(value) !== -1}
+                tabIndex={-1}
+                disableRipple
+              />
+            </ListItemIcon>
+            </ListItemSecondaryAction> */}
           </ListItem>
         );
       })}
@@ -102,24 +179,26 @@ const MonthCalendar = props => {
         let days = {};
         response.data.map(item => {
           let type = item.service === '1' ? 0 : item.fellowship === '1' ? 1 : 2;
-          let timeStart = moment
-          .utc(item.start_at)
-          .local();
-          let timeEnd = moment
-          .utc(item.end_at)
-          .local();
-          let date = timeStart
-            .format('YYYY-MM-DD');
-          let dateEnd = timeEnd
-            .format('YYYY-MM-DD');
+          let timeStart = moment.utc(item.start_at).local();
+          let timeEnd = moment.utc(item.end_at).local();
+          let date = timeStart.format('YYYY-MM-DD');
+          let dateEnd = timeEnd.format('YYYY-MM-DD');
           if (!days[date]) days[date] = [[], [], []];
-          days[date][type].push([item.event_id, unsanitize(item.title), date, timeStart, timeEnd]);
+          days[date][type].push([
+            item.event_id,
+            unsanitize(item.title),
+            date,
+            timeStart,
+            timeEnd
+          ]);
           if (dateEnd !== date) {
             if (!days[dateEnd]) days[dateEnd] = [[], [], []];
             days[dateEnd][type].push([
               item.event_id,
               unsanitize(item.title),
-              dateEnd, timeStart, timeEnd
+              dateEnd,
+              timeStart,
+              timeEnd
             ]);
           }
         });

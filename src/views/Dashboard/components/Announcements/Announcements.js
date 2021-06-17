@@ -67,14 +67,14 @@ const Announcements = props => {
             </Typography>
             <Divider />
             <CardContent>
-                <Typography
-                  gutterBottom
-                  variant="h4"
-                  component="h4"
-                  dangerouslySetInnerHTML={{
-                    __html: unsanitize(item.text)
-                  }}
-                />
+              <Typography
+                gutterBottom
+                variant="h4"
+                component="h4"
+                dangerouslySetInnerHTML={{
+                  __html: unsanitize(item.text)
+                }}
+              />
               <Typography className={classes.name} color="textSecondary">
                 - {item.firstname} {item.lastname} ({item.pledgeclass}),{' '}
                 {moment(item.publish_time).fromNow()}

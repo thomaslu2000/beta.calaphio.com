@@ -15,10 +15,12 @@ import {
   TableHead,
   TableRow
 } from '@material-ui/core';
+import { SearchUser } from '../../../../components/';
 import axios from 'axios';
 import moment from 'moment';
 import { useGlobal } from 'reactn';
 import { unsanitize, gCalAdd } from '../../../functions';
+import { Link as RouterLink, withRouter } from 'react-router-dom';
 import Comments from './Comments';
 
 const API_SECRET = process.env.REACT_APP_SECRET;
@@ -36,24 +38,42 @@ const eventType = item => {
   return types.join(', ');
 };
 
+const lock_hours = 24;
 
-export default function Event(props) {
+const Event = props => {
   const classes = useStyles();
+  const { eventData, history } = props;
   const [attending, setAttending] = useState([]);
   const [imAttending, setImAttending] = useState(false);
   const [imChair, setImChair] = useState(false);
+  const [imAdmin, setImAdmin] = useState(false);
   const [showComments, setShowComments] = useState(true);
+  const [toAdd, setToAdd] = useState(false);
+  const [addingPart, setAddingPart] = useState(false);
   const [global] = useGlobal();
 
   useEffect(() => {
-    if (props.eventData) getAttending();
-  }, [props.eventData]);
+    if (eventData) {
+      getAttending();
+      getAdmin();
+    }
+  }, [eventData]);
+
+  const getAdmin = async () => {
+    await axios
+      .get(`${API_URL}/people/adminOrChair`, {
+        params: { userId: global.userId || -1, eventId: eventData.event_id }
+      })
+      .then(res => {
+        setImAdmin(res.data.length > 0);
+      });
+  };
 
   const getAttending = async () => {
     await axios
       .get(`${API_URL}/events/attending/`, {
         params: {
-          eventId: props.eventData.event_id
+          eventId: eventData.event_id
         }
       })
       .then(response => {
@@ -69,32 +89,32 @@ export default function Event(props) {
       });
   };
 
-  const signUp = async () => {
-    if (global.userId)
+  const signUp = async (uid, firstname = '', lastname = 'You') => {
+    if (uid)
       await axios
         .post(
           `${API_URL}/events/signUp/`,
           {
-            eventId: props.eventData.event_id,
-            userId: global.userId,
+            eventId: eventData.event_id,
+            userId: uid,
             timestamp: moment()
               .utc()
               .format('YYYY-MM-DD HH:mm:ss'),
-              API_SECRET
+            API_SECRET
           },
           { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
         )
         .then(response => {
-          setImAttending(true);
+          setImAttending(firstname == '' && lastname == 'You');
           let n = [
             {
-              uid: global.userId,
               signup_time: moment()
                 .utc()
                 .format('YYYY-MM-DD HH:mm:ss'),
               chair: 0,
-              firstname: '',
-              lastname: 'You'
+              uid,
+              firstname,
+              lastname
             },
             ...attending
           ];
@@ -102,19 +122,19 @@ export default function Event(props) {
         });
   };
 
-  const signOff = async () => {
+  const signOff = async uid => {
     await axios
       .post(
         `${API_URL}/events/signOff/`,
         {
-          eventId: props.eventData.event_id,
-          userId: global.userId,
+          eventId: eventData.event_id,
+          userId: uid,
           API_SECRET
         },
         { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
       )
       .then(response => {
-        setAttending(attending.filter(x => x.uid !== global.userId));
+        setAttending(attending.filter(x => x.uid !== uid));
         setImAttending(false);
         setImChair(false);
       });
@@ -125,7 +145,7 @@ export default function Event(props) {
       .post(
         `${API_URL}/events/changeChair/`,
         {
-          eventId: props.eventData.event_id,
+          eventId: eventData.event_id,
           userId: global.userId,
           setting: 1,
           API_SECRET
@@ -143,11 +163,12 @@ export default function Event(props) {
       });
   };
   const loseChair = async () => {
+    setImChair(false);
     await axios
       .post(
         `${API_URL}/events/changeChair/`,
         {
-          eventId: props.eventData.event_id,
+          eventId: eventData.event_id,
           userId: global.userId,
           setting: 0,
           API_SECRET
@@ -155,7 +176,6 @@ export default function Event(props) {
         { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
       )
       .then(response => {
-        setImChair(false);
         setAttending(
           attending.map(x => {
             if (x.uid === global.userId) x.chair = 0;
@@ -165,9 +185,18 @@ export default function Event(props) {
       });
   };
 
-  if (!props.eventData) {
+  useEffect(() => {
+    if (toAdd) {
+      setAddingPart(false);
+      signUp(toAdd.uid, toAdd.firstname, toAdd.lastname);
+      setToAdd(false);
+    }
+  }, [toAdd]);
+
+  if (!eventData) {
     return (
-      <Card className={classes.root} 
+      <Card
+        className={classes.root}
         style={{
           marginTop: 30,
           marginRight: 20,
@@ -179,128 +208,195 @@ export default function Event(props) {
       </Card>
     );
   }
-  let starttime = moment(props.eventData.startDate);
-  let endtime = moment(props.eventData.endDate);
+
+  let starttime = moment(eventData.startDate);
+  let endtime = moment(eventData.endDate);
   let s = starttime.format('MMMM Do YYYY');
   let e = endtime.format('MMMM Do YYYY');
 
   const sayChair = row => {
+    let symbol = (
+      <React.Fragment>
+        👑
+        <br />
+      </React.Fragment>
+    );
     if (row.uid === global.userId) {
-      if (imChair) return '👑';
+      if (imChair) return symbol;
       else return;
     }
-    return row.chair === '1' && '👑';
+    return row.chair === '1' && symbol;
   };
 
   return (
-      <Card className={classes.root} >
-    <CardHeader
-    action={
+    <Card className={classes.root}>
+      <CardHeader
+        action={
           <Button
-              size="large"
+            size="large"
+            variant="outlined"
+            onClick={() => {
+              gCalAdd([eventData]);
+            }}>
+            Add To Google Calendar
+          </Button>
+        }
+      />
+      <CardContent>
+        <Typography variant="h5" component="h2">
+          <b>{eventData.title}</b>
+          {(imChair || imAdmin) && (
+            <Button
+              // size="large"
               variant="outlined"
-              onClick={() => {gCalAdd([props.eventData])}}>
-              Add To Google Calendar
-            </Button>} />
-        <CardContent>
-          <Typography variant="h5" component="h2">
-            <b>{props.eventData.title}</b>
-          </Typography>
-          <Typography
-            className={classes.title}
-            color="textSecondary"
-            gutterBottom>
-            Date: <b>{s === e ? s : s + ' to ' + e}</b>
-            <br />
-            Time:{' '}
-            <b>
-              {props.eventData.time_allday === '1'
-                ? 'All Day'
-                : starttime.format('h:mm a') +
-                  ' to ' +
-                  endtime.format('h:mm a')}
-            </b>
-          </Typography>
-          <Typography
-            className={classes.title}
-            color="textSecondary"
-            gutterBottom>
-            Location:{' '}
-            <b>{props.eventData.location || 'No Location Provided'}</b>
-          </Typography>
-          <Typography
-            className={classes.title}
-            color="textSecondary"
-            gutterBottom>
-            Event Type: <b>{eventType(props.eventData)}</b>
-          </Typography>
-          <Typography className={classes.pos} color="textSecondary">
-            Description:
-          </Typography>
-          <Typography
-            variant="body2"
-            component="p"
-            dangerouslySetInnerHTML={{
-              __html: props.eventData.description || 'No Description Provided'
-            }}></Typography>
-          <CardActions>
-            {imAttending && (
-              <Button
-                style={{ marginLeft: 'auto', marginRight: 'auto' }}
-                size="large"
-                onClick={imChair ? loseChair : becomeChair}>
-                {imChair ? 'Give Up Chair' : 'Become Chair'}
-              </Button>
-            )}
+              style={{ float: 'right' }}
+              onClick={() => {
+                history.push(`/evaluate/${eventData.event_id}`);
+              }}>
+              Evaluation
+            </Button>
+          )}
+        </Typography>
+        <Typography
+          className={classes.title}
+          color="textSecondary"
+          gutterBottom>
+          Date: <b>{s === e ? s : s + ' to ' + e}</b>
+          <br />
+          Time:{' '}
+          <b>
+            {eventData.time_allday === '1'
+              ? 'All Day'
+              : starttime.format('h:mm a') + ' to ' + endtime.format('h:mm a')}
+          </b>
+        </Typography>
+        <Typography
+          className={classes.title}
+          color="textSecondary"
+          gutterBottom>
+          Location: <b>{eventData.location || 'No Location Provided'}</b>
+        </Typography>
+        <Typography
+          className={classes.title}
+          color="textSecondary"
+          gutterBottom>
+          Event Type: <b>{eventType(eventData)}</b>
+        </Typography>
+        <Typography className={classes.pos} color="textSecondary">
+          Description:
+        </Typography>
+        <Typography
+          variant="body2"
+          component="p"
+          dangerouslySetInnerHTML={{
+            __html: eventData.description || 'No Description Provided'
+          }}></Typography>
+
+        {addingPart && <SearchUser toAdd={setToAdd} />}
+
+        <CardActions>
+          {(imChair || imAdmin) && (
             <Button
               style={{ marginLeft: 'auto', marginRight: 'auto' }}
               size="large"
-              onClick={imAttending ? signOff : signUp}>
+              onClick={() => {
+                setAddingPart(!addingPart);
+              }}>
+              Add Participant
+            </Button>
+          )}
+          {imAttending && (
+            <Button
+              style={{ marginLeft: 'auto', marginRight: 'auto' }}
+              size="large"
+              onClick={imChair ? loseChair : becomeChair}>
+              {imChair ? 'Give Up Chair' : 'Become Chair'}
+            </Button>
+          )}
+          {imAttending &&
+          moment.duration(moment(eventData.start_at).diff(moment())).asHours() <
+            lock_hours ? (
+            <Button
+              style={{ marginLeft: 'auto', marginRight: 'auto' }}
+              size="large"
+              disabled>
+              Too Late to Drop
+            </Button>
+          ) : (
+            <Button
+              style={{ marginLeft: 'auto', marginRight: 'auto' }}
+              size="large"
+              onClick={() => {
+                imAttending ? signOff(global.userId) : signUp(global.userId);
+              }}>
               {imAttending ? 'Take Me Off' : 'Sign Up'}
             </Button>
-          </CardActions>
-          <Table
-            className={classes.table}
-            size="small"
-            aria-label="a dense table">
-            <TableHead>
-              <TableRow>
-                <TableCell align="left">Name</TableCell>
-                <TableCell align="left">How to Reach</TableCell>
-                <TableCell align="left">Sign Up Time</TableCell>
-                <TableCell align="right"></TableCell>
+          )}
+        </CardActions>
+        <Table
+          className={classes.table}
+          size="small"
+          aria-label="a dense table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="left">Name</TableCell>
+              <TableCell align="left">How to Reach</TableCell>
+              <TableCell align="left">Sign Up Time</TableCell>
+              {(imChair || imAdmin) && (
+                <TableCell align="center">Drop</TableCell>
+              )}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {attending.map(row => (
+              <TableRow key={row.firstname + row.lastname}>
+                <TableCell component="th" scope="row">
+                  {sayChair(row)} {row.firstname} {row.lastname}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {unsanitize(row.phone)}
+                </TableCell>
+                <TableCell align="left">
+                  {moment
+                    .utc(row.signup_time)
+                    .local()
+                    .fromNow()}
+                </TableCell>
+                {(imChair || imAdmin) && (
+                  <TableCell align="center">
+                    <Button
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Drop ${row.firstname} ${row.lastname} From Event?`
+                          )
+                        ) {
+                          signOff(row.uid, row.firstname, row.lastname);
+                        }
+                      }}>
+                      ❌
+                    </Button>
+                  </TableCell>
+                )}
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {attending.map(row => (
-                <TableRow key={row.firstname + row.lastname}>
-                  <TableCell component="th" scope="row">
-                    {row.firstname + ' ' + row.lastname}
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {unsanitize(row.phone)}
-                  </TableCell>
-                  <TableCell align="left">
-                    {moment
-                      .utc(row.signup_time)
-                      .local()
-                      .fromNow()}
-                  </TableCell>
-                  <TableCell align="right">{sayChair(row)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
       <CardActions>
-        <Button  className={classes.alignMid} size="small" onClick={() => {setShowComments(!showComments)}}>
+        <Button
+          className={classes.alignMid}
+          size="small"
+          onClick={() => {
+            setShowComments(!showComments);
+          }}>
           {showComments ? 'Hide' : 'Show'} Comments
-          </Button>
+        </Button>
       </CardActions>
-      {showComments && <Comments eventId={props.eventData.event_id} />}
-      </Card>
+      {showComments && <Comments eventId={eventData.event_id} />}
+    </Card>
   );
-}
+};
 
 const useStyles = makeStyles({
   root: {
@@ -317,9 +413,11 @@ const useStyles = makeStyles({
   },
   table: {
     width: '100%'
-  }, 
+  },
   alignMid: {
     marginLeft: 'auto',
     marginRight: 'auto'
   }
 });
+
+export default withRouter(Event);

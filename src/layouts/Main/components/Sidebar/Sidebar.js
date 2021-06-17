@@ -6,6 +6,7 @@ import { Divider, Drawer } from '@material-ui/core';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 import EventIcon from '@material-ui/icons/Event';
+import MenuBookIcon from '@material-ui/icons/MenuBook';
 import SearchIcon from '@material-ui/icons/Search';
 import BuildIcon from '@material-ui/icons/Build';
 import { Profile, SidebarNav } from './components';
@@ -68,6 +69,11 @@ const Sidebar = props => {
       title: 'Admin Tools',
       href: '/admin',
       icon: <BuildIcon />
+    },
+    {
+      title: 'Wiki',
+      href: '/wiki',
+      icon: <MenuBookIcon />
     },
     inlog || global.userId
       ? {

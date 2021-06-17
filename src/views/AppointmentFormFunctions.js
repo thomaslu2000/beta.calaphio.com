@@ -1,6 +1,9 @@
 import axios from 'axios';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import sanitizeHtml from 'sanitize-html';
+import { rrulestr } from 'rrule';
+import { DateTime } from 'luxon';
+
 const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
@@ -92,12 +95,53 @@ export function makeCommitChanges(f, uid) {
         alert('Error: Start Date is After the End Date');
         return;
       }
-      if (added.rRule) alert('Recurring Events Not Yet Implemented');
       let params = makeParams(added, uid);
       if (!params.title) params.title = 'Untitled Event';
       if (!params.location) params.location = 'No Location Given';
       if (!params.description) params.description = '';
       if (!params.time_allday) params.time_allday = 0;
+
+      if (!added.allDay && added.rRule) {
+        var rule = rrulestr(
+          `DTSTART:${moment(added.startDate).format('YYYYMMDDTHHmmss')}\n${
+            added.rRule
+          }`
+        );
+        params.rStarts = rule
+          .all()
+          .map(date => {
+            let newDate = DateTime.fromJSDate(date)
+              .toUTC()
+              .setZone('local', { keepLocalTime: true })
+              .toJSDate();
+            return moment(newDate)
+              .utc()
+              .format('YYYY-MM-DD HH:mm:ss');
+          })
+          .join(',');
+
+        var rule = rrulestr(
+          `DTSTART:${moment(added.endDate).format('YYYYMMDDTHHmmss')}\n${
+            added.rRule
+          }`
+        );
+        params.rEnds = rule
+          .all()
+          .map(date => {
+            let newDate = DateTime.fromJSDate(date)
+              .toUTC()
+              .setZone('local', { keepLocalTime: true })
+              .toJSDate();
+            return moment(newDate)
+              .utc()
+              .format('YYYY-MM-DD HH:mm:ss');
+          })
+          .join(',');
+      } else {
+        params.rStarts = params.start_at;
+        params.rEnds = params.end_at;
+      }
+
       await axios
         .post(`${API_URL}/events/create`, params, {
           headers: { 'content-type': 'application/x-www-form-urlencoded' }
@@ -115,7 +159,7 @@ export function makeCommitChanges(f, uid) {
         params.eventId = eventId;
         await axios
           .get(`${API_URL}/people/adminOrChair`, {
-            params: { userId: uid, eventId: eventId}
+            params: { userId: uid, eventId: eventId }
           })
           .then(response => {
             if (response.data.length > 0) {

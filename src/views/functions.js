@@ -1,17 +1,15 @@
-
 import moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
-import {decode} from 'html-entities';
+import { decode } from 'html-entities';
 
 const CLIENT_ID = process.env.REACT_APP_G_CLIENT_ID;
 const API_KEY = process.env.REACT_APP_G_API_KEY;
 
 const face_folder = process.env.REACT_APP_FACES;
 
-const extensions = ['jpg', 'png', 'jpeg']
+const extensions = ['jpg', 'png', 'jpeg'];
 
-export function imageExists(image_url){
-
+export function imageExists(image_url) {
   var http = new XMLHttpRequest();
 
   http.open('HEAD', image_url, false);
@@ -24,31 +22,29 @@ export function clean(str) {
   return escape(sanitizeHtml(str));
 }
 
-
 export function avatarSearch(userdata) {
-  var pic_path = 'https://icon-library.net/images/default-profile-icon/default-profile-icon-17.jpg' 
+  var pic_path =
+    'https://icon-library.net/images/default-profile-icon/default-profile-icon-17.jpg';
   if (userdata) {
     if (userdata.profile_pic) {
       return userdata.profile_pic;
     }
     let id = userdata.user_id;
     if (id)
-      for (let i = 0; i< 3; i++){
-        let r = `${face_folder}${id}.${extensions[i]}`
-        if (imageExists(r)){ pic_path = r; break; }
+      for (let i = 0; i < 3; i++) {
+        let r = `${face_folder}${id}.${extensions[i]}`;
+        if (imageExists(r)) {
+          pic_path = r;
+          break;
+        }
       }
   }
   return pic_path;
 }
 
-
 export function unsanitize(str) {
-  if (!str || typeof(str) !== 'string') return '';
-  return unescape(decode(
-    str
-      .replace(/%26/g, '&')
-      .replace(/%3B/g, ';'))
-  );
+  if (!str || typeof str !== 'string') return '';
+  return unescape(decode(str.replace(/%26/g, '&').replace(/%3B/g, ';')));
 }
 
 export function dayToObj(item) {
@@ -71,6 +67,7 @@ export function dayToObj(item) {
   item.title = unsanitize(item.title);
   item.location = unsanitize(item.location || '');
   item.description = unsanitize(item.description || '');
+  item.notes = item.description;
   item.id = item.event_id;
   item.typeId =
     item.type_service_chapter === '1'
@@ -89,8 +86,10 @@ export function dayToObj(item) {
 
 export function gCalAdd(events) {
   var gapi = window.gapi;
-  var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
-  var SCOPES = "https://www.googleapis.com/auth/calendar.events";
+  var DISCOVERY_DOCS = [
+    'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'
+  ];
+  var SCOPES = 'https://www.googleapis.com/auth/calendar.events';
   gapi.load('client:auth2', () => {
     gapi.client.init({
       apiKey: API_KEY,
@@ -98,33 +97,34 @@ export function gCalAdd(events) {
       discoveryDocs: DISCOVERY_DOCS,
       scope: SCOPES
     });
-    gapi.client.load('calendar', 'v3', ()=>{
-      
-      gapi.auth2.getAuthInstance().signIn().then(
-        () => {
+    gapi.client.load('calendar', 'v3', () => {
+      gapi.auth2
+        .getAuthInstance()
+        .signIn()
+        .then(() => {
           events.map(event => {
-            event.summary = event.title
-            if (event.allDay){
-              event.start = {date: event.startDate.toISOString().split('T')[0]};
-              event.end = {date: event.end_at.substring(0, 10)};
+            event.summary = event.title;
+            if (event.allDay) {
+              event.start = {
+                date: event.startDate.toISOString().split('T')[0]
+              };
+              event.end = { date: event.end_at.substring(0, 10) };
             } else {
-              event.start = {dateTime: event.startDate};
-              event.end = {dateTime: event.endDate};
+              event.start = { dateTime: event.startDate };
+              event.end = { dateTime: event.endDate };
             }
             var request = gapi.client.calendar.events.insert({
-              'calendarId': 'primary',
-              'resource': event
-            })
-            request.execute((event) => {
-              if (event.htmlLink)
-                alert(`Event ${event.summary} created. \nlink:\n${event.htmlLink}`);
+              calendarId: 'primary',
+              resource: event
             });
-          })
-        }
-      );
-    
+            request.execute(event => {
+              if (event.htmlLink)
+                alert(
+                  `Event ${event.summary} created. \nlink:\n${event.htmlLink}`
+                );
+            });
+          });
+        });
     });
-
-  
-  })
+  });
 }

@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(4)
   },
-  mini_root : {
+  mini_root: {
     paddingTop: theme.spacing(4)
   }
 }));
@@ -26,38 +26,64 @@ const Account = props => {
   useEffect(() => {
     const getUserData = async () => {
       await axios
-      .get(`${API_URL}/people/userData/`, {
-        params: {
-          userId
-        }
-      })
-      .then(response => {
-        if (response.data.length === 0) {
-          alert(`User ${userId} not found!`)
-          return
-        }
-        setUserData(response.data[0]);
-      });
-    }
+        .get(`${API_URL}/people/userData/`, {
+          params: {
+            userId
+          }
+        })
+        .then(response => {
+          if (response.data.length === 0) {
+            alert(`User ${userId} not found!`);
+            return;
+          }
+          setUserData(response.data[0]);
+        });
+    };
     if (userId) getUserData();
   }, [props.match]);
 
   return (
-      <Grid container spacing={4} className={props.mini ? classes.mini_root : classes.root}>
-        <Grid item lg={props.mini ? 12 : 4} md={props.mini ? 12 : 6} xl={props.mini ? 12 : 4} xs={12}>
-          <AccountProfile userdata={userData} viewerid={global.userId} />
-        </Grid>
-        <Grid item lg={props.mini ? 12 : 8} md={props.mini ? 12 : 6} xl={props.mini ? 12 : 8} xs={12}>
-          <AccountDetails userdata={userData} viewerid={global.userId} />
-        </Grid>
-        
-        <Grid item lg={props.mini ? 12 : 4} md={props.mini ? 12 : 6} xl={props.mini ? 12 : 4} xs={12}>
-          <Positions userId={userId} />
-        </Grid>
-        <Grid item lg={props.mini ? 12 : 8} md={props.mini ? 12 : 6} xl={props.mini ? 12 : 8} xs={12}>
-          <AttendedEvents userId={userId} />
-        </Grid>
+    <Grid
+      container
+      spacing={4}
+      className={props.mini ? classes.mini_root : classes.root}>
+      <Grid
+        item
+        lg={props.mini ? 12 : 4}
+        md={props.mini ? 12 : 6}
+        xl={props.mini ? 12 : 4}
+        xs={12}>
+        <AccountProfile userdata={userData} viewerid={global.userId} />
       </Grid>
+      <Grid
+        item
+        lg={props.mini ? 12 : 8}
+        md={props.mini ? 12 : 6}
+        xl={props.mini ? 12 : 8}
+        xs={12}>
+        <AccountDetails userdata={userData} viewerid={global.userId} />
+      </Grid>
+      {props.min || (
+        <React.Fragment>
+          <Grid
+            item
+            lg={props.mini ? 12 : 4}
+            md={props.mini ? 12 : 6}
+            xl={props.mini ? 12 : 4}
+            xs={12}>
+            <Positions userId={userId} />
+          </Grid>
+          <Grid
+            item
+            lg={props.mini ? 12 : 8}
+            md={props.mini ? 12 : 6}
+            xl={props.mini ? 12 : 8}
+            xs={12}>
+            <AttendedEvents userId={userId} />
+          </Grid>
+        </React.Fragment>
+      )}
+    </Grid>
   );
 };
 

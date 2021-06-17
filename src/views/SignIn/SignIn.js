@@ -124,7 +124,7 @@ const SignIn = props => {
       )
       .then(response => {
         if (response.data.length > 0) {
-          console.log(response.data)
+          // console.log(response.data)
           let info = response.data[0];
           if (info.disabled == 0) {
             let details = {
