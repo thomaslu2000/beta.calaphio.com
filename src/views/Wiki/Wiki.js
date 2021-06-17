@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Search = props => {
+const Wiki = props => {
   const classes = useStyles();
   const { history } = props;
   const [global] = useGlobal();
@@ -84,7 +84,7 @@ const Search = props => {
         <Typography
           variant="h1"
           style={{ marginLeft: 'auto', marginRight: 'auto' }}>
-          {pageId ? `My Page Id is ${pageId}` : 'Pee and poop'}
+          {pageId ? `My Page Id is ${pageId}` : 'Pee and poop and farts'}
         </Typography>
 
         <form style={{ paddingTop: 30, paddingBottom: 30 }}>
@@ -174,8 +174,4 @@ const Search = props => {
   );
 };
 
-Search.propTypes = {
-  history: PropTypes.object
-};
-
-export default withRouter(Search);
+export default withRouter(Wiki);
