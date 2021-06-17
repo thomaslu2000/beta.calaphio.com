@@ -60,7 +60,7 @@
     "recompose": "^0.30.0",
     "rrule": "^2.6.8",
     "sanitize-html": "^1.27.2",
-    "underscore": "^1.9.1",
+    "underscore": "^1.12.1",
     "uuid": "^3.3.2",
     "validate.js": "^0.13.1",
     "xlsx": "^0.16.9"
