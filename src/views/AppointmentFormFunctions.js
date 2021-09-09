@@ -157,6 +157,7 @@ export function makeCommitChanges(f, uid) {
           return;
         }
         params.eventId = eventId;
+        delete params['none'];
         await axios
           .get(`${API_URL}/people/adminOrChair`, {
             params: { userId: uid, eventId: eventId }
