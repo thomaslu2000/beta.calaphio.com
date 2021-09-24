@@ -51,60 +51,6 @@ const resources = [
   }
 ];
 
-// const SignUpCheck = props => {
-//   const signUp = async () => {
-//     if (global.userId)
-//       await axios
-//         .post(
-//           `${API_URL}/events/signUp/`,
-//           {
-//             eventId: props.eventData.event_id,
-//             userId: global.userId,
-//             timestamp: moment()
-//               .utc()
-//               .format('YYYY-MM-DD HH:mm:ss'),
-//               API_SECRET
-//           },
-//           { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
-//         )
-//         .then(response => {
-//           setImAttending(true);
-//           let n = [
-//             {
-//               uid: global.userId,
-//               signup_time: moment()
-//                 .utc()
-//                 .format('YYYY-MM-DD HH:mm:ss'),
-//               chair: 0,
-//               firstname: '',
-//               lastname: 'You'
-//             },
-//             ...attending
-//           ];
-//           setAttending(n);
-//         });
-//   };
-
-//   const signOff = async () => {
-//     await axios
-//       .post(
-//         `${API_URL}/events/signOff/`,
-//         {
-//           eventId: props.eventData.event_id,
-//           userId: global.userId,
-//           API_SECRET
-//         },
-//         { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
-//       )
-//       .then(response => {
-//         setAttending(attending.filter(x => x.uid !== global.userId));
-//         setImAttending(false);
-//         setImChair(false);
-//       });
-//   };
-//   return ()
-// }
-
 const Content = ({ children, appointmentData, classes, ...restProps }) => (
   <AppointmentTooltip.Content {...restProps} appointmentData={appointmentData}>
     <br />
@@ -123,17 +69,6 @@ const Content = ({ children, appointmentData, classes, ...restProps }) => (
               <LaunchIcon color="secondary" />
             </ListItemIcon>
             <ListItemText primary={item[1]} />
-
-            {/* <ListItemSecondaryAction>
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                // checked={checked.indexOf(value) !== -1}
-                tabIndex={-1}
-                disableRipple
-              />
-            </ListItemIcon>
-            </ListItemSecondaryAction> */}
           </ListItem>
         );
       })}
@@ -144,6 +79,7 @@ const MonthCalendar = props => {
   const { history } = props;
   const [currentDate, setCurrentDate] = useState(new Date());
   const [data, setData] = useState([]);
+  const [height, setHeight] = useState(false);
 
   useEffect(() => {
     let today = moment(currentDate);
@@ -159,14 +95,24 @@ const MonthCalendar = props => {
     );
   }, [currentDate]);
 
-  const TimeScaleCell = props => (
-    <MonthView.TimeTableCell
-      {...props}
-      onClick={() => {
-        history.push(`/day/${moment(props.startDate).format('YYYY-MM-DD')}`);
-      }}
-    />
-  );
+  const makeTSC = height => {
+    let style = height ? { height: height } : {};
+    return props => (
+      <MonthView.TimeTableCell
+        {...props}
+        style={style}
+        onClick={() => {
+          history.push(`/day/${moment(props.startDate).format('YYYY-MM-DD')}`);
+        }}
+      />
+    );
+  };
+  var TimeScaleCell = makeTSC(height);
+
+  useEffect(() => {
+    TimeScaleCell = makeTSC(height);
+  }, [height]);
+
   const getMonthEvents = async (start, end) => {
     await axios
       .get(`${API_URL}/events/month/`, {
@@ -203,48 +149,27 @@ const MonthCalendar = props => {
           }
         });
         let newList = [];
+        var maxTotal = 0;
         for (const [day, cats] of Object.entries(days)) {
           let date = moment(day);
           let startDate = date.toDate();
           let endDate = date.add(23, 'hours').toDate();
           let total = cats[0].length + cats[1].length + cats[2].length;
-          if (total <= 3) {
-            for (var i = 0; i < 3; i++) {
-              cats[i].map((ev, idx) => {
-                newList.push({
-                  title: ev[1],
-                  startDate: ev[3],
-                  endDate: ev[4],
-                  typeId: [3, 5, 6][i],
-                  description: [ev]
-                });
+          maxTotal = Math.max(total, maxTotal);
+          for (var i = 0; i < 3; i++) {
+            cats[i].map((ev, idx) => {
+              newList.push({
+                title: ev[1],
+                startDate: ev[3],
+                endDate: ev[4],
+                typeId: [3, 5, 6][i],
+                description: [ev]
               });
-            }
-          } else {
-            for (var i = 0; i < 3; i++) {
-              if (cats[i].length > 1)
-                newList.push({
-                  title: `${cats[i].length} ${
-                    ['Service', 'Fellowship', 'Other'][i]
-                  } Events`,
-                  startDate,
-                  endDate,
-                  typeId: [3, 5, 6][i],
-                  description: cats[i]
-                });
-              else if (cats[i].length === 1) {
-                newList.push({
-                  title: cats[i][0][1],
-                  startDate: cats[i][0][3],
-                  endDate: cats[i][0][4],
-                  typeId: [3, 5, 6][i],
-                  description: cats[i]
-                });
-              }
-            }
+            });
           }
         }
         setData(newList);
+        setHeight(maxTotal > 2 && 25 * maxTotal);
       });
   };
   return (
@@ -255,7 +180,11 @@ const MonthCalendar = props => {
           setCurrentDate(date);
         }}
       />
-      <MonthView cellDuration={120} timeTableCellComponent={TimeScaleCell} />
+      <MonthView
+        cellDuration={120}
+        timeTableCellComponent={TimeScaleCell}
+        stuff={height}
+      />
       <AllDayPanel />
       <Appointments />
       <Resources data={resources} />

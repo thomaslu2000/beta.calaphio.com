@@ -51,6 +51,7 @@
     "react-chartjs-2": "^2.7.6",
     "react-cookie": "^4.0.3",
     "react-dom": "^16.8.6",
+    "react-helmet": "^6.1.0",
     "react-perfect-scrollbar": "^1.5.3",
     "react-router-dom": "^5.0.1",
     "react-rte": "^0.16.3",

@@ -21,6 +21,7 @@ import moment from 'moment';
 import { useGlobal } from 'reactn';
 import { unsanitize, gCalAdd } from '../../../functions';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import Comments from './Comments';
 
 const API_SECRET = process.env.REACT_APP_SECRET;
@@ -230,6 +231,10 @@ const Event = props => {
 
   return (
     <Card className={classes.root}>
+      <Helmet>
+        <title>{eventData.title}</title>
+        <meta property="og:title" content={eventData.title} />
+      </Helmet>
       <CardHeader
         action={
           <Button

@@ -169,7 +169,7 @@ const Day = props => {
                 setEventData(eventData);
                 window.history.replaceState(
                   null,
-                  'Calaphio Website',
+                  '',
                   `#/day/${props.dayText}/event/${eventData.event_id}`
                 );
               })}

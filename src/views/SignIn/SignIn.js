@@ -209,12 +209,12 @@ const SignIn = props => {
                   variant="contained">
                   Sign in now
                 </Button>
-                <Typography color="textSecondary" variant="body1">
+                {/* <Typography color="textSecondary" variant="body1">
                   Don't have an account?{' '}
                   <Link component={RouterLink} to="/sign-up" variant="h6">
                     Sign up
                   </Link>
-                </Typography>
+                </Typography> */}
               </form>
             </div>
           </div>
