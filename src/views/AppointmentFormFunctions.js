@@ -72,6 +72,7 @@ const makeParams = (data, uid) => {
   if (data.notes) params.description = escape(sanitizeHtml(data.notes));
   if (data.allDay) params.time_allday = data.allDay ? 1 : 0;
   if (data.interchapter) params.type_interchapter = data.interchapter ? 1 : 0;
+  if (data.customColor) params.type_dynasty_choice = data.customColor || '';
   if (data.fundraiser) params.type_fundraiser = data.fundraiser ? 1 : 0;
   if (data.startDate) {
     let s = moment.utc(data.startDate).format('YYYY-MM-DD HH:mm:ss');
@@ -84,6 +85,7 @@ const makeParams = (data, uid) => {
     params.time_end = s.slice(11, 19);
     params.end_at = s.slice(0, 19);
   }
+  console.log(params);
   return params;
 };
 

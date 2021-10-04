@@ -95,6 +95,18 @@ const MonthCalendar = props => {
     );
   }, [currentDate]);
 
+  const Appointment = ({ children, style, data, ...restProps }) => (
+    <Appointments.Appointment
+      {...restProps}
+      style={{
+        ...style,
+        backgroundColor: data.color || ''
+      }}
+      data={data}>
+      {children}
+    </Appointments.Appointment>
+  );
+
   const makeTSC = height => {
     let style = height ? { height: height } : {};
     return props => (
@@ -135,7 +147,8 @@ const MonthCalendar = props => {
             unsanitize(item.title),
             date,
             timeStart,
-            timeEnd
+            timeEnd,
+            item.color
           ]);
           if (dateEnd !== date) {
             if (!days[dateEnd]) days[dateEnd] = [[], [], []];
@@ -144,7 +157,8 @@ const MonthCalendar = props => {
               unsanitize(item.title),
               dateEnd,
               timeStart,
-              timeEnd
+              timeEnd,
+              item.color
             ]);
           }
         });
@@ -152,8 +166,6 @@ const MonthCalendar = props => {
         var maxTotal = 0;
         for (const [day, cats] of Object.entries(days)) {
           let date = moment(day);
-          let startDate = date.toDate();
-          let endDate = date.add(23, 'hours').toDate();
           let total = cats[0].length + cats[1].length + cats[2].length;
           maxTotal = Math.max(total, maxTotal);
           for (var i = 0; i < 3; i++) {
@@ -163,13 +175,14 @@ const MonthCalendar = props => {
                 startDate: ev[3],
                 endDate: ev[4],
                 typeId: [3, 5, 6][i],
-                description: [ev]
+                description: [ev],
+                color: ev[5]
               });
             });
           }
         }
         setData(newList);
-        setHeight(maxTotal > 2 && 25 * maxTotal);
+        setHeight(maxTotal > 3 && 25 * maxTotal);
       });
   };
   return (
@@ -186,7 +199,7 @@ const MonthCalendar = props => {
         stuff={height}
       />
       <AllDayPanel />
-      <Appointments />
+      <Appointments appointmentComponent={Appointment} />
       <Resources data={resources} />
       <Toolbar />
       <DateNavigator />

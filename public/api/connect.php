@@ -227,7 +227,7 @@ switch ($request[0]) {
     case 'events': 
       if (count($request) == 1) $sql = sprintf("SELECT title, location, description, time_start, time_end, time_allday, 
         type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, type_fellowship, 
-        type_fundraiser, creator_id, start_at, end_at, evaluated FROM apo_calendar_event 
+        type_fundraiser, creator_id, start_at, end_at, evaluated, type_dynasty_choice as color FROM apo_calendar_event 
         WHERE event_id=%s", $_GET['eventId']);
       else {
         switch($request[1]) {
@@ -247,12 +247,12 @@ switch ($request[0]) {
           case 'day':
             $sql = sprintf("SELECT event_id, title, location, description, time_start, time_end, time_allday, 
             type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, type_fellowship, 
-            type_fundraiser, creator_id, start_at, end_at, evaluated FROM apo_calendar_event 
+            type_fundraiser, creator_id, start_at, end_at, evaluated, type_dynasty_choice as color FROM apo_calendar_event 
             WHERE deleted=0 AND end_at>'%s' AND start_at<'%s'", $_GET['startDate'], $_GET['endDate']);
             break;
           case 'month':
             $sql = sprintf("SELECT event_id, start_at, end_at, title, (type_service_chapter | type_service_campus | type_service_community | type_service_country) as service, 
-            type_fellowship as fellowship FROM apo_calendar_event 
+            type_fellowship as fellowship, type_dynasty_choice as color FROM apo_calendar_event 
             WHERE date >= '%s' AND date <= '%s' AND deleted=0", $_GET['startDate'], $_GET['endDate']);
             break;
           case 'counts':
@@ -280,15 +280,16 @@ switch ($request[0]) {
             $starts = explode(',', $data['rStarts']);
             $ends = explode(',', $data['rEnds']);
             $sql = "INSERT INTO apo_calendar_event (title, location, description, date, time_start, time_end, time_allday, 
-            type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, type_fellowship, type_fundraiser, creator_id, start_at, end_at) 
+            type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, 
+            type_fellowship, type_fundraiser, creator_id, start_at, end_at, type_dynasty_choice) 
             VALUES ";
             $rows = array();
             for ($i = 0; $i < count($starts); $i++) {
               $date = substr($starts[$i], 0, 10);
-              $rows[] = sprintf("('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ", 
+              $rows[] = sprintf("('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ", 
               $data['title'], $data['location'], $data['description'], $date, $data['time_start'], $data['time_end'], $data['time_allday'] ? 1 : 0, 
               $data['type_interchapter'] ? 1 : 0, $data['type_service_chapter'] ? 1 : 0,  $data['type_service_campus'] ? 1 : 0,  $data['type_service_community'] ? 1 : 0,
-              $data['type_service_country'] ? 1 : 0,  $data['type_fellowship'] ? 1 : 0,  $data['type_fundraiser'] ? 1 : 0, $data['creator_id'], $starts[$i], $ends[$i]);
+              $data['type_service_country'] ? 1 : 0,  $data['type_fellowship'] ? 1 : 0,  $data['type_fundraiser'] ? 1 : 0, $data['creator_id'], $starts[$i], $ends[$i], $data['type_dynasty_choice']);
             } 
             $sql .= implode(', ', $rows);
             break;

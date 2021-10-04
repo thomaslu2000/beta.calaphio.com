@@ -13,7 +13,7 @@ import {
   AllDayPanel,
   ConfirmationDialog
 } from '@devexpress/dx-react-scheduler-material-ui';
-import { Button, Grid, Box } from '@material-ui/core';
+import { Button, Grid, Box, Divider } from '@material-ui/core';
 import makeBasicLayout from '../../../BasicAppointmentLayout';
 import Event from './Event';
 import axios from 'axios';
@@ -28,21 +28,18 @@ const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
 
 const Header = f => {
-  let h = ({ children, appointmentData, classes, ...restProps }) => {
+  let h = ({ children, appointmentData, ...restProps }) => {
     f(appointmentData);
+    window.scrollTo(0, 0);
     return (
       <AppointmentTooltip.Header
         {...restProps}
-        appointmentData={appointmentData}>
-        <Button
-          style={{ marginTop: 10 }}
-          variant="contained"
-          disabled
-          // onClick={() => f(appointmentData)}
-        >
-          <h4>Event Shown</h4>
-        </Button>
-      </AppointmentTooltip.Header>
+        appointmentData={appointmentData}
+        style={{
+          marginTop: 10,
+          paddingTop: 5,
+          paddingBottom: 5
+        }}></AppointmentTooltip.Header>
     );
   };
   return h;
@@ -65,6 +62,10 @@ const Day = props => {
   const [data, setData] = useState([]);
   const make = [];
   const [global] = useGlobal();
+  const [ameta, setAmeta] = useState({
+    target: null,
+    data: {}
+  });
 
   useEffect(() => {
     getDayEvents();
@@ -76,6 +77,18 @@ const Day = props => {
       <DayView.TimeTableCell onDoubleClick={onDoubleClick} {...restProps} />
     );
   };
+
+  const Appointment = ({ children, style, data, ...restProps }) => (
+    <Appointments.Appointment
+      {...restProps}
+      style={{
+        ...style,
+        backgroundColor: data.color || ''
+      }}
+      data={data}>
+      {children}
+    </Appointments.Appointment>
+  );
 
   let ToolbarRootBase = () => {
     return ({ ...restProps }) => (
@@ -121,7 +134,6 @@ const Day = props => {
         setData(response.data.map(dayToObj));
       });
   };
-
   if (data.length > 0 && props.eventId) {
     let d = data.find(a => a.event_id === props.eventId);
     if (d && !eventData) setEventData(d);
@@ -157,7 +169,7 @@ const Day = props => {
               cellDuration={180}
               timeTableCellComponent={TimeTableCell}
             />
-            <Appointments />
+            <Appointments appointmentComponent={Appointment} />
             <Resources data={resources} />
             <Toolbar flexibleSpaceComponent={ToolbarRootBase()} />
             <AllDayPanel />
@@ -173,6 +185,13 @@ const Day = props => {
                   `#/day/${props.dayText}/event/${eventData.event_id}`
                 );
               })}
+              appointmentMeta={ameta}
+              onAppointmentMetaChange={({ data, target }) => {
+                setAmeta({
+                  data,
+                  target: null
+                });
+              }}
               showCloseButton
               showOpenButton
               showDeleteButton
