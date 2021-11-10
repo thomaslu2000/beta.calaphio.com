@@ -134,7 +134,12 @@ const SignIn = props => {
             setGlobal(details);
             let expr = new Date();
             expr.setMonth(expr.getMonth() + 1);
-            setCookie('login', details, { expires: expr });
+            setCookie('login', details, {
+              expires: expr,
+              secure: true,
+              httpOnly: true,
+              sameSite: true
+            });
             setLoginSuccess(successes.SUCCESS);
             history.push('/');
           } else {

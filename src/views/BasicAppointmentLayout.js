@@ -9,13 +9,15 @@ import 'react-color-palette/lib/css/styles.css';
 const makeBasicLayout = onRecurrence => {
   let BasicLayout = ({ onFieldChange, appointmentData, ...restProps }) => {
     // const [specialColor, setSpecialColor] = useState('');
-    const [open, setOpen] = useState(false);
-    const [color, setColor] = useColor('hex', '#121212');
     const defCol = {
-      hex: '#121212',
-      hsv: { h: 0, s: 0, v: 7.0588235294117645, a: undefined },
-      rgb: { r: 18, g: 18, b: 18, a: undefined }
+      hex: '#ebb434',
+      hsv: { h: 42, s: 77.9, v: 92.2, a: undefined },
+      rgb: { r: 235, g: 180, b: 52, a: undefined }
     };
+
+    const [open, setOpen] = useState(false);
+    const [useCustomColor, setUseCustomColor] = useState(false);
+    const [color, setColor] = useColor('hex', defCol.hex);
 
     const onLocationChange = nextValue => {
       onFieldChange({ location: nextValue });
@@ -32,6 +34,7 @@ const makeBasicLayout = onRecurrence => {
         setOpen(true);
       } else {
         setColor(defCol);
+        setUseCustomColor(false);
         onFieldChange({ customColor: '' });
       }
     };
@@ -64,7 +67,7 @@ const makeBasicLayout = onRecurrence => {
         <AppointmentForm.Label
           text="Custom Color"
           type="title"
-          style={{ color: color.hex }}
+          style={{ color: useCustomColor && color.hex }}
         />
         <Dialog
           onClose={() => {
@@ -76,6 +79,7 @@ const makeBasicLayout = onRecurrence => {
             height={228}
             color={color}
             onChange={e => {
+              setUseCustomColor(true);
               setColor(e);
               onFieldChange({ customColor: e.hex });
             }}

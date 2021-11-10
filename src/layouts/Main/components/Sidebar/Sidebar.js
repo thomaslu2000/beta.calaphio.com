@@ -70,11 +70,11 @@ const Sidebar = props => {
       href: '/admin',
       icon: <BuildIcon />
     },
-    {
-      title: 'Wiki',
-      href: '/wiki',
-      icon: <MenuBookIcon />
-    },
+    // {
+    //   title: 'Wiki',
+    //   href: '/wiki',
+    //   icon: <MenuBookIcon />
+    // },
     inlog || global.userId
       ? {
           title: 'Sign Out',
