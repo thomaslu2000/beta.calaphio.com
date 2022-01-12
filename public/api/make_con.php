@@ -1,5 +1,5 @@
 <?php
-$production = false;
+$production = true;
 
 
 if ($production) {

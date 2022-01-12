@@ -1,5 +1,4 @@
 <?php
-
 header("Access-Control-Allow-Headers: *");
 header("Cache-Control: no-cache");
 require("make_con.php");
@@ -34,7 +33,7 @@ switch ($request[0]) {
           SUM(a.flaked*a.hours * (e.type_service_chapter = 1 OR e.type_service_campus=1 OR e.type_service_community = 1 OR e.type_service_country = 1)) as service_hours_flaked, 
           SUM(a.attended * e.type_fellowship) as fellowships_attended, SUM(a.flaked * e.type_fellowship) as fellowships_flaked, SUM(a.chair * a.attended) AS events_chaired, 
           SUM(a.attended * e.type_fundraiser) as fundraisers_attended FROM apo_pledges LEFT JOIN apo_calendar_attend a USING (user_id) JOIN apo_users u USING(user_id) JOIN apo_calendar_event e USING (event_id) JOIN (SELECT * FROM apo_semesters ORDER BY id DESC LIMIT 1) ls
-          WHERE ls.start <e.date AND e.date< CURRENT_TIMESTAMP
+          WHERE ls.start <e.date AND e.date< CURRENT_TIMESTAMP and e.deleted=0
           GROUP BY user_id");
           break;
         case 'unevaluated':
@@ -168,9 +167,14 @@ switch ($request[0]) {
           WHERE user_id=%s AND deleted=0 ORDER BY date", $_GET['userId']);
           break;
         case 'allPositions':
-          $sql = sprintf("SELECT position_title, position_name, semester, year 
+          $sql = sprintf("SELECT position_title, position_name, semester, year, bas.position_type
           FROM apo_wiki_positions as pos JOIN apo_wiki_positions_basic_info as bas USING (basic_info_id)
-          WHERE user_id=%s ORDER BY bas.year ASC, bas.semester ASC, pos.position_type ASC", $_GET['userId']);
+          WHERE user_id=%s 
+          UNION
+          SELECT position_title, position_parent as position_name, semester, year , controller_type as position_type
+          FROM apo_wiki_positions_simple
+          WHERE user_id=%s
+          ORDER BY year ASC, semester ASC, position_type ASC", $_GET['userId'], $_GET['userId']);
           break;
         case 'toEval':
           $sql = sprintf("SELECT event_id, title 
@@ -362,6 +366,59 @@ switch ($request[0]) {
       break;
       case 'wiki':
         switch($request[1]) {
+          case 'positions':
+            $sql = sprintf("SELECT 
+              user_id,
+              CONCAT(firstname,' ',lastname,' (',pledgeclass,')') as name, 
+              position_title as title, 
+              position_name as parent,
+              -1 as simple_id
+            FROM apo_wiki_positions_basic_info as bas 
+              JOIN  apo_wiki_positions as pos USING (basic_info_id)
+              JOIN apo_users USING (user_id)
+            WHERE 
+              bas.year=%s
+              AND bas.semester=%s ", 
+              $_GET['year'], $_GET['sem']);
+
+            if ($_GET['posType'] == '6') {
+              // Old semesters didnt pick a position type to be for pledges
+              $sql .= sprintf("AND bas.position_type=13 AND position_name LIKE '%%Pledge Class' ");
+            } elseif ($_GET['posType'] == '13') {
+              // Filter out pledge class from this
+              $sql .= sprintf("AND bas.position_type=13 AND position_name NOT LIKE '%%Pledge Class' ");
+            } elseif ($_GET['posType'] == '11') {
+              // Include small family AND big family
+              $sql .= sprintf("AND (bas.position_type=11 OR bas.position_type=12) ");
+            }
+            else {
+              $sql .= sprintf("AND bas.position_type=%s ", $_GET['posType']);
+            }
+
+            $sql .=  sprintf("
+            UNION
+            SELECT user_id,
+                    CONCAT(firstname,' ',lastname,' (',pledgeclass,')') as name, 
+                    position_title as title, 
+                    position_parent as parent,
+                    simple_id
+            FROM apo_wiki_positions_simple JOIN apo_users USING(user_id)
+            WHERE 
+              year=%s
+              AND semester=%s
+              AND controller_type=%s
+            ORDER BY parent, title ASC",  
+            $_GET['year'], $_GET['sem'], $_GET['posType']);
+            break;
+          case 'addPosition':
+            $sql = sprintf("INSERT INTO apo_wiki_positions_simple (user_id, position_title, position_parent, semester, year, controller_type) 
+            VALUES (%s, '%s', '%s', %s, %s, %s)", 
+            $data['userId'], $data['title'], $data['parent'], $data['sem'], $data['year'], $data['posType']); 
+            break;
+          case 'deletePosition':
+            $sql = sprintf("DELETE FROM apo_wiki_positions_simple WHERE simple_id=%s", 
+            $data['simpleId']); 
+            break;
           case 'pages':
             $sql = "SELECT * FROM apo_wiki_pages ORDER BY timestamp desc";
             break;

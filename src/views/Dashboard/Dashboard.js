@@ -67,14 +67,14 @@ const Dashboard = props => {
   if (!global.userId)
     return (
       <div className={classes.root}>
-        <Card>
+        {/* <Card>
           <CardContent>
             <Typography gutterBottom variant="h3">
-              Sign in to View User Info
+              Please Sign in
             </Typography>
           </CardContent>
         </Card>
-        <br />
+        <br /> */}
         <Announcements />
       </div>
     );

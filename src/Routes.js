@@ -2,7 +2,7 @@ import React from 'react';
 import { Switch, Redirect } from 'react-router-dom';
 
 import { RouteWithLayout } from './components';
-import { Main as MainLayout } from './layouts';
+import { Main as MainLayout, Blank as BlankLayout } from './layouts';
 
 import {
   Dashboard as DashboardView,
@@ -16,19 +16,26 @@ import {
   Calendar as CalendarView,
   Search as SearchView,
   Admin as AdminView,
-  Wiki as WikiView,
+  WikiEdit as WikiEditView,
+  WikiTables as WikiTableView,
   DayView
 } from './views';
 
 const Routes = () => {
   return (
     <Switch>
-      <Redirect exact from="/" to="/calendar" />
+      <Redirect exact from="/" to="/dashboard" />
       <RouteWithLayout
         component={DashboardView}
         exact
         layout={MainLayout}
         path="/dashboard"
+      />
+      <RouteWithLayout
+        component={DashboardView}
+        exact
+        layout={MainLayout}
+        path="/blank"
       />
       <RouteWithLayout
         component={CalendarView}
@@ -55,13 +62,13 @@ const Routes = () => {
         path="/day/:day/event/:event"
       />
       <RouteWithLayout
-        component={WikiView}
+        component={WikiTableView}
         exact
-        layout={MainLayout}
-        path="/wiki/:pageId"
+        layout={BlankLayout}
+        path="/wiki/:year/:semester/:postype"
       />
       <RouteWithLayout
-        component={WikiView}
+        component={WikiEditView}
         exact
         layout={MainLayout}
         path="/wiki"

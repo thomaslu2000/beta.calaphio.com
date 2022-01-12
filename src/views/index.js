@@ -10,4 +10,4 @@ export { default as Calendar } from './Calendar';
 export { default as DayView } from './DayView';
 export { default as Search } from './Search';
 export { default as Admin } from './Admin';
-export { default as Wiki } from './Wiki';
+export { WikiTables, WikiEdit } from './WikiTables';

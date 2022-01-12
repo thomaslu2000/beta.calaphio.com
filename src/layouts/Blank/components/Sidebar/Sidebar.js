@@ -66,16 +66,15 @@ const Sidebar = props => {
       icon: <SearchIcon />
     },
     {
-      title: 'Wiki',
-      href: '/wiki',
-      out: 'https://www.wik.calaphio.com',
-      icon: <MenuBookIcon />
-    },
-    {
       title: 'Admin Tools',
       href: '/admin',
       icon: <BuildIcon />
     },
+    // {
+    //   title: 'Wiki',
+    //   href: '/wiki',
+    //   icon: <MenuBookIcon />
+    // },
     inlog || global.userId
       ? {
           title: 'Sign Out',

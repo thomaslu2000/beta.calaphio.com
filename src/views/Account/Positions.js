@@ -159,7 +159,8 @@ const Positions = props => {
                     {userData[year][sem].map(row => (
                       <Typography variant="h6" align="center">
                         {' '}
-                        {row['position_title']} -- {row['position_name']}
+                        {unsanitize(row['position_title'])} --{' '}
+                        {unsanitize(row['position_name'])}
                       </Typography>
                     ))}
                   </Grid>

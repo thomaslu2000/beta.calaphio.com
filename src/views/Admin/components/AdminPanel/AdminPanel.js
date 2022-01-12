@@ -63,6 +63,14 @@ const AdminPanel = props => {
       }
     },
     {
+      title: 'Edit Wiki',
+      forms: {},
+      type: 'none',
+      callback: response => {
+        history.push('/wiki');
+      }
+    },
+    {
       title: 'Add / Edit Semester',
       forms: {},
       type: 'none',

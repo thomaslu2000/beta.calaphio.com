@@ -139,6 +139,9 @@ const MonthCalendar = props => {
           let type = item.service === '1' ? 0 : item.fellowship === '1' ? 1 : 2;
           let timeStart = moment.utc(item.start_at).local();
           let timeEnd = moment.utc(item.end_at).local();
+          if (timeEnd < timeStart) {
+            timeEnd = moment(timeStart).add(2, 'hours');
+          }
           let date = timeStart.format('YYYY-MM-DD');
           let dateEnd = timeEnd.format('YYYY-MM-DD');
           if (!days[date]) days[date] = [[], [], []];
@@ -181,6 +184,7 @@ const MonthCalendar = props => {
             });
           }
         }
+        console.log(newList);
         setData(newList);
         setHeight(maxTotal > 3 && 25 * maxTotal);
       });
