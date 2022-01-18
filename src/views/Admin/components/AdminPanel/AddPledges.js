@@ -96,7 +96,8 @@ const AddPledges = props => {
         onClick={() => {
           if (value.data.length > 0) {
             value['pledgeclass'] = pledgeclass;
-            value['uid'] = global.userId;
+            value['userId'] = global.userId;
+            value['token'] = global.token;
             value['API_SECRET'] = API_SECRET;
             axios
               .post(`${API_URL}/admin/addPledges`, value, {

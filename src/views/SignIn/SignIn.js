@@ -13,11 +13,14 @@ import {
 } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { useGlobal } from 'reactn';
-import { useCookies } from 'react-cookie';
+import { useCookies, withCookies } from 'react-cookie';
 import Alert from '@material-ui/lab/Alert';
 import axios from 'axios';
 const API_SECRET = process.env.REACT_APP_SECRET;
 const API_URL = process.env.REACT_APP_SERVER;
+/**
+ * Instead of using JWT, we use session cookies for login
+ */
 
 const schema = {
   email: {
@@ -109,7 +112,7 @@ const SignIn = props => {
   };
 
   const checkLogin = async () => {
-    // MAKE THIS SECURE OMG
+    // MAKE THIS SECURE
     await axios
       .post(
         `${API_URL}/people/login/`,
@@ -124,21 +127,22 @@ const SignIn = props => {
       )
       .then(response => {
         if (response.data.length > 0) {
-          // console.log(response.data)
+          // console.log(response.data);
           let info = response.data[0];
           if (info.disabled == 0) {
             let details = {
               userId: info.user_id,
-              name: info.firstname
+              name: info.firstname,
+              token: info.token
             };
             setGlobal(details);
-            let expr = new Date();
-            expr.setMonth(expr.getMonth() + 1);
+            var expr = new Date();
+            expr = new Date(expr.setMonth(expr.getMonth() + 2));
             setCookie('login', details, {
               expires: expr,
-              secure: true,
-              httpOnly: true,
-              sameSite: true
+              secure: process.env.REACT_APP_DEV === 'false',
+              httpOnly: false,
+              sameSite: process.env.REACT_APP_DEV === 'false'
             });
             setLoginSuccess(successes.SUCCESS);
             history.push('/');
@@ -233,7 +237,7 @@ SignIn.propTypes = {
   history: PropTypes.object
 };
 
-export default withRouter(SignIn);
+export default withRouter(withCookies(SignIn));
 
 const useStyles = makeStyles(theme => ({
   root: {

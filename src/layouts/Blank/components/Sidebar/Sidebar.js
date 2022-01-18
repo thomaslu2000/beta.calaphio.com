@@ -11,7 +11,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import BuildIcon from '@material-ui/icons/Build';
 import { Profile, SidebarNav } from './components';
 import { useGlobal } from 'reactn';
-import { useCookies } from 'react-cookie';
+import { useCookies, withCookies } from 'react-cookie';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
 const useStyles = makeStyles(theme => ({
@@ -111,4 +111,4 @@ Sidebar.propTypes = {
   variant: PropTypes.string.isRequired
 };
 
-export default Sidebar;
+export default withCookies(Sidebar);

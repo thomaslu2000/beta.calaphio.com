@@ -48,12 +48,14 @@ export function makeTypes() {
   ];
 }
 
-const makeParams = (data, uid) => {
+const makeParams = (data, uid, token) => {
   var params;
   if (data.typeId) {
     let type = data.typeId && typesa.find(x => x.id === data.typeId).type;
     params = {
       creator_id: uid,
+      userId: uid,
+      token: token,
       type_service_campus: 0,
       type_service_chapter: 0,
       type_service_community: 0,
@@ -63,7 +65,9 @@ const makeParams = (data, uid) => {
     params[type] = 1;
   } else {
     params = {
-      creator_id: uid
+      creator_id: uid,
+      userId: uid,
+      token: token
     };
   }
   params.API_SECRET = API_SECRET;
@@ -85,19 +89,19 @@ const makeParams = (data, uid) => {
     params.time_end = s.slice(11, 19);
     params.end_at = s.slice(0, 19);
   }
-  console.log(params);
+  // console.log(params);
   return params;
 };
 
 const typesa = makeTypes();
-export function makeCommitChanges(f, uid) {
+export function makeCommitChanges(f, uid, token) {
   async function commitChanges({ added, changed, deleted }) {
     if (added) {
       if (added.startDate > added.endDate) {
         alert('Error: Start Date is After the End Date');
         return;
       }
-      let params = makeParams(added, uid);
+      let params = makeParams(added, uid, token);
       if (!params.title) params.title = 'Untitled Event';
       if (!params.location) params.location = 'No Location Given';
       if (!params.description) params.description = '';
@@ -153,7 +157,7 @@ export function makeCommitChanges(f, uid) {
         });
     } else if (changed) {
       for (const [eventId, data] of Object.entries(changed)) {
-        let params = makeParams(data, uid);
+        let params = makeParams(data, uid, token);
         if (data.startDate && data.endDate && data.startDate > data.endDate) {
           alert('Error: Start Date is After the End Date');
           return;
@@ -167,7 +171,7 @@ export function makeCommitChanges(f, uid) {
           .then(response => {
             if (response.data.length > 0) {
               axios
-                .post(`${API_URL}/events/edit`, params, {
+                .post(`${API_URL}/adminOrChair/edit`, params, {
                   headers: {
                     'content-type': 'application/x-www-form-urlencoded'
                   }
@@ -189,10 +193,11 @@ export function makeCommitChanges(f, uid) {
           if (response.data.length > 0) {
             axios
               .post(
-                `${API_URL}/events/delete`,
+                `${API_URL}/adminOrChair/delete`,
                 {
                   eventId: deleted,
                   userId: uid,
+                  token: token,
                   API_SECRET
                 },
                 {

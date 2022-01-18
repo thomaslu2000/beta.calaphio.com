@@ -3,7 +3,7 @@ import { Link as RouterLink, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper';
 import { useGlobal } from 'reactn';
-import { useCookies } from 'react-cookie';
+import { useCookies, withCookies } from 'react-cookie';
 import Alert from '@material-ui/lab/Alert';
 
 const SignOut = props => {
@@ -13,7 +13,7 @@ const SignOut = props => {
   const [global, setGlobal] = useGlobal();
 
   removeCookie('login');
-  setGlobal({ userId: false, name: false });
+  setGlobal({ userId: false, name: false, session: false });
 
   return (
     <Paper
@@ -31,4 +31,4 @@ SignOut.propTypes = {
   history: PropTypes.object
 };
 
-export default withRouter(SignOut);
+export default withRouter(withCookies(SignOut));

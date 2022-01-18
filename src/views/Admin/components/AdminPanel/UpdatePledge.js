@@ -16,6 +16,7 @@ import {
   Typography,
   TextField
 } from '@material-ui/core';
+import { useGlobal } from 'reactn';
 import { unsanitize } from '../../../functions';
 
 const API_SECRET = process.env.REACT_APP_SECRET;
@@ -31,6 +32,7 @@ const UpdatePledge = props => {
   let attending = props.data;
   const classes = useStyles();
   const [statuses, setStatuses] = useState({});
+  const [global] = useGlobal();
 
   //   console.log(statuses)
 
@@ -64,6 +66,8 @@ const UpdatePledge = props => {
                 {
                   cross: cross.toString(),
                   depledge: depledge.toString(),
+                  userId: global.userId,
+                  token: global.token,
                   API_SECRET
                 },
                 {
@@ -73,7 +77,7 @@ const UpdatePledge = props => {
                 }
               )
               .then(res => {
-                console.log(res.data);
+                // console.log(res.data);
                 alert('Successfully Updated');
                 window.location.reload(false);
               });

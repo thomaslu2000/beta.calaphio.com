@@ -25,6 +25,7 @@ const SearchUser = props => {
   const [data, setData] = useState([]);
   const [name, setName] = useState('');
   const [bold, setBold] = useState(false);
+  var time = '0';
 
   return (
     <Card
@@ -58,7 +59,16 @@ const SearchUser = props => {
                   }
                 })
                 .then(response => {
-                  setData(response.data);
+                  if (response !== undefined && response.data !== undefined) {
+                    if (response.data.length > 0) {
+                      if (response.data[0].time > time) {
+                        setData(response.data);
+                        time = response.data[0].time;
+                      }
+                    } else {
+                      setData([]);
+                    }
+                  }
                 });
             else await setData([]);
           }}

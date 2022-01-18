@@ -184,7 +184,6 @@ const MonthCalendar = props => {
             });
           }
         }
-        console.log(newList);
         setData(newList);
         setHeight(maxTotal > 3 && 25 * maxTotal);
       });
@@ -209,7 +208,6 @@ const MonthCalendar = props => {
       <DateNavigator />
       <AppointmentTooltip
         headerComponent={Header(data => {
-          // console.log(data)
           history.push(`/day/${moment(data.startDate).format('YYYY-MM-DD')}`);
         })}
         contentComponent={Content}

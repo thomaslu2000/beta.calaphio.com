@@ -26,7 +26,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NextEvents = props => {
-  const { history, userid, className, ...rest } = props;
+  const { history, userid, token, className, ...rest } = props;
   const classes = useStyles();
   const theme = useTheme();
   const [data, setData] = useState([]);
@@ -34,12 +34,13 @@ const NextEvents = props => {
   useEffect(() => {
     getNext();
   }, [userid]);
-  
+
   const getNext = async () => {
     await axios
       .get(`${API_URL}/people/next3/`, {
         params: {
-          userId: userid
+          userId: userid,
+          token: token
         }
       })
       .then(response => {
@@ -51,26 +52,23 @@ const NextEvents = props => {
     await axios
       .get(`${API_URL}/people/upcoming/`, {
         params: {
-          userId: userid
+          userId: userid,
+          token: token
         }
       })
       .then(response => {
-        gCalAdd(response.data.map(dayToObj))
+        gCalAdd(response.data.map(dayToObj));
       });
   };
 
   return (
     <Card {...rest} className={clsx(classes.root, className)}>
-      <div 
-            style={{textAlign:'center', paddingBottom: 10}}>
-      <CardHeader title="Your Next 3 Events" 
-          /> 
-        <Button
-              variant="outlined"
-              onClick={addToCal}>
-              Add To Google Calendar
-            </Button>
-            </div>
+      <div style={{ textAlign: 'center', paddingBottom: 10 }}>
+        <CardHeader title="Your Next 3 Events" />
+        <Button variant="outlined" onClick={addToCal}>
+          Add To Google Calendar
+        </Button>
+      </div>
       <Divider />
       {data.map(item => {
         let day = moment

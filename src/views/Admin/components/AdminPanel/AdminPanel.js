@@ -41,7 +41,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const AdminPanel = props => {
-  const { userId, history, ...rest } = props;
+  const { userId, userToken, history, ...rest } = props;
   const [window, setWindow] = useState(0);
   const [values, setValues] = useState({});
   const [display, setDisplay] = useState();
@@ -78,26 +78,26 @@ const AdminPanel = props => {
         setDisplay(<ChangeSemester />);
       }
     },
-    {
-      title: 'Check if Admin',
-      forms: {
-        userId: 'User'
-      },
-      url: '/people/admin/',
-      type: 'GET',
-      callback: response => {
-        if (response.data[0]) alert('This is an Admin!');
-        //alert(JSON.stringify(response));
-        else alert('Not an admin');
-      }
-    },
+    // {
+    //   title: 'Check if Admin',
+    //   forms: {
+    //     targetId: 'User'
+    //   },
+    //   url: '/people/admin/',
+    //   type: 'GET',
+    //   callback: response => {
+    //     if (response.data[0]) alert('This is an Admin!');
+    //     //alert(JSON.stringify(response));
+    //     else alert('Not an admin');
+    //   }
+    // },
     {
       title: 'Change Password',
       forms: {
-        userId: 'User',
+        targetId: 'User',
         pass: 'New Password'
       },
-      url: '/people/changePass/',
+      url: '/admin/changePass/',
       type: 'POST',
       callback: response => {
         alert('Complete! Double Check With User.');
@@ -106,7 +106,7 @@ const AdminPanel = props => {
     {
       title: 'View Individual Stats',
       forms: {
-        userId: 'User',
+        targetId: 'User',
         startDate: 'Start Date (YYYY-MM-DD)',
         endDate: 'End Date (YYYY-MM-DD)'
       },
@@ -188,7 +188,7 @@ const AdminPanel = props => {
     },
     {
       title: 'Remove Admins',
-      forms: { userId: 'User' },
+      forms: { targetId: 'User' },
       url: '/admin/remove/',
       type: 'POST',
       callback: response => {
@@ -197,7 +197,7 @@ const AdminPanel = props => {
     },
     {
       title: 'Add Admins',
-      forms: { userId: 'User' },
+      forms: { targetId: 'User' },
       url: '/admin/add/',
       type: 'POST',
       callback: response => {
@@ -206,6 +206,8 @@ const AdminPanel = props => {
     }
   ];
   const handleLoad = async () => {
+    values['userId'] = userId;
+    values['token'] = userToken;
     if (adminFuncs[window].type === 'GET') {
       await axios
         .get(`${API_URL}/${adminFuncs[window].url}`, {
@@ -329,7 +331,7 @@ const AdminPanel = props => {
           </div>
           {Object.entries(adminFuncs[window].forms).map(
             ([param, title], idx) => {
-              if (param == 'userId' && title == 'User') {
+              if (param == 'targetId' && title == 'User') {
                 return (
                   <SearchUser
                     toAdd={person => {

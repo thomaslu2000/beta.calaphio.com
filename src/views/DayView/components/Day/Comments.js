@@ -56,6 +56,7 @@ const Comments = props => {
       let item = {
         body: clean(comm),
         userId: global.userId,
+        token: global.token,
         timestamp: moment()
           .utc()
           .format('YYYY-MM-DD HH:mm:ss'),
@@ -81,7 +82,7 @@ const Comments = props => {
         { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
       )
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         setComments(comments.filter(c => c.comment_id !== id));
       });
   };

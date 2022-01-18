@@ -55,7 +55,7 @@ const Wiki = props => {
   const getAdmin = async () => {
     await axios
       .get(`${API_URL}/people/admin/`, {
-        params: { userId: global.userId }
+        params: { userId: global.userId, token: global.token }
       })
       .then(response => {
         if (response.data[0]) setAdminPermission(true);
@@ -87,7 +87,9 @@ const Wiki = props => {
       .post(
         `${API_URL}/wiki/addPosition`,
         {
-          userId: newUser.uid,
+          userId: global.userId,
+          token: global.token,
+          targetId: newUser.uid,
           title: clean(myPosName),
           parent: clean(myPosParent),
           sem,

@@ -9,9 +9,7 @@ import {
   CardActions,
   CardContent
 } from '@material-ui/core';
-import {
-  AdminPanel
-} from './components';
+import { AdminPanel } from './components';
 import { useGlobal } from 'reactn';
 const API_URL = process.env.REACT_APP_SERVER;
 
@@ -33,38 +31,41 @@ const Admin = props => {
   const getAdmin = async () => {
     await axios
       .get(`${API_URL}/people/admin/`, {
-        params: {userId: global.userId}
+        params: { userId: global.userId, token: global.token }
       })
       .then(response => {
-        if (response.data[0]) setAdminPermission(true);
+        if (response.data[0]) {
+          // console.log(response.data);
+          setAdminPermission(true);
+        }
       });
   };
 
   if (global.userId && adminPermission) {
     return (
       <div className={classes.root}>
-        <AdminPanel userId={global.userId} />
+        <AdminPanel userId={global.userId} userToken={global.token} />
       </div>
     );
   }
 
   return (
     <div className={classes.root}>
-    <Card>
-    <CardContent>
-        <Typography
-          className={classes.title}
-          color="textSecondary"
-          gutterBottom>
-          This page is for admins only
-        </Typography>
-        <Typography variant="h1" component="h1">
-          <b>Please log in to an account with admin privileges </b>
-        </Typography>
-      </CardContent>
-    </Card>
-  </div>)
-  
+      <Card>
+        <CardContent>
+          <Typography
+            className={classes.title}
+            color="textSecondary"
+            gutterBottom>
+            This page is for admins only
+          </Typography>
+          <Typography variant="h1" component="h1">
+            <b>Please log in to an account with admin privileges </b>
+          </Typography>
+        </CardContent>
+      </Card>
+    </div>
+  );
 };
 
 export default Admin;

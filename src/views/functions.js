@@ -24,11 +24,13 @@ export function clean(str) {
 
 export function avatarSearch(userdata) {
   var pic_path =
-    'https://icon-library.net/images/default-profile-icon/default-profile-icon-17.jpg';
+    'https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg';
   if (userdata) {
     if (userdata.profile_pic) {
-      return userdata.profile_pic;
+      if (imageExists(userdata.profile_pic)) return userdata.profile_pic;
+      return pic_path;
     }
+
     let id = userdata.user_id;
     if (id)
       for (let i = 0; i < 3; i++) {

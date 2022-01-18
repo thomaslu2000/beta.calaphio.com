@@ -56,7 +56,8 @@ const Dashboard = props => {
         params: {
           startDate,
           endDate,
-          userId: global.userId
+          targetId: global.userId,
+          token: global.token
         }
       })
       .then(response => {
@@ -84,12 +85,16 @@ const Dashboard = props => {
       <Grid container spacing={4}>
         <Box clone order={{ sm: 4 }}>
           <Grid item lg={3} sm={6} xl={3} xs={12}>
-            <Evaluate userId={global.userId} />
+            <Evaluate userId={global.userId} token={global.token} />
           </Grid>
         </Box>
         <Box clone order={{ xs: 6 }}>
           <Grid item lg={4} md={6} xl={3} xs={12}>
-            <NextEvents history={history} userid={global.userId} />
+            <NextEvents
+              history={history}
+              userid={global.userId}
+              token={global.token}
+            />
             <Divider />
             <Account userId={global.userId} mini min />
           </Grid>

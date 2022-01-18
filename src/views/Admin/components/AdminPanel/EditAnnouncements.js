@@ -70,6 +70,7 @@ const EditAnnouncements = props => {
           `${API_URL}/admin/addAnnouncement`,
           {
             userId: global.userId,
+            token: global.token,
             text: text.toString('html'),
             title: title,
             API_SECRET
@@ -89,6 +90,8 @@ const EditAnnouncements = props => {
           {
             id: data[curr].id,
             text: text.toString('html'),
+            userId: global.userId,
+            token: global.token,
             title: title,
             API_SECRET
           },
@@ -107,7 +110,12 @@ const EditAnnouncements = props => {
     await axios
       .post(
         `${API_URL}/admin/deleteAnnouncement`,
-        { id: data[curr].id, API_SECRET },
+        {
+          id: data[curr].id,
+          userId: global.userId,
+          token: global.token,
+          API_SECRET
+        },
         {
           headers: { 'content-type': 'application/x-www-form-urlencoded' }
         }

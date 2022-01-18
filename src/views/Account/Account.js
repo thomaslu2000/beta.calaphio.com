@@ -53,7 +53,11 @@ const Account = props => {
         md={props.mini ? 12 : 6}
         xl={props.mini ? 12 : 4}
         xs={12}>
-        <AccountProfile userdata={userData} viewerid={global.userId} />
+        <AccountProfile
+          userdata={userData}
+          viewerid={global.userId}
+          viewertoken={global.token}
+        />
       </Grid>
       <Grid
         item
@@ -61,7 +65,11 @@ const Account = props => {
         md={props.mini ? 12 : 6}
         xl={props.mini ? 12 : 8}
         xs={12}>
-        <AccountDetails userdata={userData} viewerid={global.userId} />
+        <AccountDetails
+          userdata={userData}
+          viewerid={global.userId}
+          viewertoken={global.token}
+        />
       </Grid>
       {props.min || (
         <React.Fragment>

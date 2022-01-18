@@ -63,7 +63,11 @@ const Event = props => {
   const getAdmin = async () => {
     await axios
       .get(`${API_URL}/people/adminOrChair`, {
-        params: { userId: global.userId || -1, eventId: eventData.event_id }
+        params: {
+          userId: global.userId || -1,
+          token: global.token || -1,
+          eventId: eventData.event_id
+        }
       })
       .then(res => {
         setImAdmin(res.data.length > 0);
@@ -89,6 +93,40 @@ const Event = props => {
         setAttending(response.data);
       });
   };
+  const signUpTarget = async (uid, firstname = 'New', lastname = 'User') => {
+    if (uid)
+      await axios
+        .post(
+          `${API_URL}/admin/signUpTarget/`,
+          {
+            eventId: eventData.event_id,
+            userId: global.userId,
+            targetId: uid,
+            token: global.token,
+            timestamp: moment()
+              .utc()
+              .format('YYYY-MM-DD HH:mm:ss'),
+            API_SECRET
+          },
+          { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+        )
+        .then(response => {
+          // setImAttending(firstname == '' && lastname == 'You');
+          let n = [
+            {
+              signup_time: moment()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+              chair: 0,
+              uid,
+              firstname,
+              lastname
+            },
+            ...attending
+          ];
+          setAttending(n);
+        });
+  };
 
   const signUp = async (uid, firstname = '', lastname = 'You') => {
     if (uid)
@@ -98,6 +136,7 @@ const Event = props => {
           {
             eventId: eventData.event_id,
             userId: uid,
+            token: global.token,
             timestamp: moment()
               .utc()
               .format('YYYY-MM-DD HH:mm:ss'),
@@ -130,6 +169,7 @@ const Event = props => {
         {
           eventId: eventData.event_id,
           userId: uid,
+          token: global.token,
           API_SECRET
         },
         { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
@@ -148,6 +188,7 @@ const Event = props => {
         {
           eventId: eventData.event_id,
           userId: global.userId,
+          token: global.token,
           setting: 1,
           API_SECRET
         },
@@ -171,6 +212,7 @@ const Event = props => {
         {
           eventId: eventData.event_id,
           userId: global.userId,
+          token: global.token,
           setting: 0,
           API_SECRET
         },
@@ -189,7 +231,7 @@ const Event = props => {
   useEffect(() => {
     if (toAdd) {
       setAddingPart(false);
-      signUp(toAdd.uid, toAdd.firstname, toAdd.lastname);
+      signUpTarget(toAdd.uid, toAdd.firstname, toAdd.lastname);
       setToAdd(false);
     }
   }, [toAdd]);

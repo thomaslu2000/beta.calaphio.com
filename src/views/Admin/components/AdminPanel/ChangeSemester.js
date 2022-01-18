@@ -70,7 +70,7 @@ const ChangeSemester = props => {
   const submitSem = async () => {
     await axios
       .get(`${API_URL}/people/admin`, {
-        params: { userId: global.userId || -1 }
+        params: { userId: global.userId || -1, token: global.token || -1 }
       })
       .then(response => {
         if (response.data.length > 0) {

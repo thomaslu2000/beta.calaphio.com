@@ -49,7 +49,7 @@ const Evaluate = props => {
   const getEvents = async () => {
     await axios
       .get(`${API_URL}/people/toEval/`, {
-        params: { userId: props.userId }
+        params: { userId: props.userId, token: props.token }
       })
       .then(response => {
         setData(response.data);

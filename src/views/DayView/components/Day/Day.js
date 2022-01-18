@@ -139,9 +139,13 @@ const Day = props => {
     if (d && !eventData) setEventData(d);
   }
 
-  const commitChanges = makeCommitChanges(({ added, changed, deleted }) => {
-    window.location.reload(false);
-  }, global.userId);
+  const commitChanges = makeCommitChanges(
+    ({ added, changed, deleted }) => {
+      window.location.reload(false);
+    },
+    global.userId,
+    global.token
+  );
 
   const onAppointmentEdit = changes => {
     if ('rRule' in changes) {

@@ -61,7 +61,11 @@ const EvaluateEvent = props => {
         if (response.data[0])
           axios
             .get(`${API_URL}/people/adminOrChair`, {
-              params: { userId: global.userId || -1, eventId: eid }
+              params: {
+                userId: global.userId || -1,
+                token: global.token || -1,
+                eventId: eid
+              }
             })
             .then(res => {
               if (res.data.length == 0) {
@@ -112,7 +116,9 @@ const EvaluateEvent = props => {
     let attend = [];
     let del = [];
     let params = {
-      eventId: eid
+      eventId: eid,
+      userId: global.userId,
+      token: global.token
     };
     for (const [userId, hours] of Object.entries(attendingHours)) {
       let status = attendingSelect[userId];
@@ -133,12 +139,16 @@ const EvaluateEvent = props => {
     let params = makeParams();
     await axios
       .get(`${API_URL}/people/adminOrChair`, {
-        params: { userId: global.userId || -1, eventId: eid }
+        params: {
+          userId: global.userId || -1,
+          token: global.token || -1,
+          eventId: eid
+        }
       })
       .then(response => {
         if (response.data.length > 0) {
           axios
-            .post(`${API_URL}/events/evaluate`, params, {
+            .post(`${API_URL}/adminOrChair/evaluate`, params, {
               headers: { 'content-type': 'application/x-www-form-urlencoded' }
             })
             .then(res => {
