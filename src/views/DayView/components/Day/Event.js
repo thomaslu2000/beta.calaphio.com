@@ -429,7 +429,7 @@ const Event = props => {
                     .local()
                     .fromNow()}
                 </TableCell>
-                {(imChair || imAdmin) && (
+                {(imAdmin) && (
                   <TableCell align="center">
                     <Button
                       onClick={() => {
