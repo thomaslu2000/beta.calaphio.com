@@ -381,7 +381,7 @@ const Event = props => {
             </Button>
           )}
           {imAttending &&
-          moment.duration(moment(eventData.start_at).diff(moment())).asHours() <
+          moment.duration(moment.utc(eventData.start_at).diff(moment().utc())).asHours() <
             lock_hours ? (
             <Button
               style={{ marginLeft: 'auto', marginRight: 'auto' }}
