@@ -27,6 +27,7 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import UpdatePledge from './UpdatePledge';
 import AddPledges from './AddPledges';
 import EditAnnouncements from './EditAnnouncements';
+import SimpleUserTable from './SimpleUserTable';
 import ChangeSemester from './ChangeSemester';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import { unsanitize } from '../../../functions';
@@ -187,57 +188,45 @@ const AdminPanel = props => {
       }
     },
     {
-      title: 'View Admins',
+      title: 'Edit Admins',
       forms: {},
-      url: '/admin/get/',
-      type: 'GET',
+      type: 'none',
       callback: response => {
-        tablefy(response.data);
+        setDisplay(
+          <SimpleUserTable
+            add={'admin/add'}
+            get={'admin/get'}
+            remove={'admin/remove'}
+          />
+        );
       }
     },
     {
-      title: 'Remove Admins',
-      forms: { targetId: 'User' },
-      url: '/admin/remove/',
-      type: 'POST',
-      callback: response => {
-        alert('Action Performed');
-      }
-    },
-    {
-      title: 'Add Admins',
-      forms: { targetId: 'User' },
-      url: '/admin/add/',
-      type: 'POST',
-      callback: response => {
-        alert('Action Performed');
-      }
-    },
-    {
-      title: 'View PCOMM',
+      title: 'Edit PCOMM',
       forms: {},
-      url: '/admin/getPcomm/',
-      type: 'GET',
+      type: 'none',
       callback: response => {
-        tablefy(response.data);
+        setDisplay(
+          <SimpleUserTable
+            add={'admin/addPcomm'}
+            get={'admin/getPcomm'}
+            remove={'admin/removePcomm'}
+          />
+        );
       }
     },
     {
-      title: 'Remove PCOMM',
-      forms: { targetId: 'User' },
-      url: '/admin/removePcomm/',
-      type: 'POST',
+      title: 'Edit Wiki Editors',
+      forms: {},
+      type: 'none',
       callback: response => {
-        alert('Action Performed');
-      }
-    },
-    {
-      title: 'Add PCOMM',
-      forms: { targetId: 'User' },
-      url: '/admin/addPcomm/',
-      type: 'POST',
-      callback: response => {
-        alert('Action Performed');
+        setDisplay(
+          <SimpleUserTable
+            add={'admin/addWikiEditor'}
+            get={'admin/getWikiEditor'}
+            remove={'admin/removeWikiEditor'}
+          />
+        );
       }
     }
   ];

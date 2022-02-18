@@ -35,7 +35,7 @@ const Wiki = props => {
 
   const [data, setData] = useState([]);
   const [sem, setSem] = useState(0);
-  const [year, setYear] = useState(2018);
+  const [year, setYear] = useState(2022);
   const [posName, setPosName] = useState('');
   const [posParent, setPosParent] = useState('');
   const [newUser, setNewUser] = useState({
@@ -54,7 +54,7 @@ const Wiki = props => {
 
   const getAdmin = async () => {
     await axios
-      .get(`${API_URL}/people/admin/`, {
+      .get(`${API_URL}/people/wiki/`, {
         params: { userId: global.userId, token: global.token }
       })
       .then(response => {

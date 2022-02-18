@@ -38,6 +38,7 @@ const WikiTableComponent = props => {
     : positionTypes[0];
   const [updated2, setUpdated2] = useState(1);
   const ref = useRef(null);
+  const [global] = useGlobal();
 
   const getPositions = async e => {
     axios
@@ -55,6 +56,8 @@ const WikiTableComponent = props => {
         `${API_URL}/wiki/deletePosition`,
         {
           simpleId,
+          userId: global.userId,
+          token: global.token,
           API_SECRET
         },
         {

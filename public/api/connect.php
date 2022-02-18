@@ -232,6 +232,15 @@ switch ($request[0]) {
         case 'addPcomm':
           $sql = sprintf("INSERT INTO apo_permissions_groups (user_id, group_id) VALUES(%s,3)", $data['targetId']);
           break;
+        case 'getWikiEditor':
+          $sql = "SELECT user_id, firstname, lastname FROM apo_permissions_groups LEFT JOIN apo_users USING(user_id) WHERE group_id=6";
+          break;
+        case 'removeWikiEditor':
+          $sql = sprintf("DELETE FROM apo_permissions_groups WHERE user_id=%s AND group_id=6", $data['targetId']);
+          break;
+        case 'addWikiEditor':
+          $sql = sprintf("INSERT INTO apo_permissions_groups (user_id, group_id) VALUES(%s,6)", $data['targetId']);
+          break;
         case 'addAnnouncement':
           $sql = sprintf("INSERT INTO apo_announcements (user_id, text, publish_time, title) 
           VALUES (%s, '%s', CURRENT_TIME, '%s')", $data['userId'], $data['text'], $data['title']);
@@ -282,6 +291,10 @@ switch ($request[0]) {
         case 'admin':
           $sql = sprintf("SELECT 1 FROM apo_permissions_groups 
           WHERE user_id=%s AND group_id=1", $_GET['userId'] );
+          break;
+        case 'wiki':
+          $sql = sprintf("SELECT 1 FROM apo_permissions_groups 
+          WHERE user_id=%s AND (group_id=1 OR group_id=6)", $_GET['userId'] );
           break;
         case 'adminOrChair':
           $sql = sprintf("SELECT 1 FROM apo_permissions_groups 
@@ -483,6 +496,21 @@ switch ($request[0]) {
       }
       break;
       case 'wiki':
+        if ($request[1] !== 'positions') {
+          if (!$auth_user) {
+            http_response_code(401);
+            die("admin / wiki editor authentification failed");
+          }
+    
+          $admin_result = mysqli_query($con, sprintf(
+            "SELECT 1 FROM apo_permissions_groups 
+            WHERE user_id=%s AND (group_id=1 OR group_id=6)", $auth_user));
+    
+          if (mysqli_num_rows($admin_result) === 0) {
+            http_response_code(401);
+            die("user not admin nor chair");
+          }
+        }
         switch($request[1]) {
           case 'positions':
             $sql = sprintf("SELECT 
