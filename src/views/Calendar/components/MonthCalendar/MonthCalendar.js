@@ -135,6 +135,7 @@ const MonthCalendar = props => {
       })
       .then(response => {
         let days = {};
+        // let seen = Set();
         response.data.map(item => {
           let type = item.service === '1' ? 0 : item.fellowship === '1' ? 1 : 2;
           let timeStart = moment.utc(item.start_at).local();
@@ -153,17 +154,17 @@ const MonthCalendar = props => {
             timeEnd,
             item.color
           ]);
-          if (dateEnd !== date) {
-            if (!days[dateEnd]) days[dateEnd] = [[], [], []];
-            days[dateEnd][type].push([
-              item.event_id,
-              unsanitize(item.title),
-              dateEnd,
-              timeStart,
-              timeEnd,
-              item.color
-            ]);
-          }
+          // if (dateEnd !== date) {
+          //   if (!days[dateEnd]) days[dateEnd] = [[], [], []];
+          //   days[dateEnd][type].push([
+          //     item.event_id,
+          //     unsanitize(item.title),
+          //     dateEnd,
+          //     timeStart,
+          //     timeEnd,
+          //     item.color
+          //   ]);
+          // }
         });
         let newList = [];
         var maxTotal = 0;

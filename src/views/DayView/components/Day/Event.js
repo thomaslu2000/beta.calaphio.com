@@ -97,7 +97,7 @@ const Event = props => {
     if (uid)
       await axios
         .post(
-          `${API_URL}/admin/signUpTarget/`,
+          `${API_URL}/adminOrChair/signUpTarget/`,
           {
             eventId: eventData.event_id,
             userId: global.userId,
@@ -126,6 +126,26 @@ const Event = props => {
           ];
           setAttending(n);
         });
+  };
+
+  const signOffTarget = async uid => {
+    await axios
+      .post(
+        `${API_URL}/adminOrChair/signOffTarget/`,
+        {
+          eventId: eventData.event_id,
+          userId: global.userId,
+          targetId: uid,
+          token: global.token,
+          API_SECRET
+        },
+        { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+      )
+      .then(response => {
+        setAttending(attending.filter(x => x.uid !== uid));
+        setImAttending(false);
+        setImChair(false);
+      });
   };
 
   const signUp = async (uid, firstname = '', lastname = 'You') => {
@@ -418,7 +438,7 @@ const Event = props => {
                             `Drop ${row.firstname} ${row.lastname} From Event?`
                           )
                         ) {
-                          signOff(row.uid, row.firstname, row.lastname);
+                          signOffTarget(row.uid, row.firstname, row.lastname);
                         }
                       }}>
                       ❌

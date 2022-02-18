@@ -94,7 +94,7 @@ const makeParams = (data, uid, token) => {
 };
 
 const typesa = makeTypes();
-export function makeCommitChanges(f, uid, token) {
+export function makeCommitChanges(f, uid, token, getExtraEventInfo) {
   async function commitChanges({ added, changed, deleted }) {
     if (added) {
       if (added.startDate > added.endDate) {
@@ -157,10 +157,20 @@ export function makeCommitChanges(f, uid, token) {
         });
     } else if (changed) {
       for (const [eventId, data] of Object.entries(changed)) {
+        let extraInfo = getExtraEventInfo().find(
+          event => event.eventId === eventId
+        );
         let params = makeParams(data, uid, token);
         if (data.startDate && data.endDate && data.startDate > data.endDate) {
           alert('Error: Start Date is After the End Date');
           return;
+        } else if (data.startDate && !data.endDate) {
+          let endTime = moment(extraInfo['endAt']);
+          let startTime = moment(params.start_at);
+          if (endTime < startTime) {
+            endTime = moment(startTime).add(extraInfo['duration']);
+            params.end_at = endTime.format('YYYY-MM-DD HH:mm:ss');
+          }
         }
         params.eventId = eventId;
         delete params['none'];

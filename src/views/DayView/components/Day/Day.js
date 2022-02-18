@@ -59,6 +59,7 @@ const Day = props => {
   const [currentDate, setCurrentDate] = useState(props.day);
   const [eventData, setEventData] = useState(false);
   const [stretchDay, setStretchDay] = useState(false);
+  const [eventInfo, setEventInfo] = useState([]);
   const [data, setData] = useState([]);
   const make = [];
   const [global] = useGlobal();
@@ -70,6 +71,22 @@ const Day = props => {
   useEffect(() => {
     getDayEvents();
   }, [currentDate]);
+
+  useEffect(() => {
+    // let extraData = [];
+    setEventInfo(
+      data.map(obj => {
+        let duration = moment.duration(
+          moment(obj.end_at).diff(moment(obj.start_at))
+        );
+        return {
+          eventId: obj.event_id,
+          endAt: obj.end_at,
+          duration: duration
+        };
+      })
+    );
+  }, [data]);
 
   let TimeTableCell = ({ onDoubleClick, ...restProps }) => {
     if (make.length === 0) make.push(onDoubleClick);
@@ -139,12 +156,13 @@ const Day = props => {
     if (d && !eventData) setEventData(d);
   }
 
-  const commitChanges = makeCommitChanges(
+  var commitChanges = makeCommitChanges(
     ({ added, changed, deleted }) => {
       window.location.reload(false);
     },
     global.userId,
-    global.token
+    global.token,
+    () => eventInfo
   );
 
   const onAppointmentEdit = changes => {

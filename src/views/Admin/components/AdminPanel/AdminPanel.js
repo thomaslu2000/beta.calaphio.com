@@ -126,6 +126,15 @@ const AdminPanel = props => {
       }
     },
     {
+      title: 'Clear Sessions',
+      forms: {},
+      url: '/admin/clearSessions/',
+      type: 'POST',
+      callback: response => {
+        alert('done');
+      }
+    },
+    {
       title: 'Search Users',
       forms: { query: 'Name (First Last)' },
       url: '/people/search/',
@@ -199,6 +208,33 @@ const AdminPanel = props => {
       title: 'Add Admins',
       forms: { targetId: 'User' },
       url: '/admin/add/',
+      type: 'POST',
+      callback: response => {
+        alert('Action Performed');
+      }
+    },
+    {
+      title: 'View PCOMM',
+      forms: {},
+      url: '/admin/getPcomm/',
+      type: 'GET',
+      callback: response => {
+        tablefy(response.data);
+      }
+    },
+    {
+      title: 'Remove PCOMM',
+      forms: { targetId: 'User' },
+      url: '/admin/removePcomm/',
+      type: 'POST',
+      callback: response => {
+        alert('Action Performed');
+      }
+    },
+    {
+      title: 'Add PCOMM',
+      forms: { targetId: 'User' },
+      url: '/admin/addPcomm/',
       type: 'POST',
       callback: response => {
         alert('Action Performed');

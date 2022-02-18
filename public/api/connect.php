@@ -6,6 +6,8 @@ require("make_con.php");
 $method = $_SERVER['REQUEST_METHOD'];
 $request = explode('/', trim($_SERVER['PATH_INFO'],'/'));
 
+$SHOW_FAMS = '0';
+
 if (!$con) {
   die("Connection failed: " . mysqli_connect_error());
 }
@@ -77,6 +79,14 @@ switch ($request[0]) {
         die("user not admin nor chair");
       }
       switch($request[1]) {
+        case 'signOffTarget':
+          $sql = sprintf("DELETE FROM apo_calendar_attend WHERE event_id=%s AND user_id=%s", 
+          $data['eventId'], $data['targetId']);
+          break;
+        case 'signUpTarget':
+          $sql = sprintf("INSERT INTO apo_calendar_attend (event_id, user_id, signup_time) 
+          VALUES (%s, %s, '%s')", $data['eventId'], $data['targetId'], $data['timestamp']);
+          break;
         case 'delete':
           $sql = sprintf("UPDATE apo_calendar_event SET deleted=1, 
           creator_id=%s WHERE event_id=%s", $data['userId'], $data['eventId']);
@@ -125,12 +135,11 @@ switch ($request[0]) {
       }
       
       switch($request[1]) {
+        case 'clearSessions':
+          $sql = "DELETE FROM apo_sessions WHERE CURRENT_DATE >= expires";
+          break;
         case 'changePass':
           $sql = sprintf("UPDATE apo_users SET passphrase=sha1(concat(salt, '%s')) where user_id=%s", $data['pass'], $data['targetId']);
-          break;
-        case 'signUpTarget':
-          $sql = sprintf("INSERT INTO apo_calendar_attend (event_id, user_id, signup_time) 
-          VALUES (%s, %s, '%s')", $data['eventId'], $data['targetId'], $data['timestamp']);
           break;
         case 'pledge_stats':
           $sql = sprintf("SELECT user_id, firstname, lastname, SUM(a.attended * a.hours * (e.type_service_chapter = 1 OR e.type_service_campus=1 OR e.type_service_community = 1 OR e.type_service_country = 1)) AS service_hours_attended, 
@@ -209,10 +218,19 @@ switch ($request[0]) {
           $sql = "SELECT user_id, firstname, lastname FROM apo_permissions_groups LEFT JOIN apo_users USING(user_id) WHERE group_id=1";
           break;
         case 'remove':
-          $sql = sprintf("DELETE FROM apo_permissions_groups WHERE user_id=%s", $data['targetId']);
+          $sql = sprintf("DELETE FROM apo_permissions_groups WHERE user_id=%s AND group_id=1", $data['targetId']);
           break;
         case 'add':
           $sql = sprintf("INSERT INTO apo_permissions_groups (user_id, group_id) VALUES(%s, 1)", $data['targetId']);
+          break;
+        case 'getPcomm':
+          $sql = "SELECT user_id, firstname, lastname FROM apo_permissions_groups LEFT JOIN apo_users USING(user_id) WHERE group_id=3";
+          break;
+        case 'removePcomm':
+          $sql = sprintf("DELETE FROM apo_permissions_groups WHERE user_id=%s AND group_id=3", $data['targetId']);
+          break;
+        case 'addPcomm':
+          $sql = sprintf("INSERT INTO apo_permissions_groups (user_id, group_id) VALUES(%s,3)", $data['targetId']);
           break;
         case 'addAnnouncement':
           $sql = sprintf("INSERT INTO apo_announcements (user_id, text, publish_time, title) 
@@ -296,12 +314,16 @@ switch ($request[0]) {
         case 'allPositions':
           $sql = sprintf("SELECT position_title, position_name, semester, year, bas.position_type
           FROM apo_wiki_positions as pos JOIN apo_wiki_positions_basic_info as bas USING (basic_info_id)
-          WHERE user_id=%s 
+          WHERE user_id=%s AND (bas.position_type NOT IN (11, 12) OR 
+          (user_id not in (SELECT user_id FROM apo_permissions_groups WHERE group_id=3)
+               AND 1=%s))
           UNION
           SELECT position_title, position_parent as position_name, semester, year , controller_type as position_type
           FROM apo_wiki_positions_simple
-          WHERE user_id=%s
-          ORDER BY year ASC, semester ASC, position_type ASC", $_GET['userId'], $_GET['userId']);
+          WHERE user_id=%s AND (controller_type <> 11 OR 
+            (user_id not in (SELECT user_id FROM apo_permissions_groups WHERE group_id=3 )
+               AND 1=%s)) 
+          ORDER BY year ASC, semester ASC, position_type ASC", $_GET['userId'], $SHOW_FAMS, $_GET['userId'], $SHOW_FAMS);
           break;
         case 'toEval':
           $sql = sprintf("SELECT event_id, title 
@@ -485,7 +507,8 @@ switch ($request[0]) {
               $sql .= sprintf("AND bas.position_type=13 AND position_name NOT LIKE '%%Pledge Class' ");
             } elseif ($_GET['posType'] == '11') {
               // Include small family AND big family
-              $sql .= sprintf("AND (bas.position_type=11 OR bas.position_type=12) ");
+              $sql .= sprintf("AND (bas.position_type=11 OR bas.position_type=12) AND 1=%s 
+              AND user_id not in (SELECT user_id FROM apo_permissions_groups WHERE group_id=3 )", $SHOW_FAMS);
             }
             else {
               $sql .= sprintf("AND bas.position_type=%s ", $_GET['posType']);
@@ -503,8 +526,11 @@ switch ($request[0]) {
               year=%s
               AND semester=%s
               AND controller_type=%s
+              AND (controller_type<>11 OR 
+              (user_id not in (SELECT user_id FROM apo_permissions_groups WHERE group_id=3 )
+                 AND 1=%s))
             ORDER BY parent, title ASC",  
-            $_GET['year'], $_GET['sem'], $_GET['posType']);
+            $_GET['year'], $_GET['sem'], $_GET['posType'], $SHOW_FAMS);
             break;
           case 'addPosition':
             $sql = sprintf("INSERT INTO apo_wiki_positions_simple (user_id, position_title, position_parent, semester, year, controller_type) 
