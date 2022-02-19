@@ -15,7 +15,8 @@ const useStyles = makeStyles(theme => ({
     display: 'flex'
   },
   title: {
-    fontWeight: 700
+    fontWeight: 700,
+    textAlign: 'center'
   },
   avatar: {
     backgroundColor: theme.palette.error.main,
@@ -55,7 +56,13 @@ const ServiceHours = props => {
     <Card {...rest} className={clsx(classes.root, className)}>
       <CardContent>
         <Grid container justify="space-between">
-          <Grid item style={{ marginRight: 'auto', marginLeft: 'auto' }}>
+          <Grid
+            item
+            style={{
+              marginRight: 'auto',
+              marginLeft: 'auto'
+            }}
+            xs={12}>
             <Typography
               className={classes.title}
               color="textSecondary"
@@ -64,17 +71,24 @@ const ServiceHours = props => {
               Service Hours
             </Typography>
             <br />
-            <Typography variant="h3">
+            <Typography variant="h3" style={{ textAlign: 'center' }}>
               {props.attended - props.flaked} hours
             </Typography>
           </Grid>
-          <Grid item className={classes.difference}>
-            <Typography className={classes.successValue} variant="body2">
-              {props.attended} hours attended
-            </Typography>
-            <Typography className={classes.differenceValue} variant="body2">
-              {props.flaked} hours flaked
-            </Typography>
+          <Grid item className={classes.difference} xs={12}>
+            <div
+              style={{
+                textAlign: 'center',
+                marginLeft: 'auto',
+                marginRight: 'auto'
+              }}>
+              <Typography className={classes.successValue} variant="body2">
+                {props.attended} hours attended
+              </Typography>
+              <Typography className={classes.differenceValue} variant="body2">
+                {props.flaked} hours flaked
+              </Typography>
+            </div>
           </Grid>
         </Grid>
       </CardContent>

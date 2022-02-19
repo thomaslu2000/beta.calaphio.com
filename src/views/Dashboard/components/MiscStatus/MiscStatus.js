@@ -44,11 +44,14 @@ const MiscStatus = props => {
               className={classes.title}
               color="textSecondary"
               gutterBottom
+              style={{ textAlign: 'center' }}
               variant="h5">
               Events Chaired
             </Typography>
             <br />
-            <Typography variant="h3">{props.chaired} events</Typography>
+            <Typography variant="h3" style={{ textAlign: 'center' }}>
+              {props.chaired} events
+            </Typography>
           </Grid>
         </Grid>
       </CardContent>

@@ -53,26 +53,37 @@ const Fellowships = props => {
     <Card {...rest} className={clsx(classes.root, className)}>
       <CardContent>
         <Grid container justify="space-between">
-          <Grid item style={{ marginRight: 'auto', marginLeft: 'auto' }}>
+          <Grid
+            item
+            style={{ marginRight: 'auto', marginLeft: 'auto' }}
+            xs={12}>
             <Typography
               className={classes.title}
               color="textSecondary"
+              style={{ textAlign: 'center' }}
               gutterBottom
               variant="h5">
               Fellowships
             </Typography>
             <br />
-            <Typography variant="h3">
+            <Typography variant="h3" style={{ textAlign: 'center' }}>
               {props.attended - props.flaked} events
             </Typography>
           </Grid>
-          <Grid item className={classes.difference}>
-            <Typography className={classes.successValue} variant="body2">
-              {props.attended} events attended
-            </Typography>
-            <Typography className={classes.differenceValue} variant="body2">
-              {props.flaked} events flaked
-            </Typography>
+          <Grid item className={classes.difference} xs={12}>
+            <div
+              style={{
+                textAlign: 'center',
+                marginLeft: 'auto',
+                marginRight: 'auto'
+              }}>
+              <Typography className={classes.successValue} variant="body2">
+                {props.attended} events attended
+              </Typography>
+              <Typography className={classes.differenceValue} variant="body2">
+                {props.flaked} events flaked
+              </Typography>
+            </div>
           </Grid>
         </Grid>
       </CardContent>
