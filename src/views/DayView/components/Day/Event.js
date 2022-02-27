@@ -356,7 +356,7 @@ const Event = props => {
           variant="body2"
           component="p"
           dangerouslySetInnerHTML={{
-            __html: eventData.description || 'No Description Provided'
+            __html: unsanitize(eventData.description) || 'No Description Provided'
           }}></Typography>
 
         {addingPart && <SearchUser toAdd={setToAdd} />}

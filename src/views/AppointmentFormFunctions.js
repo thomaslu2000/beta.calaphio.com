@@ -73,7 +73,7 @@ const makeParams = (data, uid, token) => {
   params.API_SECRET = API_SECRET;
   if (data.title) params.title = escape(sanitizeHtml(data.title));
   if (data.location) params.location = escape(sanitizeHtml(data.location));
-  if (data.notes) params.description = escape(sanitizeHtml(data.notes));
+  if (data.notes) params.description = escape(sanitizeHtml(data.notes.replace(/\n/g, "<br>")));
   if (data.allDay) params.time_allday = data.allDay ? 1 : 0;
   if (data.interchapter) params.type_interchapter = data.interchapter ? 1 : 0;
   if (data.customColor) params.type_dynasty_choice = data.customColor || '';
@@ -89,7 +89,6 @@ const makeParams = (data, uid, token) => {
     params.time_end = s.slice(11, 19);
     params.end_at = s.slice(0, 19);
   }
-  // console.log(params);
   return params;
 };
 

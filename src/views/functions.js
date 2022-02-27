@@ -1,6 +1,7 @@
 import moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
 import { decode } from 'html-entities';
+import DOMPurify from 'dompurify';
 
 const CLIENT_ID = process.env.REACT_APP_G_CLIENT_ID;
 const API_KEY = process.env.REACT_APP_G_API_KEY;
@@ -46,6 +47,7 @@ export function avatarSearch(userdata) {
 
 export function unsanitize(str) {
   if (!str || typeof str !== 'string') return '';
+  str = DOMPurify.sanitize(str);
   return unescape(decode(str.replace(/%26/g, '&').replace(/%3B/g, ';')));
 }
 

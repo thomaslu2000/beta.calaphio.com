@@ -6,7 +6,7 @@ require("make_con.php");
 $method = $_SERVER['REQUEST_METHOD'];
 $request = explode('/', trim($_SERVER['PATH_INFO'],'/'));
 
-$SHOW_FAMS = '0';
+$SHOW_FAMS = '1';
 
 if (!$con) {
   die("Connection failed: " . mysqli_connect_error());
