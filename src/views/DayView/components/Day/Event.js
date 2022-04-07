@@ -43,7 +43,7 @@ const lock_hours = 24;
 
 const Event = props => {
   const classes = useStyles();
-  const { eventData, history } = props;
+  const {eventData, history } = props;
   const [attending, setAttending] = useState([]);
   const [imAttending, setImAttending] = useState(false);
   const [imChair, setImChair] = useState(false);
@@ -74,7 +74,7 @@ const Event = props => {
       });
   };
 
-  const getAttending = async () => {
+  const getAttending = async (updated = false) => {
     await axios
       .get(`${API_URL}/events/attending/`, {
         params: {
@@ -89,6 +89,9 @@ const Event = props => {
         } else {
           setImAttending(false);
           setImChair(false);
+        }
+        if (updated) {
+          updated(response.data);
         }
         setAttending(response.data);
       });
@@ -149,8 +152,12 @@ const Event = props => {
   };
 
   const signUp = async (uid, firstname = '', lastname = 'You') => {
-    if (uid)
-      await axios
+    getAttending((updatedAttendance) => {
+    if (updatedAttendance.length <= eventData.signup_limit) {
+      alert("No");
+    } else {
+      if (uid)
+      axios
         .post(
           `${API_URL}/events/signUp/`,
           {
@@ -180,6 +187,7 @@ const Event = props => {
           ];
           setAttending(n);
         });
+    }
   };
 
   const signOff = async uid => {
@@ -200,7 +208,6 @@ const Event = props => {
         setImChair(false);
       });
   };
-
   const becomeChair = async () => {
     await axios
       .post(
@@ -389,6 +396,13 @@ const Event = props => {
               disabled>
               Too Late to Drop
             </Button>
+          ) : (eventData.signup_limit <= attending.length && !imAttending ? (
+            <Button
+              style={{ marginLeft: 'auto', marginRight: 'auto' }}
+              size="large"
+              disabled>
+              Too Many People 
+            </Button>
           ) : (
             <Button
               style={{ marginLeft: 'auto', marginRight: 'auto' }}
@@ -396,8 +410,9 @@ const Event = props => {
               onClick={() => {
                 imAttending ? signOff(global.userId) : signUp(global.userId);
               }}>
-              {imAttending ? 'Take Me Off' : 'Sign Up'}
+              {imAttending ? 'Take Me Off' :'Sign Up'}
             </Button>
+            )
           )}
         </CardActions>
         <Table
@@ -464,7 +479,6 @@ const Event = props => {
     </Card>
   );
 };
-
 const useStyles = makeStyles({
   root: {
     minWidth: 300,

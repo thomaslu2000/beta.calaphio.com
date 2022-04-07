@@ -444,15 +444,16 @@ switch ($request[0]) {
             $ends = explode(',', $data['rEnds']);
             $sql = "INSERT INTO apo_calendar_event (title, location, description, date, time_start, time_end, time_allday, 
             type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, 
-            type_fellowship, type_fundraiser, creator_id, start_at, end_at, type_dynasty_choice) 
+            type_fellowship, type_fundraiser, creator_id, start_at, end_at, type_dynasty_choice, signup_limit) 
             VALUES ";
             $rows = array();
             for ($i = 0; $i < count($starts); $i++) {
               $date = substr($starts[$i], 0, 10);
-              $rows[] = sprintf("('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ", 
+              $rows[] = sprintf("('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ", 
               $data['title'], $data['location'], $data['description'], $date, $data['time_start'], $data['time_end'], $data['time_allday'] ? 1 : 0, 
               $data['type_interchapter'] ? 1 : 0, $data['type_service_chapter'] ? 1 : 0,  $data['type_service_campus'] ? 1 : 0,  $data['type_service_community'] ? 1 : 0,
-              $data['type_service_country'] ? 1 : 0,  $data['type_fellowship'] ? 1 : 0,  $data['type_fundraiser'] ? 1 : 0, $data['creator_id'], $starts[$i], $ends[$i], $data['type_dynasty_choice']);
+              $data['type_service_country'] ? 1 : 0,  $data['type_fellowship'] ? 1 : 0,  $data['type_fundraiser'] ? 1 : 0, $data['creator_id'], $starts[$i], $ends[$i], $data['type_dynasty_choice'],
+              $data['signup_limit']);
             } 
             $sql .= implode(', ', $rows);
             break;
