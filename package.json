@@ -61,7 +61,7 @@
     "reactn": "^2.2.7",
     "recompose": "^0.30.0",
     "rrule": "^2.6.8",
-    "sanitize-html": "^1.27.2",
+    "sanitize-html": "^2.3.2",
     "underscore": "^1.9.1",
     "uuid": "^3.3.2",
     "validate.js": "^0.13.1",
