@@ -71,9 +71,15 @@ const makeParams = (data, uid, token) => {
     };
   }
   params.API_SECRET = API_SECRET;
+  // @TYLER this is part 1 of where we sent the signup limit to the backend
+  // Part 2 should be in the function makeCommitChanges
+  if (data.signup_limit) params.signup_limit = data.signup_limit;
   if (data.title) params.title = escape(sanitizeHtml(data.title));
   if (data.location) params.location = escape(sanitizeHtml(data.location));
-  if (data.notes) params.description = escape(sanitizeHtml(data.notes.replace(/\n/g, "<br>")));
+  if (data.notes)
+    params.description = escape(
+      sanitizeHtml(data.notes.replace(/\n/g, '<br>'))
+    );
   if (data.allDay) params.time_allday = data.allDay ? 1 : 0;
   if (data.interchapter) params.type_interchapter = data.interchapter ? 1 : 0;
   if (data.customColor) params.type_dynasty_choice = data.customColor || '';
@@ -105,6 +111,7 @@ export function makeCommitChanges(f, uid, token, getExtraEventInfo) {
       if (!params.location) params.location = 'No Location Given';
       if (!params.description) params.description = '';
       if (!params.time_allday) params.time_allday = 0;
+      if (!params.signup_limit) params.signup_limit = 0;
 
       if (!added.allDay && added.rRule) {
         var rule = rrulestr(

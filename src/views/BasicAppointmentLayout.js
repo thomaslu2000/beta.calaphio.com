@@ -28,6 +28,9 @@ const makeBasicLayout = onRecurrence => {
     const onFundChange = nextValue => {
       onFieldChange({ fundraiser: nextValue });
     };
+    const onLimitChange = nextValue => {
+      onFieldChange({ signup_limit: nextValue });
+    };
 
     const onColorChange = nextValue => {
       if (nextValue) {
@@ -41,18 +44,31 @@ const makeBasicLayout = onRecurrence => {
 
     return (
       <AppointmentForm.BasicLayout
-        locale={'en-US'}
         appointmentData={appointmentData}
         onFieldChange={blah => {
           onRecurrence(blah);
           onFieldChange(blah);
         }}
-        {...restProps}>
+        {...restProps}
+        // locale={'en-us'}
+      >
         <AppointmentForm.Label text="Location" type="title" />
         <AppointmentForm.TextEditor
           value={appointmentData.location}
           onValueChange={onLocationChange}
           placeholder="Location"
+        />
+        <AppointmentForm.Label text="Signup Limit" type="title" />
+        <AppointmentForm.Label
+          text="(Set to 0 for no limit)"
+          type="ordinaryLabel"
+        />
+        {/* @TYLER here is where I edited the event creation form */}
+        <AppointmentForm.TextEditor
+          value={appointmentData.signup_limit}
+          type="numberEditor"
+          onValueChange={onLimitChange}
+          placeholder={'0'}
         />
         <AppointmentForm.BooleanEditor
           value={appointmentData.interchapter}

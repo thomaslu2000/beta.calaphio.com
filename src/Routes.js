@@ -68,6 +68,12 @@ const Routes = () => {
         path="/wiki/:year/:semester/:postype"
       />
       <RouteWithLayout
+        component={WikiTableView}
+        exact
+        layout={BlankLayout}
+        path="/wiki/:year/:semester/:postype/:searchTitle/:searchParent"
+      />
+      <RouteWithLayout
         component={WikiEditView}
         exact
         layout={MainLayout}

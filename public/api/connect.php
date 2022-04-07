@@ -390,7 +390,7 @@ switch ($request[0]) {
     case 'events': 
       if (count($request) == 1) $sql = sprintf("SELECT title, location, description, time_start, time_end, time_allday, 
         type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, type_fellowship, 
-        type_fundraiser, creator_id, start_at, end_at, evaluated, type_dynasty_choice as color FROM apo_calendar_event 
+        type_fundraiser, creator_id, start_at, end_at, evaluated, signup_limit, type_dynasty_choice as color FROM apo_calendar_event 
         WHERE event_id=%s", $_GET['eventId']);
       else {
         switch($request[1]) {
@@ -410,7 +410,7 @@ switch ($request[0]) {
           case 'day':
             $sql = sprintf("SELECT event_id, title, location, description, time_start, time_end, time_allday, 
             type_interchapter, type_service_chapter, type_service_campus, type_service_community, type_service_country, type_fellowship, 
-            type_fundraiser, creator_id, start_at, end_at, evaluated, type_dynasty_choice as color FROM apo_calendar_event 
+            type_fundraiser, creator_id, start_at, end_at, evaluated, signup_limit, type_dynasty_choice as color FROM apo_calendar_event 
             WHERE deleted=0 AND end_at>'%s' AND start_at<'%s'", $_GET['startDate'], $_GET['endDate']);
             break;
           case 'month':
@@ -496,7 +496,7 @@ switch ($request[0]) {
       }
       break;
       case 'wiki':
-        if ($request[1] !== 'positions') {
+        if ($request[1] !== 'positions' && $request[1] !== 'searchParent') {
           if (!$auth_user) {
             http_response_code(401);
             die("admin / wiki editor authentification failed");
@@ -512,6 +512,59 @@ switch ($request[0]) {
           }
         }
         switch($request[1]) {
+          case 'searchParent':
+            $sql = sprintf("SELECT 
+              user_id,
+              CONCAT(firstname,' ',lastname,' (',pledgeclass,')') as name, 
+              position_title as title, 
+              position_name as parent,
+              -1 as simple_id
+            FROM apo_wiki_positions_basic_info as bas 
+              JOIN  apo_wiki_positions as pos USING (basic_info_id)
+              JOIN apo_users USING (user_id)
+            WHERE 
+              bas.year=%s
+              AND bas.semester=%s 
+              AND position_title LIKE '%s' 
+              AND position_name LIKE '%s' ", 
+              $_GET['year'], $_GET['sem'], $_GET['searchTitle'], $_GET['searchParent']);
+
+            if ($_GET['posType'] == '6') {
+              // Old semesters didnt pick a position type to be for pledges
+              $sql .= sprintf("AND bas.position_type=13 AND position_name LIKE '%%Pledge Class' ");
+            } elseif ($_GET['posType'] == '13') {
+              // Filter out pledge class from this
+              $sql .= sprintf("AND bas.position_type=13 AND position_name NOT LIKE '%%Pledge Class' ");
+            } elseif ($_GET['posType'] == '11') {
+              // Include small family AND big family
+              $sql .= sprintf("AND (bas.position_type=11 OR bas.position_type=12) AND 1=%s 
+              AND user_id not in (SELECT user_id FROM apo_permissions_groups WHERE group_id=3 )", $SHOW_FAMS);
+            }
+            else {
+              $sql .= sprintf("AND bas.position_type=%s ", $_GET['posType']);
+            }
+
+            $sql .=  sprintf("
+            UNION
+            SELECT user_id,
+                    CONCAT(firstname,' ',lastname,' (',pledgeclass,')') as name, 
+                    position_title as title, 
+                    position_parent as parent,
+                    simple_id
+            FROM apo_wiki_positions_simple JOIN apo_users USING(user_id)
+            WHERE 
+              year=%s
+              AND semester=%s
+              AND position_title LIKE '%s' 
+              AND position_parent LIKE '%s' 
+              AND controller_type=%s
+              AND (controller_type<>11 OR 
+              (user_id not in (SELECT user_id FROM apo_permissions_groups WHERE group_id=3 )
+                 AND 1=%s))
+            ORDER BY parent, title ASC",  
+            $_GET['year'], $_GET['sem'], $_GET['searchTitle'], $_GET['searchParent'], $_GET['posType'], $SHOW_FAMS);
+            
+            break;
           case 'positions':
             $sql = sprintf("SELECT 
               user_id,

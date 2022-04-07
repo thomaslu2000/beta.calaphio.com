@@ -29,7 +29,17 @@ const useStyles = makeStyles(theme => ({
 
 const WikiTableComponent = props => {
   const classes = useStyles();
-  const { showDelete, posId, year, sem, posIdx, updated, history } = props;
+  const {
+    showDelete,
+    posId,
+    year,
+    sem,
+    posIdx,
+    updated,
+    searchTitle,
+    searchParent,
+    history
+  } = props;
   const [data, setData] = useState([]);
   const posType = posIdx
     ? positionTypes[posIdx]
@@ -41,13 +51,34 @@ const WikiTableComponent = props => {
   const [global] = useGlobal();
 
   const getPositions = async e => {
-    axios
-      .get(`${API_URL}/wiki/positions`, {
-        params: { year, sem, posType: posType.id }
-      })
-      .then(response => {
-        setData(response.data);
-      });
+    if (!searchTitle && !searchParent) {
+      axios
+        .get(`${API_URL}/wiki/positions`, {
+          params: { year, sem, posType: posType.id }
+        })
+        .then(response => {
+          setData(response.data);
+        });
+    } else {
+      let newSearchParent = searchParent || '';
+      let newSearchTitle = searchTitle || '';
+      newSearchParent = newSearchParent.replaceAll('*', '%');
+      newSearchTitle = newSearchTitle.replaceAll('*', '%');
+      axios
+        .get(`${API_URL}/wiki/searchParent`, {
+          params: {
+            year,
+            sem,
+            searchParent: newSearchParent,
+            searchTitle: newSearchTitle,
+            posType: posType.id
+          }
+        })
+        .then(response => {
+          // console.log(response.data);
+          setData(response.data);
+        });
+    }
   };
 
   const deletePosition = async simpleId => {
