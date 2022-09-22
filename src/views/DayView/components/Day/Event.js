@@ -43,7 +43,7 @@ const lock_hours = 24;
 
 const Event = props => {
   const classes = useStyles();
-  const {eventData, history } = props;
+  const { eventData, history } = props;
   const [attending, setAttending] = useState([]);
   const [imAttending, setImAttending] = useState(false);
   const [imChair, setImChair] = useState(false);
@@ -59,6 +59,21 @@ const Event = props => {
       getAdmin();
     }
   }, [eventData]);
+
+  const numChairs = att => {
+    return att.filter(x => x.chair > 0).length;
+  };
+  const chairLimit = att => {
+    if (
+      eventData.type_service_campus +
+        eventData.type_service_chapter +
+        eventData.type_service_community +
+        eventData.type_service_country !=
+      0
+    )
+      return 1;
+    return 1 + Math.floor(att.length / 8);
+  };
 
   const getAdmin = async () => {
     await axios
@@ -152,42 +167,48 @@ const Event = props => {
   };
 
   const signUp = async (uid, firstname = '', lastname = 'You') => {
-    getAttending((updatedAttendance) => {
-    if (updatedAttendance.length <= eventData.signup_limit) {
-      alert("No");
-    } else {
-      if (uid)
-      axios
-        .post(
-          `${API_URL}/events/signUp/`,
-          {
-            eventId: eventData.event_id,
-            userId: uid,
-            token: global.token,
-            timestamp: moment()
-              .utc()
-              .format('YYYY-MM-DD HH:mm:ss'),
-            API_SECRET
-          },
-          { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
-        )
-        .then(response => {
-          setImAttending(firstname == '' && lastname == 'You');
-          let n = [
-            {
-              signup_time: moment()
-                .utc()
-                .format('YYYY-MM-DD HH:mm:ss'),
-              chair: 0,
-              uid,
-              firstname,
-              lastname
-            },
-            ...attending
-          ];
-          setAttending(n);
-        });
-    }
+    getAttending(updatedAttendance => {
+      if (
+        eventData.signup_limit > 0 &&
+        updatedAttendance.length >= eventData.signup_limit
+      ) {
+        alert('Error: Signup Limit Reached');
+      } else {
+        if (uid)
+          axios
+            .post(
+              `${API_URL}/events/signUp/`,
+              {
+                eventId: eventData.event_id,
+                userId: uid,
+                token: global.token,
+                timestamp: moment()
+                  .utc()
+                  .format('YYYY-MM-DD HH:mm:ss'),
+                API_SECRET
+              },
+              {
+                headers: { 'content-type': 'application/x-www-form-urlencoded' }
+              }
+            )
+            .then(response => {
+              setImAttending(firstname == '' && lastname == 'You');
+              let n = [
+                {
+                  signup_time: moment()
+                    .utc()
+                    .format('YYYY-MM-DD HH:mm:ss'),
+                  chair: 0,
+                  uid,
+                  firstname,
+                  lastname
+                },
+                ...attending
+              ];
+              setAttending(n);
+            });
+      }
+    });
   };
 
   const signOff = async uid => {
@@ -209,27 +230,33 @@ const Event = props => {
       });
   };
   const becomeChair = async () => {
-    await axios
-      .post(
-        `${API_URL}/events/changeChair/`,
-        {
-          eventId: eventData.event_id,
-          userId: global.userId,
-          token: global.token,
-          setting: 1,
-          API_SECRET
-        },
-        { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
-      )
-      .then(response => {
-        setImChair(true);
-        setAttending(
-          attending.map(x => {
-            if (x.uid === global.userId) x.chair = 1;
-            return x;
-          })
-        );
-      });
+    getAttending(updatedAttendance => {
+      if (numChairs(updatedAttendance) >= chairLimit(updatedAttendance)) {
+        alert('Error: Chair Limit Reached');
+      } else {
+        axios
+          .post(
+            `${API_URL}/events/changeChair/`,
+            {
+              eventId: eventData.event_id,
+              userId: global.userId,
+              token: global.token,
+              setting: 1,
+              API_SECRET
+            },
+            { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+          )
+          .then(response => {
+            setImChair(true);
+            setAttending(
+              attending.map(x => {
+                if (x.uid === global.userId) x.chair = 1;
+                return x;
+              })
+            );
+          });
+      }
+    });
   };
   const loseChair = async () => {
     setImChair(false);
@@ -300,10 +327,10 @@ const Event = props => {
 
   return (
     <Card className={classes.root}>
-      <Helmet>
+      {/* <Helmet>
         <title>{eventData.title}</title>
         <meta property="og:title" content={eventData.title} />
-      </Helmet>
+      </Helmet> */}
       <CardHeader
         action={
           <Button
@@ -356,6 +383,15 @@ const Event = props => {
           gutterBottom>
           Event Type: <b>{eventType(eventData)}</b>
         </Typography>
+        <Typography
+          className={classes.title}
+          color="textSecondary"
+          gutterBottom>
+          Sign Up Limit:{' '}
+          <b>
+            {eventData.signup_limit <= 0 ? 'No Limit' : eventData.signup_limit}
+          </b>
+        </Typography>
         <Typography className={classes.pos} color="textSecondary">
           Description:
         </Typography>
@@ -363,7 +399,8 @@ const Event = props => {
           variant="body2"
           component="p"
           dangerouslySetInnerHTML={{
-            __html: unsanitize(eventData.description) || 'No Description Provided'
+            __html:
+              unsanitize(eventData.description) || 'No Description Provided'
           }}></Typography>
 
         {addingPart && <SearchUser toAdd={setToAdd} />}
@@ -379,29 +416,40 @@ const Event = props => {
               Add Participant
             </Button>
           )}
-          {imAttending && (
-            <Button
-              style={{ marginLeft: 'auto', marginRight: 'auto' }}
-              size="large"
-              onClick={imChair ? loseChair : becomeChair}>
-              {imChair ? 'Give Up Chair' : 'Become Chair'}
-            </Button>
-          )}
           {imAttending &&
-          moment.duration(moment.utc(eventData.start_at).diff(moment().utc())).asHours() <
-            lock_hours ? (
+            (numChairs(attending) >= chairLimit(attending) && !imChair ? (
+              <Button
+                style={{ marginLeft: 'auto', marginRight: 'auto' }}
+                size="large"
+                disabled>
+                Chair Limit Reached
+              </Button>
+            ) : (
+              <Button
+                style={{ marginLeft: 'auto', marginRight: 'auto' }}
+                size="large"
+                onClick={imChair ? loseChair : becomeChair}>
+                {imChair ? 'Give Up Chair' : 'Become Chair'}
+              </Button>
+            ))}
+          {imAttending &&
+          moment
+            .duration(moment.utc(eventData.start_at).diff(moment().utc()))
+            .asHours() < lock_hours ? (
             <Button
               style={{ marginLeft: 'auto', marginRight: 'auto' }}
               size="large"
               disabled>
               Too Late to Drop
             </Button>
-          ) : (eventData.signup_limit <= attending.length && !imAttending ? (
+          ) : eventData.signup_limit > 0 &&
+            eventData.signup_limit <= attending.length &&
+            !imAttending ? (
             <Button
               style={{ marginLeft: 'auto', marginRight: 'auto' }}
               size="large"
               disabled>
-              Too Many People 
+              Too Many People
             </Button>
           ) : (
             <Button
@@ -410,9 +458,8 @@ const Event = props => {
               onClick={() => {
                 imAttending ? signOff(global.userId) : signUp(global.userId);
               }}>
-              {imAttending ? 'Take Me Off' :'Sign Up'}
+              {imAttending ? 'Take Me Off' : 'Sign Up'}
             </Button>
-            )
           )}
         </CardActions>
         <Table
@@ -444,7 +491,7 @@ const Event = props => {
                     .local()
                     .fromNow()}
                 </TableCell>
-                {(imAdmin) && (
+                {(imChair || imAdmin) && (
                   <TableCell align="center">
                     <Button
                       onClick={() => {
@@ -481,7 +528,7 @@ const Event = props => {
 };
 const useStyles = makeStyles({
   root: {
-    minWidth: 300,
+    // minWidth: 300,
     marginTop: 30,
     border: 'none',
     boxShadow: 'none'

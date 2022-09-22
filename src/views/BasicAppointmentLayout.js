@@ -63,7 +63,6 @@ const makeBasicLayout = onRecurrence => {
           text="(Set to 0 for no limit)"
           type="ordinaryLabel"
         />
-        {/* @TYLER here is where I edited the event creation form */}
         <AppointmentForm.TextEditor
           value={appointmentData.signup_limit}
           type="numberEditor"

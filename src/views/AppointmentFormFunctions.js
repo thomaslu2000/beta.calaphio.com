@@ -153,8 +153,6 @@ export function makeCommitChanges(f, uid, token, getExtraEventInfo) {
         params.rStarts = params.start_at;
         params.rEnds = params.end_at;
       }
-      console.log(params);
-      alert("SDDFSDFSDADFSF");
       await axios
         .post(`${API_URL}/events/create`, params, {
           headers: { 'content-type': 'application/x-www-form-urlencoded' }

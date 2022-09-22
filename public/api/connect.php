@@ -354,7 +354,7 @@ switch ($request[0]) {
           break;
         case 'search':
           $sql = sprintf("SELECT user_id, firstname, lastname, pledgeclass, email, phone, dynasty, CURRENT_TIMESTAMP as time FROM apo_users 
-          WHERE CONCAT(firstname, ' ', lastname) LIKE '%s%%' AND disabled=0 ORDER BY user_id DESC", $_GET['query']);
+          WHERE CONCAT(firstname, ' ', lastname) LIKE '%s%%' ORDER BY user_id DESC", $_GET['query']);
           break;
         case 'userData':
           $sql = sprintf("SELECT user_id, firstname, lastname, pledgeclass, email, dynasty, 
@@ -526,8 +526,8 @@ switch ($request[0]) {
             WHERE 
               bas.year=%s
               AND bas.semester=%s 
-              AND position_title LIKE '%s' 
-              AND position_name LIKE '%s' ", 
+              AND REPLACE(position_title, ' ', '') LIKE '%s' 
+              AND REPLACE(position_name, ' ', '') LIKE '%s' ", 
               $_GET['year'], $_GET['sem'], $_GET['searchTitle'], $_GET['searchParent']);
 
             if ($_GET['posType'] == '6') {
@@ -556,15 +556,14 @@ switch ($request[0]) {
             WHERE 
               year=%s
               AND semester=%s
-              AND position_title LIKE '%s' 
-              AND position_parent LIKE '%s' 
+              AND REPLACE(REPLACE(position_title, '%%20', ''), ' ', '')  LIKE '%s' 
+              AND REPLACE(REPLACE(position_parent, '%%20', ''), ' ', '')  LIKE '%s' 
               AND controller_type=%s
               AND (controller_type<>11 OR 
               (user_id not in (SELECT user_id FROM apo_permissions_groups WHERE group_id=3 )
                  AND 1=%s))
             ORDER BY parent, title ASC",  
             $_GET['year'], $_GET['sem'], $_GET['searchTitle'], $_GET['searchParent'], $_GET['posType'], $SHOW_FAMS);
-            
             break;
           case 'positions':
             $sql = sprintf("SELECT 
