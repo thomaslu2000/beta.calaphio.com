@@ -36,7 +36,7 @@
     "@material-ui/icons": "^4.9.10",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@material-ui/styles": "^4.10.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.2",
     "chart.js": "^2.8.0",
     "clsx": "^1.1.1",
     "dompurify": "^2.3.6",
